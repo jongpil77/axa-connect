@@ -7,7 +7,7 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL = 'https://clsvsqiikgnreqqvcrxj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsc3ZzcWlpa2ducmVxcXZjcnhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzcyNjAsImV4cCI6MjA4MDk1MzI2MH0.lsaycyp6tXjLwb-qB5PIQ0OqKweTWO3WaxZG5GYOUqk';
 
-// Supabase 클라이언트 전역 초기화
+// Supabase 클라이언트 전역 초기화 (수정됨: 컴포넌트 밖으로 이동)
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- 상수 데이터 ---
@@ -843,7 +843,6 @@ const BottomNav = ({ activeTab, setActiveTab }) => (
 
 // --- Main App Component ---
 export default function App() {
-  const [supabase, setSupabase] = useState(null);
   const [session, setSession] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [profiles, setProfiles] = useState([]);
@@ -869,11 +868,6 @@ export default function App() {
   const [activeFeedFilter, setActiveFeedFilter] = useState('all');
   const [mood, setMood] = useState(null);
   const weeklyBirthdays = React.useMemo(() => getWeeklyBirthdays(profiles), [profiles]);
-
-  useEffect(() => {
-    const client = createClient(SUPABASE_URL, SUPABASE_KEY);
-    setSupabase(client);
-  }, []);
   
   const checkBirthday = useCallback((user) => {
     if (!user.birthdate || user.birthday_granted) return; 
@@ -922,7 +916,7 @@ export default function App() {
             checkAdminNotifications(data); 
         }
     } catch (err) { console.error(err); }
-  }, [supabase, checkBirthday]);
+  }, [checkBirthday]);
 
   // 개인용 포인트 히스토리
   const fetchPointHistory = useCallback(async (userId) => {
@@ -931,7 +925,7 @@ export default function App() {
         const { data } = await supabase.from('point_history').select('*').eq('user_id', userId).order('created_at', { ascending: false });
         if (data) setPointHistory(data);
     } catch (err) { console.error(err); }
-  }, [supabase]);
+  }, []);
 
   // 1. 전체 포인트 히스토리 가져오기 (랭킹용)
   const fetchAllPointHistory = useCallback(async () => {
@@ -941,7 +935,7 @@ export default function App() {
           const { data } = await supabase.from('point_history').select('user_id, amount, type, created_at');
           if (data) setAllPointHistory(data);
       } catch(err) { console.error(err); }
-  }, [supabase]);
+  }, []);
 
   const fetchFeeds = useCallback(async () => {
     if (!supabase) return; 
@@ -985,7 +979,7 @@ export default function App() {
             setFeeds(formatted);
         }
     } catch (err) { console.error(err); }
-  }, [supabase, currentUser]);
+  }, [currentUser]);
 
   const fetchProfiles = useCallback(async () => {
     if (!supabase) return; 
@@ -993,7 +987,7 @@ export default function App() {
         const { data } = await supabase.from('profiles').select('*');
         if (data) setProfiles(data);
     } catch (err) { console.error(err); }
-  }, [supabase]);
+  }, []);
 
   const fetchRedemptionList = useCallback(async () => {
       if (!supabase) return;
@@ -1001,7 +995,7 @@ export default function App() {
           const { data } = await supabase.from('redemption_requests').select('*').order('created_at', { ascending: false });
           if(data) setRedemptionList(data);
       } catch (err) { console.error(err); }
-  }, [supabase]);
+  }, []);
 
   useEffect(() => {
     if (!supabase) return; 
@@ -1038,7 +1032,7 @@ export default function App() {
             supabase.removeChannel(channel);
         };
     } catch(err) { console.error("Supabase init error:", err); }
-  }, [supabase, fetchFeeds, fetchPointHistory, fetchProfiles, fetchUserData, fetchAllPointHistory]);
+  }, [fetchFeeds, fetchPointHistory, fetchProfiles, fetchUserData, fetchAllPointHistory]);
 
   const checkSupabaseConfig = () => {
     if (!supabase) return false;
