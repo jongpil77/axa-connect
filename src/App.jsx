@@ -3,11 +3,11 @@ import { User, Heart, MessageCircle, Gift, Bell, Sparkles, Smile, Frown, Meh, Me
 import { createClient } from '@supabase/supabase-js';
 
 // --- [필수] Supabase 설정 ---
-// 중요: 컴포넌트 외부에서 클라이언트를 생성하여 앱 로딩 즉시 사용 가능하게 함 (White Screen 방지)
+// 중요: 컴포넌트 외부에서 클라이언트를 생성하여 앱 로딩 즉시 사용 가능하게 함
 const SUPABASE_URL = 'https://clsvsqiikgnreqqvcrxj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsc3ZzcWlpa2ducmVxcXZjcnhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzcyNjAsImV4cCI6MjA4MDk1MzI2MH0.lsaycyp6tXjLwb-qB5PIQ0OqKweTWO3WaxZG5GYOUqk';
 
-// Supabase 클라이언트 전역 초기화 (수정됨: 컴포넌트 밖으로 이동)
+// Supabase 클라이언트 전역 초기화 (이 객체를 앱 전체에서 사용)
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- 상수 데이터 ---
@@ -856,7 +856,8 @@ export default function App() {
   const [showWriteModal, setShowWriteModal] = useState(false);
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
   const [showBirthdayPopup, setShowBirthdayPopup] = useState(false);
-  
+  const [isAuthLoading, setIsAuthLoading] = useState(true); // 초기 로딩 상태 추가
+
   const [showChangeDeptModal, setShowChangeDeptModal] = useState(false);
   const [showChangePwdModal, setShowChangePwdModal] = useState(false);
   const [showAdminGrantModal, setShowAdminGrantModal] = useState(false);
@@ -1007,31 +1008,39 @@ export default function App() {
         .subscribe();
 
     try {
+        // 초기 세션 확인
         supabase.auth.getSession().then(({ data: { session } }) => {
-        setSession(session);
-        if (session) {
-            fetchUserData(session.user.id);
-            fetchPointHistory(session.user.id);
-        }
+            setSession(session);
+            if (session) {
+                fetchUserData(session.user.id);
+                fetchPointHistory(session.user.id);
+            }
+            setIsAuthLoading(false); // 로딩 완료
         });
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-        setSession(session);
-        if (session) {
-            fetchUserData(session.user.id);
-            fetchPointHistory(session.user.id);
-        }
-        else setCurrentUser(null);
+            setSession(session);
+            if (session) {
+                fetchUserData(session.user.id);
+                fetchPointHistory(session.user.id);
+            } else {
+                setCurrentUser(null);
+            }
+            setIsAuthLoading(false); // 상태 변경 시에도 로딩 완료 처리
         });
 
         fetchFeeds();
         fetchProfiles();
-        fetchAllPointHistory(); // 전체 포인트 히스토리 로드
+        fetchAllPointHistory(); 
+        
         return () => {
             subscription.unsubscribe();
             supabase.removeChannel(channel);
         };
-    } catch(err) { console.error("Supabase init error:", err); }
+    } catch(err) { 
+        console.error("Supabase init error:", err);
+        setIsAuthLoading(false);
+    }
   }, [fetchFeeds, fetchPointHistory, fetchProfiles, fetchUserData, fetchAllPointHistory]);
 
   const checkSupabaseConfig = () => {
@@ -1337,6 +1346,14 @@ export default function App() {
     setActiveTab('feed');
     setActiveFeedFilter(type);
   };
+
+  if (isAuthLoading) {
+      return (
+          <div className="min-h-screen bg-blue-50 flex justify-center items-center">
+              <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+          </div>
+      );
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 flex justify-center font-sans">
