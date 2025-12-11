@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { User, Heart, MessageCircle, Gift, Bell, Sparkles, Smile, Frown, Meh, Megaphone, X, Send, Settings, ChevronRight, LogOut, Image as ImageIcon, Coins, Pencil, Trash2, Loader2, Lock, Clock, Award, Wallet, Building2, CornerDownRight, Link as LinkIcon, MapPin, Search, Key, Edit3, ClipboardList, CheckSquare, ChevronLeft } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- [필수] Supabase 설정 ---
+// --- [Required] Supabase Configuration ---
 const SUPABASE_URL = 'https://clsvsqiikgnreqqvcrxj.supabase.co'; 
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsc3ZzcWlpa2ducmVxcXZjcnhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzcyNjAsImV4cCI6MjA4MDk1MzI2MH0.lsaycyp6tXjLwb-qB5PIQ0OqKweTWO3WaxZG5GYOUqk';
 
-// --- 상수 데이터 ---
+// --- Constant Data ---
 const ORGANIZATION = {
   '본사': ['보상기획팀', '보상지원팀', 'A&H손해사정지원팀', '고객지원팀'],
   '서울보상부': ['강북대물', '남양주대물', '강남대물', '일산대물', '서울외제차', '강원보상', '동부대인', '서부대인'],
@@ -236,6 +236,7 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
         </div>
         
         <div className="flex items-center gap-2 relative">
+          {/* 포인트 표시 UI 수정: 두 줄로 변경 */}
           <div className="bg-white text-slate-600 px-3 py-1.5 rounded-2xl text-xs font-bold flex items-center gap-2 border border-slate-100 shadow-sm">
              <Coins className="w-6 h-6 text-yellow-400 fill-yellow-400" />
              <div className="flex flex-col items-start leading-none">
@@ -1340,15 +1341,164 @@ export default function App() {
     } catch (err) { console.error('가입 실패: ', err.message); } finally { setLoading(false); }
   };
 
-  // ... 나머지 함수들 (handlePostSubmit 등) 도 모두 포함되어야 합니다 ...
-  // (실제 코드에서는 파일 전체를 복사/붙여넣기 하시면 됩니다. 위 코드 블록이 이미 전체 코드입니다.)
+  const handlePostSubmit = async (e) => {
+    e.preventDefault();
+    if (!currentUser || !checkSupabaseConfig()) return;
+
+    const category = e.target.category.value;
+    const isRewardCategory = ['praise', 'knowhow', 'matjib'].includes(category);
+    let rewardPoints = isRewardCategory ? 100 : 0; 
+    
+    const content = e.target.content.value;
+    const title = e.target.title ? e.target.title.value : null;
+    const targetName = e.target.targetName ? e.target.targetName.value : null;
+    const regionMain = e.target.regionMain ? e.target.regionMain.value : null;
+    const regionSub = e.target.regionSub ? e.target.regionSub.value : null;
+    const linkUrl = e.target.linkUrl ? e.target.linkUrl.value : null;
+
+    const file = e.target.file?.files[0];
+    let publicImageUrl = null;
+
+    try {
+        if (file) {
+           const fileExt = file.name.split('.').pop();
+           const fileName = `${Date.now()}_${Math.random()}.${fileExt}`;
+           const { error: uploadError } = await supabase.storage.from('images').upload(fileName, file);
+           if (!uploadError) {
+               const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(fileName);
+               publicImageUrl = publicUrl;
+           }
+        }
+
+        const { error: postError } = await supabase.from('posts').insert({
+            content: content, type: category, author_id: currentUser.id, image_url: publicImageUrl, 
+            target_name: targetName, title: title, region_main: regionMain, region_sub: regionSub, link_url: linkUrl, likes: [] 
+        });
+
+        if (postError) throw postError;
+
+        if (rewardPoints > 0) {
+            const newPoints = (currentUser.points || 0) + rewardPoints;
+            await supabase.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
+            
+            let reasonText = `게시글 작성 (${category})`;
+            if (category === 'praise') reasonText = '게시글 작성(칭찬)';
+            else if (category === 'knowhow') reasonText = '게시글 작성(꿀팁)';
+            else if (category === 'matjib') reasonText = '게시글 작성(맛집소개)';
+
+            await supabase.from('point_history').insert({ user_id: currentUser.id, reason: reasonText, amount: rewardPoints, type: 'earn' });
+        }
+        setShowWriteModal(false);
+        fetchFeeds();
+        fetchUserData(currentUser.id);
+        fetchAllPointHistory(); // 랭킹 갱신
+    } catch (err) { console.error('작성 실패: ', err.message); }
+  };
+
+  const handleMoodCheck = async (selectedMood) => {
+    if (mood || !checkSupabaseConfig()) return;
+    setMood(selectedMood);
+    
+    let message = "";
+    let emoji = "";
+    if (selectedMood === 'happy') {
+        message = "오늘 기분 최고예요! 뭐든 할 준비 완료! 😄";
+        emoji = "✨";
+    } else if (selectedMood === 'soso') {
+        message = "괜찮아요! 오늘도 잘 해낼 거예요! 💪";
+        emoji = "🍀";
+    } else if (selectedMood === 'sad') {
+        message = "조금 지쳤지만 버틸 수 있어요.. 🐌";
+        emoji = "☕";
+    }
+    
+    setToast({ visible: true, message, emoji });
+    setTimeout(() => setToast({ ...toast, visible: false }), 3000); 
+
+    try {
+        const newPoints = (currentUser.points || 0) + 10;
+        const todayStr = new Date().toISOString().split('T')[0];
+        await supabase.from('profiles').update({ points: newPoints, last_attendance: todayStr }).eq('id', currentUser.id);
+        await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '출석체크', amount: 10, type: 'earn' });
+        fetchUserData(currentUser.id);
+        fetchAllPointHistory(); // 랭킹 갱신
+    } catch (err) { console.error(err); }
+  };
+
+  const handleLogout = async () => {
+    if (!supabase) return; 
+    try {
+        await supabase.auth.signOut();
+        setCurrentUser(null);
+        setSession(null);
+        setMood(null);
+        setPointHistory([]);
+    } catch (err) { console.error('로그아웃 실패: ', err.message); }
+  };
+
+  const handleChangePasswordClick = async () => {
+    if (!currentUser || !supabase) return; 
+    if (!window.confirm('비밀번호를 초기화(15661566) 하시겠습니까?')) return;
+    try {
+        const { error } = await supabase.auth.updateUser({ password: '15661566' });
+        if (error) throw error;
+    } catch (err) { console.error('변경 실패: ', err.message); }
+  };
+
+  const handleChangeDept = async (newDept, newTeam) => {
+      if (!currentUser || !supabase) return;
+      try {
+          await supabase.from('profiles').update({ dept: newDept, team: newTeam }).eq('id', currentUser.id);
+          fetchUserData(currentUser.id);
+          setShowChangeDeptModal(false);
+          alert('소속이 변경되었습니다.');
+      } catch(err) { console.error(err); }
+  };
+
+  const handleChangePassword = async (newPassword) => {
+      if (!currentUser || !supabase) return;
+      try {
+          const { error } = await supabase.auth.updateUser({ password: newPassword });
+          if (error) throw error;
+          setShowChangePwdModal(false);
+          alert('비밀번호가 변경되었습니다. 다시 로그인해주세요.');
+          handleLogout();
+      } catch(err) { console.error(err); }
+  };
+
+  const handleAdminGrantPoints = async (targetUserId, amount) => {
+      if (!currentUser || !supabase) return;
+      if (currentUser.role !== 'admin') return;
+
+      try {
+          const { data: targetUser } = await supabase.from('profiles').select('points').eq('id', targetUserId).single();
+          if (!targetUser) return;
+
+          const newPoints = (targetUser.points || 0) + parseInt(amount);
+          await supabase.from('profiles').update({ points: newPoints }).eq('id', targetUserId);
+          await supabase.from('point_history').insert({ 
+              user_id: targetUserId, 
+              reason: '관리자 특별 지급', 
+              amount: parseInt(amount), 
+              type: 'earn' 
+          });
+          
+          setShowAdminGrantModal(false);
+          alert('포인트 지급이 완료되었습니다.');
+          fetchProfiles(); 
+          fetchAllPointHistory(); // 랭킹 갱신
+      } catch(err) { console.error(err); }
+  };
+
+  const handleNavigateToFeedWithFilter = (type) => {
+    setActiveTab('feed');
+    setActiveFeedFilter(type);
+  };
 
   return (
-    // ... JSX rendering ...
     <div className="min-h-screen bg-slate-100 flex justify-center font-sans">
-      {/* ... (생략 없이 전체 렌더링 로직 포함) ... */}
       <div className="w-full max-w-md h-full min-h-screen shadow-2xl relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100">
-          <div className="relative z-10 h-full flex flex-col">
+        <div className="relative z-10 h-full flex flex-col">
           {!session ? (
             <AuthForm isSignupMode={isSignupMode} setIsSignupMode={setIsSignupMode} handleLogin={handleLogin} handleSignup={handleSignup} loading={loading} />
           ) : (
