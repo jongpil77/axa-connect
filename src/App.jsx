@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { User, Heart, MessageCircle, Gift, Bell, Sparkles, Smile, Frown, Meh, Megaphone, X, Send, Settings, ChevronRight, LogOut, Image as ImageIcon, Coins, Pencil, Trash2, Loader2, Lock, Clock, Award, Wallet, Building2, CornerDownRight, Link as LinkIcon, MapPin, Search, Key, Edit3, ClipboardList, CheckSquare, ChevronLeft } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- [필수] Supabase 설정 ---
-const SUPABASE_URL = 'https://clsvsqiikgnreqqvcrxj.supabase.co'; 
+// --- [필수] Supabase 설정 (키 복구 완료) ---
+const SUPABASE_URL = 'https://clsvsqiikgnreqqvcrxj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsc3ZzcWlpa2ducmVxcXZjcnhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzcyNjAsImV4cCI6MjA4MDk1MzI2MH0.lsaycyp6tXjLwb-qB5PIQ0OqKweTWO3WaxZG5GYOUqk';
 
 // --- 상수 데이터 ---
