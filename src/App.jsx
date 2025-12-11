@@ -240,7 +240,7 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
         <div className="flex items-center gap-2 relative">
           <div className="bg-white text-slate-600 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 border border-slate-100 shadow-sm">
              <Coins className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-             <span className="text-[10px] text-slate-400">나의 포인트</span>
+             <span className="text-[10px] text-slate-400">내 포인트</span>
              {currentUser?.points?.toLocaleString() || 0} P
           </div>
 
@@ -1032,12 +1032,12 @@ const RankingTab = ({ feeds, profiles }) => {
     return (
         <div className="p-5 space-y-8 pb-28 animate-fade-in bg-blue-50">
             <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-blue-100 text-center">
-                <h2 className="text-lg font-black text-slate-800 mb-1">🏆 {currentYear}년 {currentMonthName}월의 명예의 전당</h2> 
+                <h2 className="text-lg font-black text-slate-800 mb-1">🏆 {currentYear}년 {currentMonthName}월 랭킹</h2> 
                 <p className="text-xs text-slate-400">매월 1일 초기화됩니다</p>
             </div>
 
             <div className="space-y-3">
-                <h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Coins className="w-4 h-4 text-yellow-500"/> 누적 포인트 랭킹</h3>
+                <h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Coins className="w-4 h-4 text-yellow-500"/> 현재 포인트 랭킹</h3>
                 <div className="space-y-2">{pointRanking.map((p, i) => <RankItem key={i} rank={i+1} name={p.name} team={p.team} value={p.points.toLocaleString()} unit="P" color="text-yellow-500"/>)}</div>
             </div>
             <div className="space-y-3">
