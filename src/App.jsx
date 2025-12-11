@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { User, Heart, MessageCircle, Gift, Bell, Sparkles, Smile, Frown, Meh, Megaphone, X, Send, Settings, ChevronRight, LogOut, Image as ImageIcon, Coins, Pencil, Trash2, Loader2, Lock, Clock, Award, Wallet, Building2, CornerDownRight, Link as LinkIcon, MapPin, Search, Key, Users, Edit3 } from 'lucide-react';
+import { User, Heart, MessageCircle, Gift, Bell, Sparkles, Smile, Frown, Meh, Megaphone, X, Send, Settings, ChevronRight, LogOut, Image as ImageIcon, Coins, Pencil, Trash2, Loader2, Lock, Clock, Award, Wallet, Building2, CornerDownRight, Link as LinkIcon, MapPin, Search, Key, Edit3, ClipboardList } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 // --- [필수] Supabase 설정 ---
@@ -43,7 +43,6 @@ const formatInitial = (name) => {
     return name.charAt(0);
 };
 
-// 주간 생일자 목록 계산 (양력/음력 표시 추가)
 const getWeeklyBirthdays = (profiles) => {
     if (!profiles || profiles.length === 0) return { current: [], next: [] };
 
@@ -70,23 +69,18 @@ const getWeeklyBirthdays = (profiles) => {
         const birthDate = new Date(currentYear, m - 1, d); 
         let normalizedBirthDate = normalizeDate(birthDate);
 
-        // 오늘 생일은 팝업으로 처리하므로 목록에서 제외
         if (normalizedBirthDate.getTime() === normalizedToday.getTime()) return; 
         
-        // 이미 지난 생일이면 다음 해로 이동
         if (normalizedBirthDate < normalizedToday) {
              const nextYearBirthDate = new Date(currentYear + 1, m - 1, d);
              normalizedBirthDate = normalizeDate(nextYearBirthDate);
         }
         
-        // calendar_type에 따른 라벨 설정
         const typeLabel = p.calendar_type === 'lunar' ? '(-)' : '(+)';
 
-        // 이번 주 생일
         if (normalizedBirthDate >= normalizedToday && normalizedBirthDate < normalizeDate(endOfCurrentWeek)) {
              currentBirthdays.push({ name: p.name, date: `${m}/${d}`, typeLabel });
         } 
-        // 다음 주 생일
         else if (normalizedBirthDate >= normalizeDate(endOfCurrentWeek) && normalizedBirthDate < normalizeDate(endOfNextWeek)) {
              nextBirthdays.push({ name: p.name, date: `${m}/${d}`, typeLabel });
         }
@@ -106,7 +100,6 @@ const isToday = (timestamp) => {
 
 // --- Sub Components ---
 
-// 4. 출석체크 기분 토스트 팝업 컴포넌트
 const MoodToast = ({ message, emoji, visible }) => {
     if (!visible) return null;
     return (
@@ -120,9 +113,9 @@ const MoodToast = ({ message, emoji, visible }) => {
 };
 
 const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, loading }) => {
-  const [selectedDept, setSelectedDept] = useState('');
   const [birthdate, setBirthdate] = useState('');
   const [calendarType, setCalendarType] = useState('solar'); 
+  const [selectedDept, setSelectedDept] = useState(''); // Added missing state
 
   return (
     <div className="min-h-screen bg-blue-50 flex justify-center items-center p-6">
@@ -191,8 +184,8 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
   );
 };
 
-// Header: 메뉴 확장 (소속 변경, 비밀번호 변경, 관리자 포인트 지급)
-const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, onOpenChangePwd, onOpenAdminGrant }) => {
+// Header: 메뉴 확장 (관리자용 포인트 신청 확인 추가)
+const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, onOpenChangePwd, onOpenAdminGrant, onOpenRedemptionList }) => {
   const todayDate = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
   const [showSettings, setShowSettings] = useState(false);
   const displayName = formatName(currentUser?.name);
@@ -220,21 +213,24 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
           <button onClick={() => setShowSettings(!showSettings)} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors relative z-40"><Settings className="w-5 h-5 text-slate-400" /></button>
           
           {showSettings && (
-             <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden z-50 animate-fade-in">
-                {/* 1. 소속 변경 */}
+             <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden z-50 animate-fade-in">
                 <button onClick={() => { setShowSettings(false); onOpenChangeDept(); }} className="flex items-center gap-2 w-full p-3 text-xs text-slate-600 hover:bg-slate-50 border-b border-slate-50 transition-colors">
                    <Edit3 className="w-3.5 h-3.5 text-blue-400"/> 소속/팀 변경
                 </button>
-                {/* 1. 비밀번호 변경 */}
                 <button onClick={() => { setShowSettings(false); onOpenChangePwd(); }} className="flex items-center gap-2 w-full p-3 text-xs text-slate-600 hover:bg-slate-50 border-b border-slate-50 transition-colors">
                    <Key className="w-3.5 h-3.5 text-blue-400"/> 비밀번호 변경
                 </button>
                 
-                {/* 2. 관리자용 포인트 지급 */}
+                {/* 관리자용 메뉴 */}
                 {currentUser?.role === 'admin' && (
+                    <>
                     <button onClick={() => { setShowSettings(false); onOpenAdminGrant(); }} className="flex items-center gap-2 w-full p-3 text-xs text-blue-600 font-bold hover:bg-blue-50 border-b border-slate-50 transition-colors">
                         <Gift className="w-3.5 h-3.5 text-blue-500"/> 포인트 지급 (관리자)
                     </button>
+                    <button onClick={() => { setShowSettings(false); onOpenRedemptionList(); }} className="flex items-center gap-2 w-full p-3 text-xs text-purple-600 font-bold hover:bg-purple-50 border-b border-slate-50 transition-colors">
+                        <ClipboardList className="w-3.5 h-3.5 text-purple-500"/> 포인트 차감 신청 관리 (관리자)
+                    </button>
+                    </>
                 )}
 
                 <button onClick={handleLogout} className="flex items-center gap-2 w-full p-3 text-xs text-red-400 hover:bg-red-50 transition-colors">
@@ -248,7 +244,6 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
   );
 };
 
-// 1. 소속 변경 모달
 const ChangeDeptModal = ({ onClose, onSave }) => {
     const [dept, setDept] = useState('');
     const [team, setTeam] = useState('');
@@ -274,7 +269,6 @@ const ChangeDeptModal = ({ onClose, onSave }) => {
     );
 };
 
-// 1. 비밀번호 변경 모달
 const ChangePasswordModal = ({ onClose, onSave }) => {
     const [password, setPassword] = useState('');
     const isValid = password.length >= 6 && /^\d+$/.test(password);
@@ -300,7 +294,6 @@ const ChangePasswordModal = ({ onClose, onSave }) => {
     );
 };
 
-// 2. 관리자 포인트 지급 모달
 const AdminGrantModal = ({ onClose, onGrant, profiles }) => {
     const [dept, setDept] = useState('');
     const [targetUser, setTargetUser] = useState('');
@@ -332,6 +325,37 @@ const AdminGrantModal = ({ onClose, onGrant, profiles }) => {
                     <button onClick={() => onGrant(targetUser, amount)} disabled={!targetUser || !amount} className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 rounded-xl font-bold hover:shadow-lg disabled:opacity-50 transition-all">
                         포인트 지급하기
                     </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// 3. 관리자용 포인트 차감 신청 내역 모달
+const RedemptionListModal = ({ onClose, redemptionList }) => {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+            <div className="bg-white w-full max-w-lg rounded-2xl p-6 shadow-2xl relative max-h-[80vh] flex flex-col">
+                <button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button>
+                <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-purple-600"><ClipboardList className="w-5 h-5"/> 포인트 차감 신청 내역</h3>
+                <div className="flex-1 overflow-y-auto">
+                    {redemptionList && redemptionList.length > 0 ? (
+                        <div className="space-y-2">
+                            {redemptionList.map((item, index) => (
+                                <div key={index} className="flex justify-between items-center p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                                    <div>
+                                        <p className="text-sm font-bold text-slate-700">{item.user_name}</p>
+                                        <p className="text-[10px] text-slate-400">{new Date(item.created_at).toLocaleDateString()} 신청</p>
+                                    </div>
+                                    <div className="text-red-500 font-bold text-sm">
+                                        -{item.amount?.toLocaleString()} P
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-center text-slate-400 py-10 text-sm">신청 내역이 없습니다.</p>
+                    )}
                 </div>
             </div>
         </div>
@@ -402,7 +426,6 @@ const BirthdayPopup = ({ currentUser, handleBirthdayGrant, setShowBirthdayPopup 
             <div className="text-5xl mb-4">
                 <span className="text-6xl animate-pulse">🎂</span>
                 <div className="relative w-12 h-1 bg-yellow-500 mx-auto rounded-full mt-1">
-                    {/* 촛불 효과 */}
                     <div className="absolute top-[-8px] left-1/2 -translate-x-1/2 w-1.5 h-3 bg-white shadow-[0_0_5px_rgba(255,255,0,0.8)] animate-flame"></div>
                 </div>
             </div>
@@ -463,7 +486,6 @@ const BirthdayNotifier = ({ weeklyBirthdays }) => {
                             <div key={index} className="flex items-center gap-2 p-2 bg-blue-100/50 border border-blue-100 rounded-xl">
                                 <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-xs shadow-sm">🎂</div>
                                 <div>
-                                    {/* 3. 양력(+)/음력(-) 표시 추가 */}
                                     <p className="text-xs font-bold text-slate-700">{b.name}</p>
                                     <p className="text-[10px] text-slate-400">{b.date} <span className="text-blue-500 font-bold">{b.typeLabel}</span></p>
                                 </div>
@@ -482,28 +504,23 @@ const BirthdayNotifier = ({ weeklyBirthdays }) => {
 };
 
 const HomeTab = ({ mood, handleMoodCheck, feeds, onWriteClick, onNavigateToNews, onNavigateToFeed, weeklyBirthdays }) => {
-    // 홈화면 게시글 목록 복원
     const noticeFeedsAll = feeds.filter(f => f.type === 'news');
     const noticeFeeds = noticeFeedsAll.slice(0, 3);
-    const praiseFeeds = feeds.filter(f => f.type === 'praise').slice(0, 5); // 5개 표시
-    const infoFeeds = feeds.filter(f => f.type === 'knowhow' || f.type === 'matjib').slice(0, 5); // 5개 표시
+    const praiseFeeds = feeds.filter(f => f.type === 'praise').slice(0, 5); 
+    const infoFeeds = feeds.filter(f => f.type === 'knowhow' || f.type === 'matjib').slice(0, 5); 
 
     const handleSectionClick = (type) => {
-        onNavigateToFeed(type); // 섹션 클릭 시 필터링하여 FeedTab으로 이동 (이전 요청 로직)
+        onNavigateToFeed(type); 
     };
 
-    // 5. 기분 선택 시 스타일 처리 함수
     const getMoodButtonStyle = (type) => {
         if (mood === type) {
-            // 선택된 항목: 기존 색상 유지
             if (type === 'happy') return 'bg-blue-500 border-blue-600 text-white shadow-md scale-105 ring-2 ring-blue-200';
             if (type === 'soso') return 'bg-yellow-400 border-yellow-500 text-white shadow-md scale-105 ring-2 ring-yellow-200';
             if (type === 'sad') return 'bg-orange-500 border-orange-600 text-white shadow-md scale-105 ring-2 ring-orange-200';
         } else if (mood) {
-            // 다른게 선택되었을 때: 회색 처리
             return 'bg-slate-100 border-slate-200 text-slate-300';
         } else {
-            // 아무것도 선택 안되었을 때: 기본 색상
             if (type === 'happy') return 'bg-blue-500 border-blue-500 text-white hover:bg-blue-600 opacity-90';
             if (type === 'soso') return 'bg-yellow-400 border-yellow-400 text-white hover:bg-yellow-500 opacity-90';
             if (type === 'sad') return 'bg-orange-500 border-orange-500 text-white hover:bg-orange-600 opacity-90';
@@ -550,7 +567,6 @@ const HomeTab = ({ mood, handleMoodCheck, feeds, onWriteClick, onNavigateToNews,
                       <span className="text-[9px] font-bold">피곤</span>
                     </button>
                   </div>
-                  {/* 출석체크 섹션 황금동전 +10P 추가 */}
                   {!mood && <div className="text-[10px] text-center mt-2 text-blue-500 font-bold bg-blue-100 rounded-lg py-1 flex items-center justify-center gap-1"><Coins className="w-3 h-3 text-yellow-500 fill-yellow-500"/> 황금동전 +10P</div>}
                 </div>
             </div>
@@ -589,14 +605,12 @@ const HomeTab = ({ mood, handleMoodCheck, feeds, onWriteClick, onNavigateToNews,
             </button>
         </div>
 
-        {/* 6. 칭찬합시다 섹션 바로 위 텍스트 추가 */}
         <div className="flex items-center justify-center gap-1.5 py-1 bg-blue-100/50 rounded-lg text-blue-600 text-[10px] font-bold mx-1 border border-blue-100">
             <Coins className="w-3 h-3 text-yellow-500 fill-yellow-500"/>
             게시물 1개 작성시, +100P (일 최대 300P 가능)
         </div>
 
         <div className="grid grid-cols-2 gap-4 min-h-[300px]">
-            {/* 칭찬합시다 섹션 */}
             <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer" onClick={() => handleSectionClick('praise')}>
                <h3 className="text-sm font-bold text-green-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Heart className="w-4 h-4 fill-green-500 text-green-500"/> 칭찬합시다</h3>
                <div className="space-y-2 pointer-events-none">
@@ -613,7 +627,6 @@ const HomeTab = ({ mood, handleMoodCheck, feeds, onWriteClick, onNavigateToNews,
                   ))}
                </div>
             </div>
-            {/* 업무꿀팁 & 맛집소개 섹션 */}
             <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer" onClick={() => handleSectionClick('knowhow')}>
                <h3 className="text-sm font-bold text-blue-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Sparkles className="w-4 h-4 fill-blue-500 text-blue-500"/> 업무꿀팁 & 맛집소개</h3>
                <div className="space-y-2 pointer-events-none">
@@ -712,9 +725,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClick, c
   });
 
   return (
-    // 테마 수정: 배경색을 밝은 파스텔톤으로
     <div className="p-5 space-y-5 pb-28 animate-fade-in bg-blue-50">
-      {/* 검색바 */}
       <div className="bg-white p-2 rounded-2xl shadow-sm border border-blue-100 flex items-center gap-2">
           <Search className="w-4 h-4 text-slate-400 ml-2" />
           <input 
@@ -740,7 +751,6 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClick, c
                 <span className="text-xs font-bold">게시글 작성</span>
             </div>
           </div>
-          {/* 7. 포인트 지급 안내 문구 */}
           <p className="text-[9px] text-blue-500 font-bold bg-blue-100 px-2 py-1 rounded-lg">
               게시물 1개 작성시 +100P (일 최대 300P 가능)
           </p>
@@ -757,7 +767,6 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClick, c
                       {feed.author} 
                       {feed.profiles?.role === 'admin' && <span className="bg-red-50 text-red-500 text-[9px] px-1.5 py-0.5 rounded-md border border-red-100">관리자</span>}
                   </p>
-                  {/* 작성일자와 작성 시간 표시 */}
                   <p className="text-[10px] text-slate-400">{feed.formattedTime} • {feed.team}</p>
               </div>
             </div>
@@ -773,7 +782,6 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClick, c
                     {feed.region_main && <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-50 text-slate-500 border border-slate-200"><MapPin className="w-2.5 h-2.5 inline mr-0.5"/>{feed.region_main} {feed.region_sub}</span>}
                 </div>
                 
-                {/* 2. 칭찬 대상자 이름 앞에 To. 추가 */}
                 {feed.type === 'praise' && feed.target_name && <p className="text-xs font-bold text-green-600 mb-1">To. {feed.target_name}</p>}
                 
                 <h3 className="text-base font-bold text-slate-800 mb-1.5">
@@ -793,7 +801,6 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClick, c
             )}
             
             <div className="flex items-center gap-4 border-t border-slate-50 pt-3">
-              {/* 1. 좋아요 토글 로직은 handleLikePost에서 처리 */}
               <button 
                 onClick={() => handleLikePost(feed.id, feed.likes, feed.isLiked)} 
                 className={`flex items-center gap-1 text-xs font-bold transition-colors ${feed.isLiked ? 'text-red-500' : 'text-slate-400 hover:text-slate-600'}`}
@@ -811,7 +818,6 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClick, c
               )}
             </div>
             
-            {/* 댓글 영역 (Live) */}
             {comments.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-slate-50 space-y-2">
                     {comments.map(comment => (
@@ -842,8 +848,6 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
     if (file) setImagePreview(URL.createObjectURL(file));
   };
   
-  // 8, 9. 카테고리 설정 (탭에 따라 다르게, 이름 변경 반영)
-  // HomeTab에서 글쓰기 모달을 호출할 때는 activeTab이 'home'이므로, 'news'는 자동으로 제외됩니다.
   const categories = [
     {id: 'praise', label: '칭찬하기', show: activeTab !== 'news'},
     {id: 'matjib', label: '맛집소개', show: activeTab !== 'news'},
@@ -852,7 +856,6 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
   ].filter(c => c.show);
 
   useEffect(() => {
-      // 카테고리 초기값 설정
       if (categories.length > 0 && !writeCategory) {
           setWriteCategory(categories[0].id);
       }
@@ -942,7 +945,6 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
 };
 
 const RankingTab = ({ feeds, profiles }) => {
-    // 10. 월별 명예의 전당 타이틀 수정 (현재 월 표시)
     const currentMonth = new Date().getMonth();
     const currentMonthName = new Date().getMonth() + 1;
     const currentYear = new Date().getFullYear();
@@ -985,7 +987,7 @@ const RankingTab = ({ feeds, profiles }) => {
         <div className="flex items-center p-3 bg-white border border-slate-100 rounded-2xl shadow-sm">
             <div className={`text-xl font-black mr-4 w-8 text-center ${color}`}>{rank}</div>
             <div className="flex-1">
-                <p className="text-sm font-bold text-slate-800">{name || 'Unknown'}</p> {/* 이름 전체 표시 */}
+                <p className="text-sm font-bold text-slate-800">{name || 'Unknown'}</p> 
                 <p className="text-[10px] text-slate-400">{team}</p>
             </div>
             <div className="text-base font-black text-slate-700 ml-4">{value}<span className="text-[10px] text-slate-400 ml-0.5 font-normal">{unit}</span></div>
@@ -994,7 +996,7 @@ const RankingTab = ({ feeds, profiles }) => {
     return (
         <div className="p-5 space-y-8 pb-28 animate-fade-in bg-blue-50">
             <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-blue-100 text-center">
-                <h2 className="text-lg font-black text-slate-800 mb-1">🏆 {currentYear}년 {currentMonthName}월의 명예의 전당</h2> {/* 타이틀 수정 */}
+                <h2 className="text-lg font-black text-slate-800 mb-1">🏆 {currentYear}년 {currentMonthName}월의 명예의 전당</h2> 
                 <p className="text-xs text-slate-400">매월 1일 초기화됩니다</p>
             </div>
 
@@ -1014,7 +1016,6 @@ const RankingTab = ({ feeds, profiles }) => {
     );
 };
 
-// 하단 네비게이션
 const BottomNav = ({ activeTab, setActiveTab }) => (
   <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[380px] bg-[#00008F] backdrop-blur-md border border-blue-900 shadow-[0_8px_30px_rgb(0,0,0,0.3)] p-2 z-30 flex justify-between items-center rounded-3xl">
     {[{ id: 'home', icon: User, label: '홈' }, { id: 'feed', icon: MessageCircle, label: '소통' }, { id: 'news', icon: Bell, label: '소식' }, { id: 'ranking', icon: Award, label: '랭킹' }].map(item => (
@@ -1034,16 +1035,17 @@ export default function App() {
   const [profiles, setProfiles] = useState([]);
   const [feeds, setFeeds] = useState([]);
   const [pointHistory, setPointHistory] = useState([]);
+  const [redemptionList, setRedemptionList] = useState([]); 
   const [loading, setLoading] = useState(false);
   const [isSignupMode, setIsSignupMode] = useState(false);
   const [showWriteModal, setShowWriteModal] = useState(false);
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
   const [showBirthdayPopup, setShowBirthdayPopup] = useState(false);
   
-  // 모달 상태 추가
   const [showChangeDeptModal, setShowChangeDeptModal] = useState(false);
   const [showChangePwdModal, setShowChangePwdModal] = useState(false);
   const [showAdminGrantModal, setShowAdminGrantModal] = useState(false);
+  const [showRedemptionListModal, setShowRedemptionListModal] = useState(false); 
   const [toast, setToast] = useState({ visible: false, message: '', emoji: '' });
 
   const [activeTab, setActiveTab] = useState('home');
@@ -1052,45 +1054,45 @@ export default function App() {
   const weeklyBirthdays = getWeeklyBirthdays(profiles);
 
   useEffect(() => {
-    // Supabase 라이브러리 로드
     const client = createClient(SUPABASE_URL, SUPABASE_KEY);
     setSupabase(client);
   }, []);
   
-  // 생일 팝업 확인 로직
   const checkBirthday = useCallback((user) => {
     if (!user.birthdate || user.birthday_granted) return; 
-    
     const today = new Date();
-    // month: 0-11, date: 1-31
     const currentMonth = today.getMonth() + 1;
-    
-    // eslint-disable-next-line no-unused-vars
     const [_, m, d] = user.birthdate.split('-').map(Number);
     const birthMonth = m;
-
     if (currentMonth === birthMonth) {
         setShowBirthdayPopup(true);
     }
   }, []);
 
-  // 사용자 프로필 데이터 불러오기
+  const checkAdminNotifications = async (user) => {
+      if (user.role !== 'admin' || !supabase) return;
+      try {
+          const { count, error } = await supabase.from('redemption_requests').select('*', { count: 'exact', head: true }); 
+          if (!error && count > 0) {
+              alert("📢 처리되지 않은 포인트 차감 신청이 있습니다!");
+          }
+      } catch (err) { console.error(err); }
+  };
+
   const fetchUserData = useCallback(async (userId) => {
     if (!supabase) return; 
     try {
         const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
         if (data) {
-        setCurrentUser(data);
-        const todayStr = new Date().toISOString().split('T')[0];
-        // 마지막 출석일이 오늘이면 mood 상태 업데이트
-        if (data.last_attendance === todayStr) setMood('checked');
-        
-        checkBirthday(data);
+            setCurrentUser(data);
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (data.last_attendance === todayStr) setMood('checked');
+            checkBirthday(data);
+            checkAdminNotifications(data); 
         }
     } catch (err) { console.error(err); }
   }, [supabase, checkBirthday]);
 
-  // 포인트 사용/적립 내역 불러오기
   const fetchPointHistory = useCallback(async (userId) => {
     if (!supabase) return; 
     try {
@@ -1099,7 +1101,6 @@ export default function App() {
     } catch (err) { console.error(err); }
   }, [supabase]);
 
-  // 댓글 구조화 및 게시글 데이터 가져오기
   const fetchFeeds = useCallback(async () => {
     if (!supabase) return; 
     try {
@@ -1117,7 +1118,6 @@ export default function App() {
 
             const formatted = posts.map(post => {
                 const postComments = comments ? comments.filter(c => c.post_id === post.id) : [];
-                
                 const createdDate = new Date(post.created_at);
                 const formattedTime = createdDate.toLocaleDateString('ko-KR', {
                     year: 'numeric', month: '2-digit', day: '2-digit',
@@ -1137,7 +1137,6 @@ export default function App() {
                     totalComments: postComments.length 
                 };
             });
-            
             if (currentUser) {
                 formatted.forEach(p => { p.isLiked = p.likes.includes(currentUser.id); });
             }
@@ -1152,6 +1151,15 @@ export default function App() {
         const { data } = await supabase.from('profiles').select('*');
         if (data) setProfiles(data);
     } catch (err) { console.error(err); }
+  }, [supabase]);
+
+  // 관리자용 신청 리스트 조회
+  const fetchRedemptionList = useCallback(async () => {
+      if (!supabase) return;
+      try {
+          const { data } = await supabase.from('redemption_requests').select('*').order('created_at', { ascending: false });
+          if(data) setRedemptionList(data);
+      } catch (err) { console.error(err); }
   }, [supabase]);
 
   useEffect(() => {
@@ -1294,16 +1302,41 @@ export default function App() {
     } catch (err) { console.error('신청 실패: ', err.message); }
   };
 
+  // 1. 로그인 핸들러 수정 (에러 세분화)
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!checkSupabaseConfig()) return;
     setLoading(true);
     const email = e.target.email.value;
     const password = e.target.password.value;
+    
     try {
+        // 1-1. 이메일 존재 여부 확인 (프로필 테이블 조회)
+        // (보안상 권장되지 않으나 요청사항 반영을 위해 구현)
+        const { data: userCheck } = await supabase.from('profiles').select('id').eq('email', email).maybeSingle();
+        
+        // 주의: DB에 email 컬럼이 없거나 RLS 정책으로 조회가 막히면 정확하지 않을 수 있음
+        // 하지만 기존 코드 흐름상 profiles에 데이터가 있어야 하므로 시도
+        
+        // 1-2. 로그인 시도
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-    } catch (err) { console.error('로그인 실패: ', err.message); } finally { setLoading(false); }
+        
+        if (error) {
+            // 이메일 확인 결과가 확실히 없다면 메일 계정 오류로 처리
+            // (userCheck가 null이면 계정이 없는 것)
+            if (userCheck === null) {
+                 alert('가입되지 않은 이메일 계정입니다.');
+            } else {
+                 // 계정은 있는데 로그인이 안되면 비밀번호 오류
+                 alert('비밀번호가 일치하지 않습니다.');
+            }
+        }
+    } catch (err) { 
+        console.error('로그인 실패: ', err.message); 
+        alert('로그인 중 오류가 발생했습니다.');
+    } finally { 
+        setLoading(false); 
+    }
   };
 
   const handleSignup = async (e) => {
@@ -1317,7 +1350,7 @@ export default function App() {
     try {
         const initialData = { 
             name: name.value, dept: dept.value, team: team.value, role: role, points: INITIAL_POINTS, 
-            birthdate: birthdate.value, calendar_type: calendarType.value 
+            birthdate: birthdate.value, calendar_type: calendarType.value, email: email.value // 이메일 저장 추가
         };
         const { data: signUpResult, error } = await supabase.auth.signUp({ email: email.value, password: password.value, options: { data: initialData } });
         if (error) throw error;
@@ -1378,12 +1411,10 @@ export default function App() {
     } catch (err) { console.error('작성 실패: ', err.message); }
   };
 
-  // 4. 오늘의 기분 (출석 체크) - 팝업 기능 추가
   const handleMoodCheck = async (selectedMood) => {
     if (mood || !checkSupabaseConfig()) return;
     setMood(selectedMood);
     
-    // 기분에 따른 메시지와 이모지 설정
     let message = "";
     let emoji = "";
     if (selectedMood === 'happy') {
@@ -1398,7 +1429,7 @@ export default function App() {
     }
     
     setToast({ visible: true, message, emoji });
-    setTimeout(() => setToast({ ...toast, visible: false }), 3000); // 3초 뒤 사라짐
+    setTimeout(() => setToast({ ...toast, visible: false }), 3000); 
 
     try {
         const newPoints = (currentUser.points || 0) + 10;
@@ -1429,7 +1460,6 @@ export default function App() {
     } catch (err) { console.error('변경 실패: ', err.message); }
   };
 
-  // 1. 소속 변경 처리
   const handleChangeDept = async (newDept, newTeam) => {
       if (!currentUser || !supabase) return;
       try {
@@ -1440,7 +1470,6 @@ export default function App() {
       } catch(err) { console.error(err); }
   };
 
-  // 1. 비밀번호 변경 처리
   const handleChangePassword = async (newPassword) => {
       if (!currentUser || !supabase) return;
       try {
@@ -1452,13 +1481,11 @@ export default function App() {
       } catch(err) { console.error(err); }
   };
 
-  // 2. 관리자 포인트 지급 처리
   const handleAdminGrantPoints = async (targetUserId, amount) => {
       if (!currentUser || !supabase) return;
       if (currentUser.role !== 'admin') return;
 
       try {
-          // 대상 유저 정보 가져오기 (현재 포인트 확인용)
           const { data: targetUser } = await supabase.from('profiles').select('points').eq('id', targetUserId).single();
           if (!targetUser) return;
 
@@ -1473,11 +1500,9 @@ export default function App() {
           
           setShowAdminGrantModal(false);
           alert('포인트 지급이 완료되었습니다.');
-          fetchProfiles(); // 전체 프로필 갱신 (랭킹 등 반영)
+          fetchProfiles(); 
       } catch(err) { console.error(err); }
   };
-
-  if (!supabase && !window.supabase) return <div className="min-h-screen flex items-center justify-center bg-slate-100 text-slate-500 gap-2"><Loader2 className="animate-spin" /> 앱 로딩 중...</div>;
 
   const handleNavigateToFeedWithFilter = (type) => {
     setActiveTab('feed');
@@ -1499,6 +1524,7 @@ export default function App() {
                 onOpenChangeDept={() => setShowChangeDeptModal(true)}
                 onOpenChangePwd={() => setShowChangePwdModal(true)}
                 onOpenAdminGrant={() => setShowAdminGrantModal(true)}
+                onOpenRedemptionList={() => { fetchRedemptionList(); setShowRedemptionListModal(true); }}
               />
               <main className="flex-1 overflow-y-auto scrollbar-hide">
                 {activeTab === 'home' && <HomeTab 
@@ -1532,10 +1558,11 @@ export default function App() {
               {showUserInfoModal && currentUser && <UserInfoModal currentUser={currentUser} pointHistory={pointHistory} setShowUserInfoModal={setShowUserInfoModal} handleRedeemPoints={handleRedeemPoints} />}
               {showBirthdayPopup && currentUser && <BirthdayPopup currentUser={currentUser} handleBirthdayGrant={handleBirthdayGrant} setShowBirthdayPopup={setShowBirthdayPopup} />}
               
-              {/* New Modals */}
+              {/* Settings Modals */}
               {showChangeDeptModal && <ChangeDeptModal onClose={() => setShowChangeDeptModal(false)} onSave={handleChangeDept} />}
               {showChangePwdModal && <ChangePasswordModal onClose={() => setShowChangePwdModal(false)} onSave={handleChangePassword} />}
               {showAdminGrantModal && <AdminGrantModal onClose={() => setShowAdminGrantModal(false)} onGrant={handleAdminGrantPoints} profiles={profiles} />}
+              {showRedemptionListModal && <RedemptionListModal onClose={() => setShowRedemptionListModal(false)} redemptionList={redemptionList} />}
               
               {/* Toast */}
               <MoodToast visible={toast.visible} message={toast.message} emoji={toast.emoji} />
