@@ -500,6 +500,12 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
 // FeedTab: HOT/NEW 로직 적용
 const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWithCategory, currentUser, handleDeletePost, handleLikePost, handleAddComment, handleDeleteComment, boosterActive }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDeptFilter, setSelectedDeptFilter] = useState('all'); // 대분류 조직 필터
+
+  // 탭 변경 시 필터 초기화
+  useEffect(() => {
+      setSelectedDeptFilter('all');
+  }, [activeFeedFilter]);
   
   // 평균 좋아요 수 계산 (HOT 태그용)
   const averageLikes = useMemo(() => {
@@ -516,7 +522,11 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
           (f.author && f.author.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (f.region_main && f.region_main.includes(searchTerm)) ||
           (f.region_sub && f.region_sub.includes(searchTerm));
-      return matchesFilter && matchesSearch;
+      
+      // 조직 필터링 ('우리들 소식'인 경우)
+      const matchesDept = activeFeedFilter !== 'dept_news' || selectedDeptFilter === 'all' || f.profiles?.dept === selectedDeptFilter;
+
+      return matchesFilter && matchesSearch && matchesDept;
   }).slice(0, 5); // 최근 5개만 표시
 
   return (
@@ -537,6 +547,27 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
           <button key={tab.id} onClick={() => setActiveFeedFilter(tab.id)} className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${activeFeedFilter === tab.id ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white text-slate-500 border-slate-200'}`}>{tab.label}</button>
         ))}
       </div>
+
+      {/* '우리들 소식' 탭일 때 조직 선택 서브탭 표시 */}
+      {activeFeedFilter === 'dept_news' && (
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide animate-fade-in">
+              <button 
+                  onClick={() => setSelectedDeptFilter('all')} 
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold whitespace-nowrap transition-all border ${selectedDeptFilter === 'all' ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-white text-slate-400 border-slate-100'}`}
+              >
+                  전체
+              </button>
+              {Object.keys(ORGANIZATION).map(dept => (
+                  <button 
+                      key={dept} 
+                      onClick={() => setSelectedDeptFilter(dept)} 
+                      className={`px-3 py-1.5 rounded-lg text-[10px] font-bold whitespace-nowrap transition-all border ${selectedDeptFilter === dept ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-white text-slate-400 border-slate-100'}`}
+                  >
+                      {dept}
+                  </button>
+              ))}
+          </div>
+      )}
 
       <div className="flex flex-col items-end gap-1 mb-1">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => onWriteClickWithCategory(activeFeedFilter === 'all' ? 'praise' : activeFeedFilter)}>
@@ -1089,7 +1120,12 @@ export default function App() {
             await supabase.from('point_history').insert({ user_id: currentUser.id, reason: reasonText, amount: rewardPoints, type: 'earn' });
         }
         setShowWriteModal(false);
-        fetchUserData(currentUser.id); fetchAllPointHistory(); 
+        fetchUserData(currentUser.id); 
+        fetchAllPointHistory(); 
+        
+        // [중요 수정] 글 작성 성공 후 목록 갱신을 위해 fetchFeeds를 명시적으로 호출
+        await fetchFeeds();
+
     } catch (err) { console.error('작성 실패: ', err.message); }
   };
 
