@@ -1,11 +1,7 @@
-/** @type {import('tailwindcss').Config} */
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}", // 이 부분이 소스 파일 위치와 일치해야 함
   ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
+  // ...
 }
