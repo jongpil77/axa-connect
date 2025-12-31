@@ -76,10 +76,11 @@ const getWeeklyBirthdays = (profiles) => {
     profiles.forEach(p => {
         if (!p.birthdate) return;
         const [_, m, d] = p.birthdate.split('-').map(Number);
+        // 양력 기준 (User Request)
         const birthDate = new Date(currentYear, m - 1, d); 
         let normalizedBirthDate = normalizeDate(birthDate);
 
-        if (normalizedBirthDate.getTime() === normalizedToday.getTime()) return; 
+        if (normalizedBirthDate.getTime() === normalizedToday.getTime()) return; // 오늘 생일은 별도 팝업 처리
         
         if (normalizedBirthDate < normalizedToday) {
              const nextYearBirthDate = new Date(currentYear + 1, m - 1, d);
@@ -282,20 +283,23 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
             <img src={AXA_LOGO_URL} alt="AXA Logo" className="w-8 h-auto" />
-            <h1 className="text-lg font-black text-slate-800 tracking-tight">AXA Connect</h1>
+            <h1 className="text-lg font-black text-slate-800 tracking-tight">Connect</h1>
         </div>
         
         <div className="flex items-center gap-2 relative">
-          <div className="bg-white text-slate-600 px-3 py-1.5 rounded-2xl text-xs font-bold flex items-center gap-2 border border-slate-100 shadow-sm cursor-pointer hover:bg-slate-50" onClick={onOpenGift}>
-             <Gift className="w-4 h-4 text-pink-400" />
-             <div className="flex flex-col items-start leading-none">
-                 <span className="text-[9px] text-slate-400 font-normal mb-0.5">선물하기</span>
-             </div>
-          </div>
+          <button 
+            onClick={onOpenGift} 
+            className="bg-white p-2.5 rounded-full border border-slate-100 shadow-sm hover:bg-slate-50 active:scale-95 transition-all relative"
+          >
+             <Gift className="w-6 h-6 text-pink-500" />
+          </button>
 
-          <div className="flex flex-col items-end mr-1 cursor-pointer bg-yellow-50 px-3 py-1 rounded-xl border border-yellow-200" onClick={onOpenUserInfo}>
-             <span className="text-[9px] text-slate-500 font-bold">MY CARE POINT</span>
-             <span className="text-sm font-black text-blue-700">{currentUser?.points?.toLocaleString()} P</span>
+          <div 
+            className="flex items-center gap-2 mr-1 cursor-pointer bg-yellow-50 px-4 py-2 rounded-xl border border-yellow-200 shadow-sm" 
+            onClick={onOpenUserInfo}
+          >
+             <span className="text-[10px] text-slate-500 font-bold whitespace-nowrap">MY CARE POINT</span>
+             <span className="text-base font-black text-blue-700">{currentUser?.points?.toLocaleString()} P</span>
           </div>
 
           <button onClick={() => setShowSettings(!showSettings)} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors relative z-40"><Settings className="w-5 h-5 text-slate-400" /></button>
@@ -472,7 +476,6 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => 
 };
 
 const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive }) => {
-    // 칭찬합시다 --> 우리들 소식---> 꿀팁 --> 맛집 소개
     const noticeFeeds = feeds.filter(f => f.type === 'news').slice(0, 5); 
     const deptFeeds = feeds.filter(f => f.type === 'dept_news').slice(0, 5);
     const praiseFeeds = feeds.filter(f => f.type === 'praise').slice(0, 5); 
@@ -794,16 +797,19 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
                 )}
                 
                 {writeCategory === 'dept_news' && (
-                     <div className="bg-purple-50 p-4 rounded-2xl border border-purple-100 animate-fade-in">
-                         <div className="flex items-center gap-2 mb-2"><span className="text-xs font-bold text-white bg-purple-500 px-2 py-0.5 rounded-md">작성 권한</span><p className="text-[10px] text-purple-700 font-bold">소속 직원만 작성 가능합니다.</p></div>
-                         <p className="text-xs text-purple-800 font-bold mb-2">📢 우리 조직의 즐거운 소식을 전해주세요!</p>
+                     <div className="bg-red-50 p-4 rounded-2xl border border-red-100 animate-fade-in">
+                         <div className="flex items-center gap-2 mb-2">
+                            <span className="text-xs font-bold text-white bg-red-500 px-2 py-0.5 rounded-md">작성 권한</span>
+                            <p className="text-[10px] text-red-700 font-bold">해당 조직의 소속 직원만 작성 가능합니다.</p>
+                         </div>
+                         <p className="text-xs text-red-800 font-bold mb-2">📢 우리 조직의 즐거운 소식을 전해주세요!</p>
                          
-                         <select name="regionMain" className="w-full p-3 bg-white border border-purple-200 rounded-xl text-xs outline-none mb-2 text-purple-900 font-bold" value={deptNewsOrg} onChange={(e) => setDeptNewsOrg(e.target.value)} required>
+                         <select name="regionMain" className="w-full p-3 bg-white border border-red-200 rounded-xl text-xs outline-none mb-2 text-red-900 font-bold" value={deptNewsOrg} onChange={(e) => setDeptNewsOrg(e.target.value)} required>
                              <option value="">소식 구분 (조직 선택)</option>
                              {Object.keys(ORGANIZATION).map(org => <option key={org} value={org}>{org}</option>)}
                          </select>
 
-                         <input name="title" type="text" placeholder="제목을 입력하세요 (예: 00팀 회식~!)" className="w-full p-3 bg-white border border-purple-200 rounded-xl text-sm outline-none focus:border-purple-500 font-bold mb-3" required />
+                         <input name="title" type="text" placeholder="제목을 입력하세요 (예: 00팀 회식~!)" className="w-full p-3 bg-white border border-red-200 rounded-xl text-sm outline-none focus:border-red-500 font-bold mb-3" required />
                      </div>
                 )}
 
@@ -851,7 +857,6 @@ const RankingTab = ({ feeds, profiles, allPointHistory }) => { const [selectedDa
 const BottomNav = ({ activeTab, setActiveTab }) => (<div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[380px] bg-[#00008F] backdrop-blur-md border border-blue-900 shadow-[0_8px_30px_rgb(0,0,0,0.3)] p-2 z-30 flex justify-between items-center rounded-3xl">{[{ id: 'home', icon: User, label: '홈' }, { id: 'feed', icon: MessageCircle, label: '소통' }, { id: 'news', icon: Bell, label: '소식' }, { id: 'ranking', icon: Award, label: '랭킹' }].map(item => (<button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex flex-1 flex-col items-center gap-1 px-2 py-3 rounded-2xl transition-all duration-300 ${activeTab === item.id ? 'text-white bg-white/20 shadow-lg scale-105' : 'text-blue-300 hover:text-white'}`}><item.icon className={`w-5 h-5 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} /><span className="text-[10px] font-bold">{item.label}</span></button>))}</div>);
 const Comment = ({ comment, currentUser, handleDeleteComment }) => (<div className="flex gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">{comment.parent_id && <CornerDownRight className="w-4 h-4 text-slate-300 mt-1 flex-shrink-0" />}<div className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold shadow-sm ${comment.profiles?.role === 'admin' ? 'bg-red-400' : 'bg-blue-400'}`}>{formatInitial(comment.profiles?.name || 'Unknown')}</div><div className="flex-1 min-w-0"><div className="flex justify-between items-start"><p className="text-xs font-bold text-slate-700 flex items-center gap-1">{comment.profiles?.name || '알 수 없음'}{comment.profiles?.role === 'admin' && <span className="px-1 py-0.5 bg-red-50 text-red-500 text-[9px] rounded-md">관리자</span>}</p><span className="text-[9px] text-slate-400">{new Date(comment.created_at).toLocaleDateString()}</span></div><p className="text-xs text-slate-600 leading-relaxed mt-0.5 break-words">{comment.content}</p><div className="flex gap-2 mt-1 justify-end">{(currentUser?.id === comment.author_id || currentUser?.role === 'admin') && (<button onClick={() => handleDeleteComment(comment.id)} className="text-[10px] text-slate-400 hover:text-red-500 transition-colors flex items-center gap-0.5"><Trash2 className="w-3 h-3"/> 삭제</button>)}</div></div></div>);
 
-// --- Main App Component ---
 export default function App() {
   const [supabase, setSupabase] = useState(null);
   const [session, setSession] = useState(null);
@@ -1215,9 +1220,6 @@ export default function App() {
     const targetName = e.target.targetName ? e.target.targetName.value : null;
     const regionSub = e.target.regionSub ? e.target.regionSub.value : null;
     
-    // 맛집용 regionMain 처리 (WriteModal에서 이미 name="regionMain"으로 보냄)
-    // 우리들 소식용 regionMain 처리 (WriteModal에서 이미 name="regionMain"으로 보냄)
-
     const file = e.target.file?.files[0];
     let publicImageUrl = null;
 
