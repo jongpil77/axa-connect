@@ -748,7 +748,7 @@ const BottomNav = ({ activeTab, setActiveTab }) => (<div className="fixed bottom
 const Comment = ({ comment, currentUser, handleDeleteComment }) => (<div className="flex gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">{comment.parent_id && <CornerDownRight className="w-4 h-4 text-slate-300 mt-1 flex-shrink-0" />}<div className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold shadow-sm ${comment.profiles?.role === 'admin' ? 'bg-red-400' : 'bg-blue-400'}`}>{formatInitial(comment.profiles?.name || 'Unknown')}</div><div className="flex-1 min-w-0"><div className="flex justify-between items-start"><p className="text-xs font-bold text-slate-700 flex items-center gap-1">{comment.profiles?.name || '알 수 없음'}{comment.profiles?.role === 'admin' && <span className="px-1 py-0.5 bg-red-50 text-red-500 text-[9px] rounded-md">관리자</span>}</p><span className="text-[9px] text-slate-400">{new Date(comment.created_at).toLocaleDateString()}</span></div><p className="text-xs text-slate-600 leading-relaxed mt-0.5 break-words">{comment.content}</p><div className="flex gap-2 mt-1 justify-end">{(currentUser?.id === comment.author_id || currentUser?.role === 'admin') && (<button onClick={() => handleDeleteComment(comment.id)} className="text-[10px] text-slate-400 hover:text-red-500 transition-colors flex items-center gap-0.5"><Trash2 className="w-3 h-3"/> 삭제</button>)}</div></div></div>);
 
 // --- Main App Component ---
-const App = () => {
+export default function App() {
   const [supabase, setSupabase] = useState(null);
   const [session, setSession] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
@@ -1231,6 +1231,4 @@ const App = () => {
       </div>
     </div>
   );
-};
-
-export default App;
+}
