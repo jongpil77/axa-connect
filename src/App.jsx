@@ -163,6 +163,64 @@ const GiftNotificationModal = ({ onClose, gifts }) => {
     );
 };
 
+const PostDetailModal = ({ feed, onClose, currentUser, handleLikePost, handleAddComment, handleDeleteComment, handleDeletePost }) => {
+    if (!feed) return null;
+    const comments = feed.comments || [];
+    const isNew = isToday(feed.created_at);
+    
+    return (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-fade-in">
+             <div className="bg-white w-full max-w-lg rounded-[2.5rem] p-0 shadow-2xl h-[85vh] flex flex-col relative overflow-hidden">
+                <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10">
+                    <h3 className="text-base font-bold text-slate-800">게시글 상세</h3>
+                    <button onClick={onClose} className="p-2 bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200"><X className="w-5 h-5"/></button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-5 scrollbar-hide">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm bg-gradient-to-br from-blue-500 to-blue-400 shadow-sm`}>{formatInitial(feed.author)}</div>
+                        <div>
+                            <p className="text-sm font-bold text-slate-800 flex items-center gap-1">
+                                {feed.author} 
+                                {feed.profiles?.role === 'admin' && <span className="bg-red-50 text-red-500 text-[9px] px-1.5 py-0.5 rounded-md border border-red-100">관리자</span>}
+                            </p>
+                            <p className="text-[10px] text-slate-400">{feed.formattedTime} • {feed.team}</p>
+                        </div>
+                    </div>
+                    <div className="mb-6">
+                         <div className="flex flex-wrap gap-1 mb-2">
+                             <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-bold border ${feed.type === 'praise' ? 'bg-green-50 text-green-600 border-green-100' : feed.type === 'news' ? 'bg-red-50 text-red-600 border-red-100' : feed.type === 'dept_news' ? 'bg-purple-50 text-purple-600 border-purple-100' : feed.type === 'matjib' ? 'bg-orange-50 text-orange-600 border-orange-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                                {feed.type === 'praise' ? '칭찬해요' : feed.type === 'news' ? '📢 공지사항' : feed.type === 'dept_news' ? '🏢 우리들 소식' : feed.type === 'matjib' ? '맛집 소개' : '꿀팁'}
+                            </span>
+                         </div>
+                         {feed.title && <h3 className="text-lg font-bold text-slate-800 mb-2">{feed.title}</h3>}
+                         <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{feed.content}</p>
+                    </div>
+                    {feed.image_url && (<div className="mb-6 rounded-2xl overflow-hidden border border-slate-100 shadow-sm"><img src={feed.image_url} alt="Content" className="w-full h-auto object-cover" /></div>)}
+                    
+                    <div className="flex items-center gap-4 border-t border-slate-50 pt-3 mb-4">
+                        <button onClick={() => handleLikePost(feed.id, feed.likes, feed.isLiked)} className={`flex items-center gap-1 text-sm font-bold transition-colors ${feed.isLiked ? 'text-red-500' : 'text-slate-400 hover:text-slate-600'}`}><Heart className={`w-5 h-5 ${feed.isLiked ? 'fill-red-500' : ''}`} /> {feed.likes?.length || 0}</button>
+                        <div className="flex items-center gap-1 text-sm font-bold text-slate-400"><MessageCircle className="w-5 h-5" /> {comments.length}</div>
+                        {(currentUser?.id === feed.author_id || currentUser?.role === 'admin') && (
+                            <button onClick={() => { handleDeletePost(feed.id); onClose(); }} className="ml-auto text-xs text-red-400 hover:text-red-600 font-bold px-2 py-1 bg-red-50 rounded-lg">게시글 삭제</button>
+                        )}
+                    </div>
+
+                    <div className="bg-slate-50 rounded-2xl p-3 mb-4 space-y-3">
+                         {comments.length > 0 ? comments.map(comment => (<Comment key={comment.id} comment={comment} currentUser={currentUser} handleDeleteComment={handleDeleteComment} />)) : <p className="text-center text-xs text-slate-400 py-4">첫 댓글을 남겨보세요!</p>}
+                    </div>
+                </div>
+                <div className="p-3 bg-white border-t border-slate-100">
+                    <form onSubmit={(e) => handleAddComment(e, feed.id, null)} className="flex gap-2">
+                        <input name="commentContent" type="text" placeholder="댓글을 남겨주세요..." className="flex-1 px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:border-blue-400 focus:bg-white transition-colors" required />
+                        <button type="submit" className="bg-blue-600 text-white p-3 rounded-xl font-bold hover:bg-blue-700 shadow-md transition-colors"><Send className="w-4 h-4"/></button>
+                    </form>
+                </div>
+             </div>
+        </div>
+    )
+}
+
+
 const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, loading }) => {
   const [birthdate, setBirthdate] = useState('1999-01-01'); 
   const [selectedDept, setSelectedDept] = useState('');
@@ -269,15 +327,18 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
                 <div className="flex flex-col leading-none -space-y-1 relative">
                     <span className="text-xl font-black text-slate-800 tracking-tighter">AXA</span>
                     <span className="text-xl font-black text-slate-800 tracking-tighter">Connect</span>
-                    {/* 플러그 위치 수정: Connect의 t 위에 배치 */}
-                    <Plug className="w-3.5 h-3.5 text-blue-500 fill-blue-500 absolute -right-1 bottom-[1px] rotate-12" />
+                    {/* [수정] 플러그 위치 수정: 위로 이동하여 Connect 글자와 겹치지 않게 함 */}
+                    <Plug className="w-3.5 h-3.5 text-blue-500 fill-blue-500 absolute -right-1 bottom-2.5 rotate-12" />
                 </div>
             </div>
         </div>
         
         <div className="flex items-center gap-2 relative">
-          {/* 선물 상자 아이콘 우측 이동 */}
-          <button onClick={onOpenGift} className="p-1.5 rounded-full hover:bg-slate-100 active:scale-95 transition-all relative text-2xl mr-4">🎁</button>
+          {/* [수정] 선물상자 위치 이동 및 텍스트 추가 */}
+          <button onClick={onOpenGift} className="flex items-center gap-1 hover:bg-slate-100 rounded-full py-1 px-2 transition-all mr-2">
+             <span className="text-[10px] font-bold text-slate-500">선물하기</span>
+             <span className="text-2xl">🎁</span>
+          </button>
           
           <div className="flex items-center gap-2 mr-1 cursor-pointer" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-end leading-none">
@@ -390,7 +451,7 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => 
     );
 };
 
-const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive }) => {
+const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive, onPostClick }) => {
     const noticeFeeds = feeds.filter(f => f.type === 'news').slice(0, 5); 
     const deptFeeds = feeds.filter(f => f.type === 'dept_news').slice(0, 5);
     const praiseFeeds = feeds.filter(f => f.type === 'praise').slice(0, 5); 
@@ -402,10 +463,10 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
         {/* 1. 공지사항 (맨 위) */}
         <div>
            <div className="flex justify-between items-center mb-3 px-1"><h2 className="text-sm font-bold text-slate-700 flex items-center gap-1.5"><Megaphone className="w-4 h-4 text-red-500"/> 공지사항</h2><button onClick={onNavigateToNews} className="text-xs text-slate-400 font-medium hover:text-blue-600 flex items-center gap-0.5">더보기 <ChevronRight className="w-3 h-3" /></button></div>
-           <div className="space-y-2">{noticeFeeds.length > 0 ? noticeFeeds.map(feed => (<div key={feed.id} onClick={onNavigateToNews} className="bg-white px-4 py-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 transition-transform active:scale-[0.99] hover:border-blue-200 cursor-pointer"><div className="flex-1 min-w-0"><p className="text-xs font-bold text-slate-800 line-clamp-1 mb-0.5">{feed.title || feed.content}{isToday(feed.created_at) && <span className="ml-1 px-1 py-0.5 bg-red-500 text-white text-[8px] font-bold rounded-sm inline-block">NEW</span>}</p><span className="text-[10px] text-slate-400">{feed.formattedTime} • {feed.author}</span></div><ChevronRight className="w-4 h-4 text-slate-300" /></div>)) : <div className="text-center text-xs text-slate-400 py-6 bg-white rounded-2xl border border-slate-100 border-dashed">등록된 공지가 없습니다.</div>}</div>
+           <div className="space-y-2">{noticeFeeds.length > 0 ? noticeFeeds.map(feed => (<div key={feed.id} onClick={() => onPostClick(feed)} className="bg-white px-4 py-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 transition-transform active:scale-[0.99] hover:border-blue-200 cursor-pointer"><div className="flex-1 min-w-0"><p className="text-xs font-bold text-slate-800 line-clamp-1 mb-0.5">{feed.title || feed.content}{isToday(feed.created_at) && <span className="ml-1 px-1 py-0.5 bg-red-500 text-white text-[8px] font-bold rounded-sm inline-block">NEW</span>}</p><span className="text-[10px] text-slate-400">{feed.formattedTime} • {feed.author}</span></div><ChevronRight className="w-4 h-4 text-slate-300" /></div>)) : <div className="text-center text-xs text-slate-400 py-6 bg-white rounded-2xl border border-slate-100 border-dashed">등록된 공지가 없습니다.</div>}</div>
         </div>
 
-        {/* 2. 출퇴근/생일 (h-44로 높이 축소, 좌우 배치 변경) */}
+        {/* 2. 출퇴근/생일 */}
         <div className="flex gap-4 h-44">
             <div className="flex-1 bg-white rounded-2xl p-3 shadow-sm border border-blue-100 flex flex-col relative overflow-hidden">
                   <div className="flex justify-between items-start mb-2 relative z-10">
@@ -442,20 +503,24 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
             <div className="flex-[1.5] h-full"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} /></div>
         </div>
         
-        {/* [NEW] 글쓰기 버튼 & 포인트 안내 (우리들 소식 위쪽) */}
+        {/* [수정] 글쓰기 버튼 우측에 연필 이모지 추가 */}
         <div className="flex justify-between items-center mb-2 px-1">
              <button onClick={() => onWriteClickWithCategory(null)} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center gap-1.5 hover:shadow-xl transition-all active:scale-95">
-                <span>➕</span> 글쓰기
+                <span>➕</span> 글쓰기 <span className="text-sm">✏️</span>
              </button>
              <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-white px-2 py-1 rounded-full shadow-sm border border-slate-100"><div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner"><Coins className="w-2.5 h-2.5 text-white fill-white"/></div>게시글 1개당 +50P (일 최대 +100P 가능)</div>
         </div>
 
         {/* 3. 우리들 소식 */}
-        <div className="bg-white p-4 rounded-3xl shadow-sm border border-purple-100 cursor-pointer hover:border-purple-300 transition-colors" onClick={() => onWriteClickWithCategory('dept_news')}>
-           <h3 className="text-sm font-bold text-purple-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Building2 className="w-4 h-4 text-purple-500"/> 우리들 소식</h3>
-           <div className="space-y-2 pointer-events-none">
+        <div className="bg-white p-4 rounded-3xl shadow-sm border border-purple-100 hover:border-purple-300 transition-colors">
+           {/* [수정] 더보기 버튼 추가 및 게시글 보기 클릭 이벤트 연결 */}
+           <div className="flex justify-between items-center mb-3">
+               <h3 className="text-sm font-bold text-purple-600 flex items-center gap-1.5"><Building2 className="w-4 h-4 text-purple-500"/> 우리들 소식</h3>
+               <button onClick={() => onNavigateToFeed('dept_news')} className="text-xs text-slate-400 font-medium hover:text-purple-600 flex items-center gap-0.5">더보기 <ChevronRight className="w-3 h-3" /></button>
+           </div>
+           <div className="space-y-2">
                 {deptFeeds.length > 0 ? deptFeeds.map(feed => (
-                    <div key={feed.id} className="p-3 bg-purple-50/30 rounded-2xl border border-purple-100 transition-colors">
+                    <div key={feed.id} onClick={() => onPostClick(feed)} className="p-3 bg-purple-50/30 rounded-2xl border border-purple-100 transition-colors cursor-pointer hover:bg-purple-50">
                         <div className="flex items-center justify-between mb-1"><span className="text-[9px] text-purple-700 font-bold bg-white px-1.5 rounded border border-purple-200">{feed.region_main}</span>{isToday(feed.created_at) && <span className="text-[9px]">🆕</span>}</div>
                         <p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>
                     </div>
@@ -464,20 +529,32 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
         </div>
 
         {/* 4. 칭찬합시다 */}
-        <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer hover:border-green-200 transition-colors" onClick={() => onWriteClickWithCategory('praise')}>
-           <h3 className="text-sm font-bold text-green-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Heart className="w-4 h-4 fill-green-500 text-green-500"/> 칭찬합시다</h3>
-           <div className="space-y-2 pointer-events-none">{praiseFeeds.length > 0 ? praiseFeeds.map(feed => (<div key={feed.id} className="p-3 bg-green-50/30 rounded-2xl border border-green-100 transition-colors"><p className="text-[10px] font-bold text-slate-500 mb-1">To. {feed.target_name || '동료'}</p><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed">{feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>)) : <p className="text-xs text-slate-400 py-2">아직 게시글이 없습니다.</p>}</div>
+        <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 hover:border-green-200 transition-colors">
+           {/* [수정] 더보기 버튼 추가 및 게시글 보기 클릭 이벤트 연결 */}
+           <div className="flex justify-between items-center mb-3">
+                <h3 className="text-sm font-bold text-green-600 flex items-center gap-1.5"><Heart className="w-4 h-4 fill-green-500 text-green-500"/> 칭찬합시다</h3>
+                <button onClick={() => onNavigateToFeed('praise')} className="text-xs text-slate-400 font-medium hover:text-green-600 flex items-center gap-0.5">더보기 <ChevronRight className="w-3 h-3" /></button>
+           </div>
+           <div className="space-y-2">{praiseFeeds.length > 0 ? praiseFeeds.map(feed => (<div key={feed.id} onClick={() => onPostClick(feed)} className="p-3 bg-green-50/30 rounded-2xl border border-green-100 transition-colors cursor-pointer hover:bg-green-50"><p className="text-[10px] font-bold text-slate-500 mb-1">To. {feed.target_name || '동료'}</p><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed">{feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>)) : <p className="text-xs text-slate-400 py-2">아직 게시글이 없습니다.</p>}</div>
         </div>
         
         {/* 5. 꿀팁 / 맛집소개 */}
         <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer hover:border-blue-300 transition-colors" onClick={() => onWriteClickWithCategory('knowhow')}>
-               <h3 className="text-sm font-bold text-blue-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Sparkles className="w-4 h-4 fill-blue-500 text-blue-500"/> 꿀팁</h3>
-               <div className="space-y-2 pointer-events-none">{knowhowFeeds.length > 0 ? knowhowFeeds.map(feed => (<div key={feed.id} className="p-3 bg-blue-50/30 rounded-2xl border border-blue-100 transition-colors"><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>)) : <p className="text-xs text-slate-400 py-2">등록된 글이 없습니다.</p>}</div>
+            <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 hover:border-blue-300 transition-colors">
+               {/* [수정] 더보기 버튼 추가 및 게시글 보기 클릭 이벤트 연결 */}
+               <div className="flex justify-between items-center mb-3">
+                   <h3 className="text-sm font-bold text-blue-600 flex items-center gap-1.5"><Sparkles className="w-4 h-4 fill-blue-500 text-blue-500"/> 꿀팁</h3>
+                   <button onClick={() => onNavigateToFeed('knowhow')} className="text-xs text-slate-400 font-medium hover:text-blue-600 flex items-center gap-0.5">더보기 <ChevronRight className="w-3 h-3" /></button>
+               </div>
+               <div className="space-y-2">{knowhowFeeds.length > 0 ? knowhowFeeds.map(feed => (<div key={feed.id} onClick={() => onPostClick(feed)} className="p-3 bg-blue-50/30 rounded-2xl border border-blue-100 transition-colors cursor-pointer hover:bg-blue-50"><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>)) : <p className="text-xs text-slate-400 py-2">등록된 글이 없습니다.</p>}</div>
             </div>
-            <div className="bg-white p-4 rounded-3xl shadow-sm border border-orange-100 cursor-pointer hover:border-orange-300 transition-colors" onClick={() => onWriteClickWithCategory('matjib')}>
-               <h3 className="text-sm font-bold text-orange-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Utensils className="w-4 h-4 fill-orange-500 text-orange-500"/> 맛집 소개</h3>
-               <div className="space-y-2 pointer-events-none">{matjibFeeds.length > 0 ? matjibFeeds.map(feed => (<div key={feed.id} className="p-3 bg-orange-50/30 rounded-2xl border border-orange-100 transition-colors"><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>)) : <p className="text-xs text-slate-400 py-2">등록된 글이 없습니다.</p>}</div>
+            <div className="bg-white p-4 rounded-3xl shadow-sm border border-orange-100 hover:border-orange-300 transition-colors">
+               {/* [수정] 더보기 버튼 추가 및 게시글 보기 클릭 이벤트 연결 */}
+               <div className="flex justify-between items-center mb-3">
+                    <h3 className="text-sm font-bold text-orange-600 flex items-center gap-1.5"><Utensils className="w-4 h-4 fill-orange-500 text-orange-500"/> 맛집</h3>
+                    <button onClick={() => onNavigateToFeed('matjib')} className="text-xs text-slate-400 font-medium hover:text-orange-600 flex items-center gap-0.5">더보기 <ChevronRight className="w-3 h-3" /></button>
+               </div>
+               <div className="space-y-2">{matjibFeeds.length > 0 ? matjibFeeds.map(feed => (<div key={feed.id} onClick={() => onPostClick(feed)} className="p-3 bg-orange-50/30 rounded-2xl border border-orange-100 transition-colors cursor-pointer hover:bg-orange-50"><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>)) : <p className="text-xs text-slate-400 py-2">등록된 글이 없습니다.</p>}</div>
             </div>
         </div>
       </div>
@@ -642,26 +719,22 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
         <div className="p-6">
             <form onSubmit={handlePostSubmit}>
             
-            {/* [NEW] 콤보박스 (Select) 형태의 카테고리 선택 */}
+            {/* [수정] 탭 버튼 형태의 카테고리 선택 */}
             <div className="mb-6">
                 <label className="block text-xs font-bold text-slate-500 mb-2 ml-1">게시글 유형을 선택해 주세요</label>
-                <div className="relative">
-                    <select 
-                        name="category" 
-                        value={writeCategory} 
-                        onChange={(e) => setWriteCategory(e.target.value)}
-                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm font-bold text-slate-700 appearance-none focus:border-blue-500 transition-colors cursor-pointer"
-                        required
-                    >
-                        <option value="" disabled>선택해주세요...</option>
-                        {categories.map((cat) => (
-                            <option key={cat.id} value={cat.id}>{cat.label}</option>
-                        ))}
-                    </select>
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-slate-400">
-                        <ChevronDownIcon className="w-5 h-5" />
-                    </div>
+                <div className="grid grid-cols-2 gap-2">
+                    {categories.map((cat) => (
+                        <button 
+                            key={cat.id} 
+                            type="button"
+                            onClick={() => setWriteCategory(cat.id)}
+                            className={`p-3 rounded-xl text-sm font-bold border transition-all ${writeCategory === cat.id ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'}`}
+                        >
+                            {cat.label}
+                        </button>
+                    ))}
                 </div>
+                <input type="hidden" name="category" value={writeCategory} />
             </div>
             
             <div className="space-y-4 mb-8">
@@ -728,13 +801,6 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
   );
 };
 
-// 헬퍼 컴포넌트: Select 아이콘용 (ChevronDown)
-const ChevronDownIcon = ({ className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={className}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-    </svg>
-);
-
 const RankingTab = ({ feeds, profiles, allPointHistory }) => { const [selectedDate, setSelectedDate] = useState(new Date()); const isSelectedMonth = (dateString) => { if(!dateString) return false; const d = new Date(dateString); return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear(); }; const handlePrevMonth = () => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() - 1))); const handleNextMonth = () => { const nextMonth = new Date(selectedDate); nextMonth.setMonth(selectedDate.getMonth() + 1); if (nextMonth <= new Date()) setSelectedDate(nextMonth); }; const pointRanking = useMemo(() => { const monthlyPoints = {}; allPointHistory.forEach(record => { if (isSelectedMonth(record.created_at) && record.type === 'earn') monthlyPoints[record.user_id] = (monthlyPoints[record.user_id] || 0) + record.amount; }); return Object.entries(monthlyPoints).map(([id, points]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: points, unit: 'P', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); }, [allPointHistory, profiles, selectedDate]); const postCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { postCounts[f.author_id] = (postCounts[f.author_id] || 0) + 1; }); const postRanking = Object.entries(postCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '건', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); const likeCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { const likes = f.likes ? (Array.isArray(f.likes) ? f.likes.length : 0) : 0; if(likes > 0) likeCounts[f.author_id] = (likeCounts[f.author_id] || 0) + likes; }); const likeRanking = Object.entries(likeCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '개', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); const RankItem = ({ rank, name, value, unit, team, color }) => (<div className="flex items-center p-3 bg-white border border-slate-100 rounded-2xl shadow-sm relative overflow-hidden">{rank <= 3 && <div className="absolute right-0 top-0 bg-yellow-100 text-yellow-600 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">🎁 1,000P</div>}<div className={`text-xl font-black mr-4 w-8 text-center ${color}`}>{rank}</div><div className="flex-1"><p className="text-sm font-bold text-slate-800">{name || 'Unknown'}</p><p className="text-[10px] text-slate-400">{team}</p></div><div className="text-base font-black text-slate-700 ml-4">{value}<span className="text-[10px] text-slate-400 ml-0.5 font-normal">{unit}</span></div></div>); return (<div className="p-5 space-y-8 pb-28 animate-fade-in bg-blue-50"><div className="bg-white p-5 rounded-[2rem] shadow-sm border border-blue-100 text-center relative"><div className="flex justify-between items-center mb-4 px-2"><button onClick={handlePrevMonth} className="p-1 hover:bg-slate-100 rounded-full"><ChevronLeft className="w-5 h-5 text-slate-400" /></button><h2 className="text-lg font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2><button onClick={handleNextMonth} className="p-1 hover:bg-slate-100 rounded-full disabled:opacity-30" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-5 h-5 text-slate-400" /></button></div><div className="flex justify-center gap-2 mt-2"><span className="text-[10px] bg-green-50 text-green-600 px-2 py-1 rounded">🏆 소통상/좋아요상: 1~3등 1,000P</span></div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Coins className="w-4 h-4 text-yellow-500"/> 월간 획득 포인트 랭킹</h3><div className="space-y-2">{pointRanking.length > 0 ? pointRanking.map((p, i) => <RankItem key={i} rank={i+1} name={p.name} team={p.team} value={p.value.toLocaleString()} unit="P" color="text-yellow-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Pencil className="w-4 h-4 text-green-500"/> 소통왕 (게시글)</h3><div className="space-y-2">{postRanking.length > 0 ? postRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-green-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Heart className="w-4 h-4 text-red-500"/> 인기왕 (좋아요)</h3><div className="space-y-2">{likeRanking.length > 0 ? likeRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-red-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div></div>); };
 
 const BottomNav = ({ activeTab, onTabChange }) => {
@@ -785,6 +851,9 @@ export default function App() {
   const [showRedemptionListModal, setShowRedemptionListModal] = useState(false); 
   const [showAdminAlertModal, setShowAdminAlertModal] = useState(false); 
   const [toast, setToast] = useState({ visible: false, message: '', emoji: '' });
+
+  // [추가] 상세 보기 모달을 위한 state
+  const [selectedPost, setSelectedPost] = useState(null);
 
   const [activeTab, setActiveTab] = useState('home');
   const [activeFeedFilter, setActiveFeedFilter] = useState('all');
@@ -868,9 +937,14 @@ export default function App() {
             });
             if (currentUser) formatted.forEach(p => { p.isLiked = p.likes.includes(currentUser.id); });
             setFeeds(formatted);
+            // [추가] 선택된 포스트가 있다면 업데이트 (댓글 등 반영)
+            if (selectedPost) {
+                const updatedSelectedPost = formatted.find(p => p.id === selectedPost.id);
+                if (updatedSelectedPost) setSelectedPost(updatedSelectedPost);
+            }
         }
     } catch (err) { console.error(err); }
-  }, [supabase, currentUser]);
+  }, [supabase, currentUser, selectedPost]);
 
   const fetchProfiles = useCallback(async () => { if (!supabase) return; try { const { data } = await supabase.from('profiles').select('*'); if (data) setProfiles(data); } catch (err) { console.error(err); } }, [supabase]);
 
@@ -907,21 +981,40 @@ export default function App() {
       const userId = currentUser.id;
       let newLikes = [...currentLikes];
       if (isLiked) { newLikes = newLikes.filter(id => id !== userId); } else { newLikes.push(userId); }
-      setFeeds(feeds.map(f => f.id === postId ? { ...f, likes: newLikes, isLiked: !isLiked } : f));
+      // Optimistic update
+      const updatedFeeds = feeds.map(f => f.id === postId ? { ...f, likes: newLikes, isLiked: !isLiked } : f);
+      setFeeds(updatedFeeds);
+      if(selectedPost && selectedPost.id === postId) {
+          setSelectedPost({ ...selectedPost, likes: newLikes, isLiked: !isLiked });
+      }
+
       try { await supabase.from('posts').update({ likes: newLikes }).eq('id', postId); } catch (err) { console.error(err); fetchFeeds(); }
   };
 
   const handleAddComment = async (e, postId, parentId = null) => {
       e.preventDefault(); const content = e.target.commentContent.value; if (!content || !currentUser) return;
       const tempComment = { id: `temp-${Date.now()}`, post_id: postId, author_id: currentUser.id, content: content, parent_id: parentId, created_at: new Date().toISOString(), profiles: { name: currentUser.name, role: currentUser.role } };
-      setFeeds(prevFeeds => prevFeeds.map(feed => { if (feed.id === postId) { return { ...feed, comments: [...feed.comments, tempComment], totalComments: feed.totalComments + 1 }; } return feed; }));
+      
+      const updateFeedWithComment = (feedList) => feedList.map(feed => { if (feed.id === postId) { return { ...feed, comments: [...feed.comments, tempComment], totalComments: feed.totalComments + 1 }; } return feed; });
+      setFeeds(prevFeeds => updateFeedWithComment(prevFeeds));
+      if(selectedPost && selectedPost.id === postId) {
+          setSelectedPost({ ...selectedPost, comments: [...selectedPost.comments, tempComment] });
+      }
+      
       e.target.reset(); 
       try { await supabase.from('comments').insert({ post_id: postId, author_id: currentUser.id, content: content, parent_id: parentId }); } catch (err) { console.error('Comment failed:', err); fetchFeeds(); }
   };
   
   const handleDeleteComment = async (commentId) => {
       if (!window.confirm('댓글을 삭제하시겠습니까?')) return;
-      setFeeds(prevFeeds => prevFeeds.map(feed => { const updatedComments = feed.comments.filter(c => c.id !== commentId); if (updatedComments.length !== feed.comments.length) { return { ...feed, comments: updatedComments, totalComments: updatedComments.length }; } return feed; }));
+      // Optimistic Update
+      const removeComment = (feedList) => feedList.map(feed => { const updatedComments = feed.comments.filter(c => c.id !== commentId); if (updatedComments.length !== feed.comments.length) { return { ...feed, comments: updatedComments, totalComments: updatedComments.length }; } return feed; });
+      setFeeds(prevFeeds => removeComment(prevFeeds));
+      if(selectedPost) {
+           const updatedComments = selectedPost.comments.filter(c => c.id !== commentId);
+           setSelectedPost({...selectedPost, comments: updatedComments});
+      }
+
       try { await supabase.from('comments').delete().eq('id', commentId); } catch (err) { console.error('Delete failed:', err); fetchFeeds(); }
   };
 
@@ -940,6 +1033,7 @@ export default function App() {
             fetchUserData(currentUser.id); fetchAllPointHistory(); 
         }
         await fetchFeeds();
+        if(selectedPost && selectedPost.id === postId) setSelectedPost(null);
     } catch (err) { console.error('삭제 실패: ', err.message); }
   };
 
@@ -1130,7 +1224,7 @@ export default function App() {
             <>
               <Header currentUser={currentUser} onOpenUserInfo={() => setShowUserInfoModal(true)} handleLogout={handleLogout} onOpenChangeDept={() => setShowChangeDeptModal(true)} onOpenChangePwd={() => setShowChangePwdModal(true)} onOpenAdminGrant={() => setShowAdminGrantModal(true)} onOpenRedemptionList={() => { fetchRedemptionList(); setShowRedemptionListModal(true); }} onOpenGift={() => setShowGiftModal(true)} onOpenAdminManage={() => setShowAdminManageModal(true)} boosterActive={boosterActive} />
               <main className="flex-1 overflow-y-auto scrollbar-hide">
-                {activeTab === 'home' && <HomeTab mood={mood} handleMoodCheck={handleMoodCheck} handleCheckOut={handleCheckOut} hasCheckedOut={hasCheckedOut} feeds={feeds} weeklyBirthdays={weeklyBirthdays} onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }} onNavigateToNews={() => setActiveTab('news')} onNavigateToFeed={(type) => { setActiveTab('feed'); setActiveFeedFilter(type); }} boosterActive={boosterActive} />}
+                {activeTab === 'home' && <HomeTab mood={mood} handleMoodCheck={handleMoodCheck} handleCheckOut={handleCheckOut} hasCheckedOut={hasCheckedOut} feeds={feeds} weeklyBirthdays={weeklyBirthdays} onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }} onNavigateToNews={() => setActiveTab('news')} onNavigateToFeed={(type) => { setActiveTab('feed'); setActiveFeedFilter(type); }} boosterActive={boosterActive} onPostClick={setSelectedPost} />}
                 {activeTab === 'feed' && <FeedTab feeds={feeds} activeFeedFilter={activeFeedFilter} setActiveFeedFilter={setActiveFeedFilter} onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }} currentUser={currentUser} handleDeletePost={handleDeletePost} handleLikePost={handleLikePost} handleAddComment={handleAddComment} handleDeleteComment={handleDeleteComment} boosterActive={boosterActive} />}
                 {activeTab === 'ranking' && <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} />}
               </main>
@@ -1148,6 +1242,8 @@ export default function App() {
               {showAdminGrantModal && <AdminGrantModal onClose={() => setShowAdminGrantModal(false)} onGrant={handleAdminGrantPoints} profiles={profiles} />}
               {showRedemptionListModal && <RedemptionListModal onClose={() => setShowRedemptionListModal(false)} redemptionList={redemptionList} onComplete={handleCompleteRedemption} />}
               {showAdminAlertModal && <AdminAlertModal onClose={handleCloseAdminAlert} />}
+              {/* [추가] 상세 보기 모달 */}
+              {selectedPost && <PostDetailModal feed={selectedPost} onClose={() => setSelectedPost(null)} currentUser={currentUser} handleLikePost={handleLikePost} handleAddComment={handleAddComment} handleDeleteComment={handleDeleteComment} handleDeletePost={handleDeletePost} />}
               
               <MoodToast visible={toast.visible} message={toast.message} emoji={toast.emoji} />
             </>
