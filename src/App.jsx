@@ -259,9 +259,9 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
              </div>
           </div>
 
-          <div className="flex flex-col items-end mr-1" onClick={onOpenUserInfo}>
-             <span className="text-[9px] text-slate-400 font-bold">MY CARE 포인트</span>
-             <span className="text-sm font-black text-blue-600">{currentUser?.points?.toLocaleString()} P</span>
+          <div className="flex flex-col items-end mr-1 cursor-pointer bg-blue-50 px-3 py-1 rounded-xl border border-blue-100" onClick={onOpenUserInfo}>
+             <span className="text-[9px] text-slate-500 font-bold">MY CARE 포인트</span>
+             <span className="text-sm font-black text-blue-700">{currentUser?.points?.toLocaleString()} P</span>
           </div>
 
           <button onClick={() => setShowSettings(!showSettings)} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors relative z-40"><Settings className="w-5 h-5 text-slate-400" /></button>
@@ -404,11 +404,11 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => 
 
 // HomeTab: 출석체크 확대, 생일자 축소, 우리들 게시판 추가
 const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive }) => {
-    const noticeFeeds = feeds.filter(f => f.type === 'news').slice(0, 3);
-    const deptFeeds = feeds.filter(f => f.type === 'dept_news').slice(0, 3); // 우리들 소식
-    const praiseFeeds = feeds.filter(f => f.type === 'praise').slice(0, 3); 
-    const knowhowFeeds = feeds.filter(f => f.type === 'knowhow').slice(0, 2);
-    const matjibFeeds = feeds.filter(f => f.type === 'matjib').slice(0, 2);
+    const noticeFeeds = feeds.filter(f => f.type === 'news').slice(0, 5); // 최근 5개
+    const deptFeeds = feeds.filter(f => f.type === 'dept_news').slice(0, 5); // 우리들 소식
+    const praiseFeeds = feeds.filter(f => f.type === 'praise').slice(0, 5); 
+    const knowhowFeeds = feeds.filter(f => f.type === 'knowhow').slice(0, 5);
+    const matjibFeeds = feeds.filter(f => f.type === 'matjib').slice(0, 5);
 
     return (
       <div className="p-5 space-y-5 pb-32 animate-fade-in relative bg-blue-50 min-h-full">
@@ -524,7 +524,8 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
           (f.region_sub && f.region_sub.includes(searchTerm));
       
       // 조직 필터링 ('우리들 소식'인 경우)
-      const matchesDept = activeFeedFilter !== 'dept_news' || selectedDeptFilter === 'all' || f.profiles?.dept === selectedDeptFilter;
+      // [문제 해결 포인트] f.profiles가 null이어도 필터링에서 에러가 나지 않도록 처리
+      const matchesDept = activeFeedFilter !== 'dept_news' || selectedDeptFilter === 'all' || (f.profiles && f.profiles.dept === selectedDeptFilter);
 
       return matchesFilter && matchesSearch && matchesDept;
   }).slice(0, 5); // 최근 5개만 표시
@@ -541,7 +542,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
             { id: 'all', label: '전체' }, 
             { id: 'dept_news', label: '우리들 소식' },
             { id: 'praise', label: '칭찬해요' }, 
-            { id: 'knowhow', label: '업무 꿀팁' },
+            { id: 'knowhow', label: '꿀팁' },
             { id: 'matjib', label: '맛집 소개' }
         ].map(tab => (
           <button key={tab.id} onClick={() => setActiveFeedFilter(tab.id)} className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${activeFeedFilter === tab.id ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white text-slate-500 border-slate-200'}`}>{tab.label}</button>
@@ -594,6 +595,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
               <div>
                   <p className="text-sm font-bold text-slate-800 flex items-center gap-1">
                       {feed.author} 
+                      {/* [문제 해결 포인트] profiles가 null일 수 있으므로 옵셔널 체이닝 필수 */}
                       {feed.profiles?.role === 'admin' && <span className="bg-red-50 text-red-500 text-[9px] px-1.5 py-0.5 rounded-md border border-red-100">관리자</span>}
                       {feed.profiles?.is_reporter && <span className="bg-yellow-100 text-yellow-700 text-[9px] px-1.5 py-0.5 rounded-md border border-yellow-200">리포터</span>}
                   </p>
@@ -609,7 +611,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
                         feed.type === 'dept_news' ? 'bg-purple-50 text-purple-600 border-purple-100' : 
                         feed.type === 'matjib' ? 'bg-orange-50 text-orange-600 border-orange-100' : 'bg-blue-50 text-blue-600 border-blue-100'
                     }`}>
-                        {feed.type === 'praise' ? '칭찬해요' : feed.type === 'news' ? '📢 공지사항' : feed.type === 'dept_news' ? '🏢 우리들 소식' : feed.type === 'matjib' ? '맛집 소개' : '업무꿀팁'}
+                        {feed.type === 'praise' ? '칭찬해요' : feed.type === 'news' ? '📢 공지사항' : feed.type === 'dept_news' ? '🏢 우리들 소식' : feed.type === 'matjib' ? '맛집 소개' : '꿀팁'}
                     </span>
                     {feed.region_main && <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-50 text-slate-500 border border-slate-200"><MapPin className="w-2.5 h-2.5 inline mr-0.5"/>{feed.region_main} {feed.region_sub}</span>}
                 </div>
@@ -670,7 +672,7 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
     const baseCategories = [
         {id: 'praise', label: '칭찬하기'},
         {id: 'matjib', label: '맛집소개'},
-        {id: 'knowhow', label: '업무꿀팁'}
+        {id: 'knowhow', label: '꿀팁'}
     ];
     if (currentUser?.dept?.includes('보상') || currentUser?.is_reporter) {
         baseCategories.unshift({id: 'dept_news', label: '우리들 소식'});
@@ -682,6 +684,7 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
   }, [activeTab, currentUser]);
 
   useEffect(() => {
+      // 초기 카테고리가 주어졌는데 권한이 없어서 목록에 없다면 기본값으로 변경
       if (initialCategory && categories.some(c => c.id === initialCategory)) {
           setWriteCategory(initialCategory);
       } else if (categories.length > 0 && !writeCategory) {
@@ -705,8 +708,19 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
             <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
                 {categories.map((cat) => (
                     <label key={cat.id} className="flex-shrink-0 cursor-pointer">
-                        <input type="radio" name="category" value={cat.id} className="peer hidden" checked={writeCategory === cat.id} onChange={() => setWriteCategory(cat.id)} />
-                        <span className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center ${writeCategory === cat.id ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50'}`}>{cat.label}</span>
+                        <input 
+                            type="radio" 
+                            name="category" 
+                            value={cat.id} 
+                            className="peer hidden" 
+                            checked={writeCategory === cat.id} 
+                            onChange={() => setWriteCategory(cat.id)} 
+                            // '우리들 소식' 전용 모드일 경우 다른 카테고리 선택 방지
+                            disabled={initialCategory === 'dept_news' && cat.id !== 'dept_news'}
+                        />
+                        <span className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center ${writeCategory === cat.id ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50'} ${initialCategory === 'dept_news' && cat.id !== 'dept_news' ? 'opacity-30 cursor-not-allowed' : ''}`}>
+                            {cat.label}
+                        </span>
                     </label>
                 ))}
             </div>
@@ -721,7 +735,11 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
                 
                 {writeCategory === 'dept_news' && (
                      <div className="bg-purple-50 p-4 rounded-2xl border border-purple-100 animate-fade-in">
-                         <p className="text-xs text-purple-700 font-bold mb-2">📢 우리 부서의 즐거운 소식을 전해주세요!</p>
+                         <div className="flex items-center gap-2 mb-2">
+                             <span className="text-xs font-bold text-white bg-purple-500 px-2 py-0.5 rounded-md">작성 권한</span>
+                             <p className="text-[10px] text-purple-700 font-bold">소속 직원만 작성 가능합니다.</p>
+                         </div>
+                         <p className="text-xs text-purple-800 font-bold mb-2">📢 우리 조직의 즐거운 소식을 전해주세요!</p>
                          <input name="title" type="text" placeholder="제목을 입력하세요 (예: 00팀 회식~!)" className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:border-purple-500 font-bold mb-3" required />
                      </div>
                 )}
@@ -767,495 +785,3 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
     </div>
   );
 };
-
-// ... (RankingTab, BottomNav - 기존 유지)
-const RankingTab = ({ feeds, profiles, allPointHistory }) => { const [selectedDate, setSelectedDate] = useState(new Date()); const isSelectedMonth = (dateString) => { if(!dateString) return false; const d = new Date(dateString); return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear(); }; const handlePrevMonth = () => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() - 1))); const handleNextMonth = () => { const nextMonth = new Date(selectedDate); nextMonth.setMonth(selectedDate.getMonth() + 1); if (nextMonth <= new Date()) setSelectedDate(nextMonth); }; const pointRanking = useMemo(() => { const monthlyPoints = {}; allPointHistory.forEach(record => { if (isSelectedMonth(record.created_at) && record.type === 'earn') monthlyPoints[record.user_id] = (monthlyPoints[record.user_id] || 0) + record.amount; }); return Object.entries(monthlyPoints).map(([id, points]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: points, unit: 'P', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); }, [allPointHistory, profiles, selectedDate]); const postCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { postCounts[f.author_id] = (postCounts[f.author_id] || 0) + 1; }); const postRanking = Object.entries(postCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '건', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); const likeCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { const likes = f.likes ? (Array.isArray(f.likes) ? f.likes.length : 0) : 0; if(likes > 0) likeCounts[f.author_id] = (likeCounts[f.author_id] || 0) + likes; }); const likeRanking = Object.entries(likeCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '개', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); const RankItem = ({ rank, name, value, unit, team, color }) => (<div className="flex items-center p-3 bg-white border border-slate-100 rounded-2xl shadow-sm relative overflow-hidden">{rank <= 3 && <div className="absolute right-0 top-0 bg-yellow-100 text-yellow-600 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">🎁 1,000P</div>}<div className={`text-xl font-black mr-4 w-8 text-center ${color}`}>{rank}</div><div className="flex-1"><p className="text-sm font-bold text-slate-800">{name || 'Unknown'}</p><p className="text-[10px] text-slate-400">{team}</p></div><div className="text-base font-black text-slate-700 ml-4">{value}<span className="text-[10px] text-slate-400 ml-0.5 font-normal">{unit}</span></div></div>); return (<div className="p-5 space-y-8 pb-28 animate-fade-in bg-blue-50"><div className="bg-white p-5 rounded-[2rem] shadow-sm border border-blue-100 text-center relative"><div className="flex justify-between items-center mb-4 px-2"><button onClick={handlePrevMonth} className="p-1 hover:bg-slate-100 rounded-full"><ChevronLeft className="w-5 h-5 text-slate-400" /></button><h2 className="text-lg font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2><button onClick={handleNextMonth} className="p-1 hover:bg-slate-100 rounded-full disabled:opacity-30" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-5 h-5 text-slate-400" /></button></div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Coins className="w-4 h-4 text-yellow-500"/> 월간 획득 포인트 랭킹</h3><div className="space-y-2">{pointRanking.length > 0 ? pointRanking.map((p, i) => <RankItem key={i} rank={i+1} name={p.name} team={p.team} value={p.value.toLocaleString()} unit="P" color="text-yellow-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Pencil className="w-4 h-4 text-green-500"/> 소통왕 (게시글)</h3><div className="space-y-2">{postRanking.length > 0 ? postRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-green-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Heart className="w-4 h-4 text-red-500"/> 인기왕 (좋아요)</h3><div className="space-y-2">{likeRanking.length > 0 ? likeRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-red-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div></div>); };
-const BottomNav = ({ activeTab, setActiveTab }) => (<div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[380px] bg-[#00008F] backdrop-blur-md border border-blue-900 shadow-[0_8px_30px_rgb(0,0,0,0.3)] p-2 z-30 flex justify-between items-center rounded-3xl">{[{ id: 'home', icon: User, label: '홈' }, { id: 'feed', icon: MessageCircle, label: '소통' }, { id: 'news', icon: Bell, label: '소식' }, { id: 'ranking', icon: Award, label: '랭킹' }].map(item => (<button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex flex-1 flex-col items-center gap-1 px-2 py-3 rounded-2xl transition-all duration-300 ${activeTab === item.id ? 'text-white bg-white/20 shadow-lg scale-105' : 'text-blue-300 hover:text-white'}`}><item.icon className={`w-5 h-5 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} /><span className="text-[10px] font-bold">{item.label}</span></button>))}</div>);
-
-// --- Main App Component ---
-export default function App() {
-  const [supabase, setSupabase] = useState(null);
-  const [session, setSession] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [profiles, setProfiles] = useState([]);
-  const [feeds, setFeeds] = useState([]);
-  const [pointHistory, setPointHistory] = useState([]);
-  const [allPointHistory, setAllPointHistory] = useState([]);
-  const [redemptionList, setRedemptionList] = useState([]); 
-  const [loading, setLoading] = useState(false);
-  const [isSignupMode, setIsSignupMode] = useState(false);
-  const [showWriteModal, setShowWriteModal] = useState(false);
-  const [showUserInfoModal, setShowUserInfoModal] = useState(false);
-  const [showBirthdayPopup, setShowBirthdayPopup] = useState(false);
-  const [showGiftModal, setShowGiftModal] = useState(false);
-  const [showAdminManageModal, setShowAdminManageModal] = useState(false);
-  const [writeCategory, setWriteCategory] = useState(null); // 글쓰기 초기 카테고리
-  
-  const [showChangeDeptModal, setShowChangeDeptModal] = useState(false);
-  const [showChangePwdModal, setShowChangePwdModal] = useState(false);
-  const [showAdminGrantModal, setShowAdminGrantModal] = useState(false);
-  const [showRedemptionListModal, setShowRedemptionListModal] = useState(false); 
-  const [showAdminAlertModal, setShowAdminAlertModal] = useState(false); 
-  const [toast, setToast] = useState({ visible: false, message: '', emoji: '' });
-
-  const [activeTab, setActiveTab] = useState('home');
-  const [activeFeedFilter, setActiveFeedFilter] = useState('all');
-  const [mood, setMood] = useState(null);
-  const [hasCheckedOut, setHasCheckedOut] = useState(false);
-  const [boosterActive, setBoosterActive] = useState(false); // 이벤트 부스터 상태
-  
-  const [isSupabaseReady, setIsSupabaseReady] = useState(false);
-
-  const weeklyBirthdays = React.useMemo(() => getWeeklyBirthdays(profiles), [profiles]);
-
-  // Supabase 스크립트 로드
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-    script.async = true;
-    script.onload = () => {
-        if (window.supabase) {
-            const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            setSupabase(client);
-            setIsSupabaseReady(true);
-        }
-    };
-    document.body.appendChild(script);
-    
-    // 부스터 설정 복원
-    const savedBooster = localStorage.getItem('axa_booster_active') === 'true';
-    setBoosterActive(savedBooster);
-  }, []);
-  
-  // 부스터 상태 변경 시 저장
-  useEffect(() => {
-      localStorage.setItem('axa_booster_active', boosterActive);
-  }, [boosterActive]);
-
-  const checkBirthday = useCallback((user) => {
-    if (!user.birthdate || user.birthday_granted) return;
-    
-    // 팝업 "오늘 하루 보지 않기" 체크 확인
-    const currentYear = new Date().getFullYear();
-    const isClosed = localStorage.getItem('birthday_popup_closed_' + currentYear) === 'true';
-    if(isClosed) return;
-
-    const today = new Date();
-    const currentMonth = today.getMonth() + 1;
-    const [_, m, d] = user.birthdate.split('-').map(Number);
-    if (currentMonth === m) {
-        setShowBirthdayPopup(true);
-    }
-  }, []);
-
-  const checkAdminNotifications = async (user) => {
-      if (user.role !== 'admin' || !supabase) return;
-      const todayStr = new Date().toISOString().split('T')[0];
-      const hideDate = localStorage.getItem('hide_admin_alert');
-      if (hideDate === todayStr) return;
-      try {
-          const { count, error } = await supabase.from('redemption_requests').select('*', { count: 'exact', head: true }); 
-          if (!error && count > 0) setShowAdminAlertModal(true); 
-      } catch (err) { console.error(err); }
-  };
-  const handleCloseAdminAlert = (doNotShowToday) => {
-      if (doNotShowToday) { const todayStr = new Date().toISOString().split('T')[0]; localStorage.setItem('hide_admin_alert', todayStr); }
-      setShowAdminAlertModal(false);
-  };
-
-  const fetchUserData = useCallback(async (userId) => {
-    if (!supabase) return; 
-    try {
-        const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
-        if (data) {
-            setCurrentUser(data);
-            const todayStr = new Date().toISOString().split('T')[0];
-            if (data.last_attendance === todayStr) setMood('checked');
-            // 퇴근 여부 확인
-            const lastCheckout = localStorage.getItem(`checkout_${userId}_${todayStr}`);
-            if (lastCheckout) setHasCheckedOut(true);
-            else setHasCheckedOut(false);
-            
-            checkBirthday(data);
-            checkAdminNotifications(data); 
-        }
-    } catch (err) { console.error(err); }
-  }, [supabase, checkBirthday]);
-
-  // 개인용 포인트 히스토리
-  const fetchPointHistory = useCallback(async (userId) => {
-    if (!supabase) return; 
-    try {
-        const { data } = await supabase.from('point_history').select('*').eq('user_id', userId).order('created_at', { ascending: false });
-        if (data) setPointHistory(data);
-    } catch (err) { console.error(err); }
-  }, [supabase]);
-
-  // 전체 포인트 히스토리 가져오기 (랭킹용)
-  const fetchAllPointHistory = useCallback(async () => {
-      if (!supabase) return;
-      try {
-          const { data } = await supabase.from('point_history').select('user_id, amount, type, created_at');
-          if (data) setAllPointHistory(data);
-      } catch(err) { console.error(err); }
-  }, [supabase]);
-
-  const fetchFeeds = useCallback(async () => {
-    if (!supabase) return; 
-    try {
-        const { data: posts } = await supabase.from('posts').select(`*, profiles:author_id (name, dept, team, role, is_reporter), comments (*, profiles:author_id (name, role))`).order('created_at', { ascending: false });
-        if (posts) {
-            const formatted = posts.map(post => {
-                const sortedComments = post.comments ? post.comments.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)) : [];
-                return { ...post, author: post.profiles?.name || '알 수 없음', team: post.profiles?.team, formattedTime: new Date(post.created_at).toLocaleDateString(), likes: post.likes ? (typeof post.likes === 'string' ? JSON.parse(post.likes) : post.likes) : [], isLiked: false, comments: sortedComments, totalComments: sortedComments.length };
-            });
-            if (currentUser) formatted.forEach(p => { p.isLiked = p.likes.includes(currentUser.id); });
-            setFeeds(formatted);
-        }
-    } catch (err) { console.error(err); }
-  }, [supabase, currentUser]);
-
-  const fetchProfiles = useCallback(async () => {
-    if (!supabase) return; 
-    try {
-        const { data } = await supabase.from('profiles').select('*');
-        if (data) setProfiles(data);
-    } catch (err) { console.error(err); }
-  }, [supabase]);
-
-  const fetchRedemptionList = useCallback(async () => {
-      if (!supabase) return;
-      try {
-          const { data } = await supabase.from('redemption_requests').select('*').order('created_at', { ascending: false });
-          if(data) setRedemptionList(data);
-      } catch (err) { console.error(err); }
-  }, [supabase]);
-
-  useEffect(() => {
-    if (!supabase) return; 
-    const channel = supabase.channel('public:comments_posts').on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => { fetchFeeds(); }).on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => { fetchFeeds(); }).subscribe();
-    try {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-        setSession(session);
-        if (session) { fetchUserData(session.user.id); fetchPointHistory(session.user.id); }
-        });
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-        setSession(session);
-        if (session) { fetchUserData(session.user.id); fetchPointHistory(session.user.id); } else setCurrentUser(null);
-        });
-        fetchFeeds(); fetchProfiles(); fetchAllPointHistory(); 
-        return () => { subscription.unsubscribe(); supabase.removeChannel(channel); };
-    } catch(err) { console.error("Supabase init error:", err); }
-  }, [supabase, fetchFeeds, fetchPointHistory, fetchProfiles, fetchUserData, fetchAllPointHistory]);
-
-  const checkSupabaseConfig = () => { if (!supabase) return false; if (SUPABASE_URL.includes('your-project-url')) return false; return true; };
-  
-  const handleBirthdayGrant = async () => {
-    if (!currentUser || !checkSupabaseConfig()) return;
-    try {
-        const newPoints = (currentUser.points || 0) + 1000;
-        await supabase.from('profiles').update({ points: newPoints, birthday_granted: true }).eq('id', currentUser.id);
-        await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '생일 축하 포인트', amount: 1000, type: 'earn' });
-        setShowBirthdayPopup(false);
-        fetchUserData(currentUser.id); fetchPointHistory(currentUser.id); fetchAllPointHistory(); 
-    } catch (err) { console.error('오류 발생: ', err.message); }
-  };
-
-  const handleLikePost = async (postId, currentLikes, isLiked) => {
-      if (!currentUser || !checkSupabaseConfig()) return;
-      const userId = currentUser.id;
-      let newLikes = [...currentLikes];
-      if (isLiked) { newLikes = newLikes.filter(id => id !== userId); } else { newLikes.push(userId); }
-      setFeeds(feeds.map(f => f.id === postId ? { ...f, likes: newLikes, isLiked: !isLiked } : f));
-      try { await supabase.from('posts').update({ likes: newLikes }).eq('id', postId); } catch (err) { console.error(err); fetchFeeds(); }
-  };
-
-  const handleAddComment = async (e, postId, parentId = null) => {
-      e.preventDefault(); const content = e.target.commentContent.value; if (!content || !currentUser) return;
-      const tempComment = { id: `temp-${Date.now()}`, post_id: postId, author_id: currentUser.id, content: content, parent_id: parentId, created_at: new Date().toISOString(), profiles: { name: currentUser.name, role: currentUser.role } };
-      setFeeds(prevFeeds => prevFeeds.map(feed => { if (feed.id === postId) { return { ...feed, comments: [...feed.comments, tempComment], totalComments: feed.totalComments + 1 }; } return feed; }));
-      e.target.reset(); 
-      try { await supabase.from('comments').insert({ post_id: postId, author_id: currentUser.id, content: content, parent_id: parentId }); } catch (err) { console.error('Comment failed:', err); fetchFeeds(); }
-  };
-  
-  const handleDeleteComment = async (commentId) => {
-      if (!window.confirm('댓글을 삭제하시겠습니까?')) return;
-      setFeeds(prevFeeds => prevFeeds.map(feed => { const updatedComments = feed.comments.filter(c => c.id !== commentId); if (updatedComments.length !== feed.comments.length) { return { ...feed, comments: updatedComments, totalComments: updatedComments.length }; } return feed; }));
-      try { await supabase.from('comments').delete().eq('id', commentId); } catch (err) { console.error('Delete failed:', err); fetchFeeds(); }
-  };
-
-  const handleDeletePost = async (postId) => {
-    if (!currentUser) return;
-    const postToDelete = feeds.find(f => f.id === postId); if (!postToDelete) return;
-    if (currentUser.id !== postToDelete.author_id && currentUser.role !== 'admin') { alert('삭제 권한이 없습니다.'); return; }
-    if (!window.confirm('게시글을 삭제하시겠습니까? 삭제 시 지급된 포인트가 회수됩니다.')) return;
-    try {
-        const { error } = await supabase.from('posts').delete().eq('id', postId); if (error) throw error;
-        // 포인트 회수
-        if (['praise', 'knowhow', 'matjib', 'dept_news'].includes(postToDelete.type)) {
-            const deductAmount = 50; 
-            const newPoints = Math.max(0, currentUser.points - deductAmount); 
-            await supabase.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
-            await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '게시글 삭제 (회수)', amount: deductAmount, type: 'use' });
-            fetchUserData(currentUser.id); fetchAllPointHistory(); 
-        }
-    } catch (err) { console.error('삭제 실패: ', err.message); }
-  };
-
-  const handleRedeemPoints = async () => {
-    if (!currentUser || currentUser.points < 10000) return; if (!window.confirm('10,000P를 사용하여 포인트 차감 신청을 하시겠습니까?')) return;
-    try {
-        await supabase.from('redemption_requests').insert({ user_id: currentUser.id, user_name: currentUser.name, amount: 10000 });
-        const newPoints = currentUser.points - 10000;
-        await supabase.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
-        await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '포인트 차감 신청', amount: 10000, type: 'use' });
-        fetchUserData(currentUser.id); fetchPointHistory(currentUser.id); setShowUserInfoModal(false);
-    } catch (err) { console.error('신청 실패: ', err.message); }
-  };
-
-  const handleGiftPoints = async (targetUserId, amount) => {
-    if (!currentUser || !supabase) return;
-    const giftAmount = parseInt(amount);
-    if (isNaN(giftAmount) || giftAmount <= 0) return;
-
-    try {
-        // 내 포인트 차감
-        const myNewPoints = currentUser.points - giftAmount;
-        await supabase.from('profiles').update({ points: myNewPoints }).eq('id', currentUser.id);
-        await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '포인트 선물 (보냄)', amount: giftAmount, type: 'gift_sent' });
-
-        // 상대방 포인트 증가
-        const { data: targetUser } = await supabase.from('profiles').select('points').eq('id', targetUserId).single();
-        const targetNewPoints = (targetUser.points || 0) + giftAmount;
-        await supabase.from('profiles').update({ points: targetNewPoints }).eq('id', targetUserId);
-        await supabase.from('point_history').insert({ user_id: targetUserId, reason: `선물 받음 (${currentUser.name})`, amount: giftAmount, type: 'earn' });
-
-        setShowGiftModal(false);
-        alert('선물이 완료되었습니다! 🎁');
-        fetchUserData(currentUser.id);
-        fetchPointHistory(currentUser.id);
-        fetchAllPointHistory();
-    } catch (err) { console.error(err); alert('선물하기 중 오류가 발생했습니다.'); }
-  };
-
-  // 사용자 관리 (관리자용) - 업데이트
-  const handleAdminUpdateUser = async (userId, updates) => {
-      try {
-          await supabase.from('profiles').update(updates).eq('id', userId);
-          fetchProfiles();
-      } catch (err) { console.error(err); }
-  };
-
-  const handleAdminDeleteUser = async (userId) => {
-      if(!window.confirm('정말 삭제하시겠습니까?')) return;
-      try { await supabase.from('profiles').delete().eq('id', userId); fetchProfiles(); } catch(err) { console.error(err); }
-  };
-
-  const handleLogin = async (e) => {
-    e.preventDefault(); if (!checkSupabaseConfig()) return; setLoading(true);
-    const email = e.target.email.value; const password = e.target.password.value;
-    try {
-        const { data: userCheck } = await supabase.from('profiles').select('id').eq('email', email).maybeSingle();
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) { if (userCheck === null) alert('가입되지 않은 이메일 계정입니다.'); else alert('비밀번호가 일치하지 않습니다.'); }
-    } catch (err) { console.error('로그인 실패: ', err.message); alert('로그인 중 오류가 발생했습니다.'); } finally { setLoading(false); }
-  };
-
-  const handleSignup = async (e) => {
-    e.preventDefault(); if (!checkSupabaseConfig()) return; setLoading(true);
-    const { name, email, password, dept, team, birthdate } = e.target;
-    // 이메일 중복 체크는 Supabase Auth가 자동 처리
-    try {
-        const initialData = { name: name.value, dept: dept.value, team: team.value, role: 'member', points: INITIAL_POINTS, birthdate: birthdate.value, email: email.value };
-        const { data: signUpResult, error } = await supabase.auth.signUp({ email: email.value, password: password.value, options: { data: initialData } });
-        if (error) throw error;
-        await supabase.from('point_history').insert({ user_id: signUpResult.user.id, reason: '최초 가입 포인트', amount: INITIAL_POINTS, type: 'earn' });
-        alert('가입이 완료되었습니다. 로그인해주세요.');
-        setIsSignupMode(false);
-    } catch (err) { console.error('가입 실패: ', err.message); alert('가입 실패: ' + err.message); } finally { setLoading(false); }
-  };
-
-  const handlePostSubmit = async (e) => {
-    e.preventDefault(); if (!currentUser || !checkSupabaseConfig()) return;
-    const category = e.target.category.value;
-    const isRewardCategory = ['praise', 'knowhow', 'matjib', 'dept_news'].includes(category);
-    // 일일 게시글 제한 체크 (2회)
-    const today = new Date().toISOString().split('T')[0];
-    const todayPosts = feeds.filter(f => f.author_id === currentUser.id && f.created_at.startsWith(today)).length;
-    
-    if (todayPosts >= 2) {
-        if(!window.confirm('하루 글쓰기 제한(2회)을 초과했습니다. 포인트 지급 없이 작성하시겠습니까?')) return;
-        // 포인트 지급 없이 작성 진행
-    }
-
-    const rewardPoints = (isRewardCategory && todayPosts < 2) ? (boosterActive ? 100 : 50) : 0; 
-    
-    const content = e.target.content.value;
-    const title = e.target.title ? e.target.title.value : null;
-    const targetName = e.target.targetName ? e.target.targetName.value : null;
-    const regionMain = e.target.regionMain ? e.target.regionMain.value : null;
-    const regionSub = e.target.regionSub ? e.target.regionSub.value : null;
-
-    const file = e.target.file?.files[0];
-    let publicImageUrl = null;
-
-    try {
-        if (file) {
-           const fileExt = file.name.split('.').pop(); const fileName = `${Date.now()}_${Math.random()}.${fileExt}`;
-           const { error: uploadError } = await supabase.storage.from('images').upload(fileName, file);
-           if (!uploadError) { const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(fileName); publicImageUrl = publicUrl; }
-        }
-
-        const { error: postError } = await supabase.from('posts').insert({
-            content: content, type: category, author_id: currentUser.id, image_url: publicImageUrl, 
-            target_name: targetName, title: title, region_main: regionMain, region_sub: regionSub, likes: [] 
-        });
-
-        if (postError) throw postError;
-
-        if (rewardPoints > 0) {
-            const newPoints = (currentUser.points || 0) + rewardPoints;
-            await supabase.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
-            let reasonText = `게시글 작성 (${category})`;
-            await supabase.from('point_history').insert({ user_id: currentUser.id, reason: reasonText, amount: rewardPoints, type: 'earn' });
-        }
-        setShowWriteModal(false);
-        fetchUserData(currentUser.id); 
-        fetchAllPointHistory(); 
-        
-        // [중요 수정] 글 작성 성공 후 목록 갱신을 위해 fetchFeeds를 명시적으로 호출
-        await fetchFeeds();
-
-    } catch (err) { console.error('작성 실패: ', err.message); }
-  };
-
-  const handleMoodCheck = async (selectedMood) => {
-    if (mood || !checkSupabaseConfig()) return;
-    setMood('checked');
-    const points = boosterActive ? 40 : 20;
-    
-    let msg = "";
-    if(selectedMood === 'good') msg = "오늘 하루도 활기차게! 화이팅! 🚀";
-    else if(selectedMood === 'normal') msg = "무난한 하루가 되길 응원해요! 😊";
-    else if(selectedMood === 'tired') msg = "힘내세요! 달콤한 커피 한잔 어때요? ☕️";
-
-    setToast({ visible: true, message: `${msg}\n(+${points}P)`, emoji: "👋" });
-    setTimeout(() => setToast({ visible: false, message: '', emoji: '' }), 3000); 
-
-    try {
-        const newPoints = (currentUser.points || 0) + points;
-        const todayStr = new Date().toISOString().split('T')[0];
-        await supabase.from('profiles').update({ points: newPoints, last_attendance: todayStr }).eq('id', currentUser.id);
-        await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '출석체크', amount: points, type: 'earn' });
-        fetchUserData(currentUser.id); fetchAllPointHistory();
-    } catch (err) { console.error(err); }
-  };
-
-  const handleCheckOut = async () => {
-      if (!mood || hasCheckedOut || !checkSupabaseConfig()) return;
-      setHasCheckedOut(true);
-      const points = boosterActive ? 40 : 20;
-      setToast({ visible: true, message: `퇴근 체크 완료! 고생하셨어요 (+${points}P)`, emoji: "🏠" });
-      setTimeout(() => setToast({ visible: false, message: '', emoji: '' }), 3000);
-      
-      const todayStr = new Date().toISOString().split('T')[0];
-      localStorage.setItem(`checkout_${currentUser.id}_${todayStr}`, 'true');
-
-      try {
-          const newPoints = (currentUser.points || 0) + points;
-          await supabase.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
-          await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '퇴근체크', amount: points, type: 'earn' });
-          fetchUserData(currentUser.id); fetchAllPointHistory();
-      } catch (err) { console.error(err); }
-  };
-
-  const handleLogout = async () => { if (!supabase) return; try { await supabase.auth.signOut(); setCurrentUser(null); setSession(null); setMood(null); setHasCheckedOut(false); setPointHistory([]); } catch (err) { console.error('로그아웃 실패: ', err.message); } };
-
-  // ... (handleChangePasswordClick, handleChangeDept, handleChangePassword, handleAdminGrantPoints existing code maintained) ...
-  const handleChangeDept = async (newDept, newTeam) => { if (!currentUser || !supabase) return; try { await supabase.from('profiles').update({ dept: newDept, team: newTeam }).eq('id', currentUser.id); fetchUserData(currentUser.id); setShowChangeDeptModal(false); alert('소속이 변경되었습니다.'); } catch(err) { console.error(err); } };
-  const handleChangePassword = async (newPassword) => { if (!currentUser || !supabase) return; try { const { error } = await supabase.auth.updateUser({ password: newPassword }); if (error) throw error; setShowChangePwdModal(false); alert('비밀번호가 변경되었습니다. 다시 로그인해주세요.'); handleLogout(); } catch(err) { console.error(err); } };
-  const handleAdminGrantPoints = async (targetUserId, amount) => { if (!currentUser || !supabase) return; if (currentUser.role !== 'admin') return; try { const { data: targetUser } = await supabase.from('profiles').select('points').eq('id', targetUserId).single(); if (!targetUser) return; const newPoints = (targetUser.points || 0) + parseInt(amount); await supabase.from('profiles').update({ points: newPoints }).eq('id', targetUserId); await supabase.from('point_history').insert({ user_id: targetUserId, reason: '관리자 특별 지급', amount: parseInt(amount), type: 'earn' }); setShowAdminGrantModal(false); alert('포인트 지급이 완료되었습니다.'); fetchProfiles(); fetchAllPointHistory(); } catch(err) { console.error(err); } };
-
-  if (!isSupabaseReady) {
-      return (
-          <div className="min-h-screen flex items-center justify-center bg-blue-50">
-              <div className="text-center">
-                  <Loader2 className="w-10 h-10 animate-spin text-blue-600 mx-auto mb-4" />
-                  <p className="text-slate-500 font-bold">시스템 연결 중...</p>
-              </div>
-          </div>
-      );
-  }
-
-  return (
-    <div className="min-h-screen bg-slate-100 flex justify-center font-sans">
-      <div className="w-full max-w-md h-full min-h-screen shadow-2xl relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100">
-        <div className="relative z-10 h-full flex flex-col">
-          {!session ? (
-            <AuthForm isSignupMode={isSignupMode} setIsSignupMode={setIsSignupMode} handleLogin={handleLogin} handleSignup={handleSignup} loading={loading} />
-          ) : (
-            <>
-              <Header 
-                currentUser={currentUser} 
-                onOpenUserInfo={() => setShowUserInfoModal(true)} 
-                handleLogout={handleLogout} 
-                onOpenChangeDept={() => setShowChangeDeptModal(true)}
-                onOpenChangePwd={() => setShowChangePwdModal(true)}
-                onOpenAdminGrant={() => setShowAdminGrantModal(true)}
-                onOpenRedemptionList={() => { fetchRedemptionList(); setShowRedemptionListModal(true); }}
-                onOpenGift={() => setShowGiftModal(true)}
-                onOpenAdminManage={() => setShowAdminManageModal(true)}
-                boosterActive={boosterActive}
-              />
-              <main className="flex-1 overflow-y-auto scrollbar-hide">
-                {activeTab === 'home' && <HomeTab 
-                  mood={mood} 
-                  handleMoodCheck={handleMoodCheck} 
-                  handleCheckOut={handleCheckOut}
-                  hasCheckedOut={hasCheckedOut}
-                  feeds={feeds} 
-                  weeklyBirthdays={weeklyBirthdays} 
-                  onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
-                  onNavigateToNews={() => setActiveTab('news')} 
-                  onNavigateToFeed={(type) => { setActiveTab('feed'); setActiveFeedFilter(type); }}
-                  boosterActive={boosterActive}
-                />}
-                
-                {activeTab === 'feed' && <FeedTab 
-                    feeds={feeds} 
-                    activeFeedFilter={activeFeedFilter} 
-                    setActiveFeedFilter={setActiveFeedFilter} 
-                    onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
-                    currentUser={currentUser} 
-                    handleDeletePost={handleDeletePost} 
-                    handleLikePost={handleLikePost} 
-                    handleAddComment={handleAddComment} 
-                    handleDeleteComment={handleDeleteComment} 
-                    boosterActive={boosterActive}
-                />}
-                {activeTab === 'ranking' && <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} />}
-              </main>
-              <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
-              
-              {/* Modals */}
-              {showWriteModal && <WriteModal setShowWriteModal={setShowWriteModal} handlePostSubmit={handlePostSubmit} currentUser={currentUser} activeTab={activeTab} boosterActive={boosterActive} initialCategory={writeCategory} />}
-              {showUserInfoModal && currentUser && <UserInfoModal currentUser={currentUser} pointHistory={pointHistory} setShowUserInfoModal={setShowUserInfoModal} handleRedeemPoints={handleRedeemPoints} />}
-              {showBirthdayPopup && currentUser && <BirthdayPopup currentUser={currentUser} handleBirthdayGrant={handleBirthdayGrant} setShowBirthdayPopup={setShowBirthdayPopup} />}
-              {showGiftModal && <GiftModal onClose={() => setShowGiftModal(false)} onGift={handleGiftPoints} profiles={profiles} currentUser={currentUser} pointHistory={pointHistory} />}
-              
-              {/* Admin Modals */}
-              {showAdminManageModal && <AdminManageModal onClose={() => setShowAdminManageModal(false)} profiles={profiles} onUpdateUser={handleAdminUpdateUser} onDeleteUser={handleAdminDeleteUser} boosterActive={boosterActive} setBoosterActive={setBoosterActive} />}
-              {showChangeDeptModal && <ChangeDeptModal onClose={() => setShowChangeDeptModal(false)} onSave={handleChangeDept} />}
-              {showChangePwdModal && <ChangePasswordModal onClose={() => setShowChangePwdModal(false)} onSave={handleChangePassword} />}
-              {showAdminGrantModal && <AdminGrantModal onClose={() => setShowAdminGrantModal(false)} onGrant={handleAdminGrantPoints} profiles={profiles} />}
-              {showRedemptionListModal && <RedemptionListModal onClose={() => setShowRedemptionListModal(false)} redemptionList={redemptionList} />}
-              {showAdminAlertModal && <AdminAlertModal onClose={handleCloseAdminAlert} />}
-              
-              <MoodToast visible={toast.visible} message={toast.message} emoji={toast.emoji} />
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
