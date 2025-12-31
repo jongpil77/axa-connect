@@ -259,9 +259,11 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-1 relative">
             <img src={AXA_LOGO_URL} alt="AXA Logo" className="w-8 h-auto mr-1" />
-            <div className="relative">
+            {/* 로고 옆 전선 및 플러그 효과 추가 */}
+            <div className="relative flex items-center">
                 <h1 className="text-xl font-black text-slate-800 tracking-tight">AXA Connect</h1>
-                <Plug className="w-3 h-3 text-blue-600 fill-blue-600 absolute -top-1 -right-2" />
+                <div className="w-4 h-0.5 bg-slate-300 mx-1 rounded-full"></div>
+                <Plug className="w-4 h-4 text-blue-500 fill-blue-500 rotate-90" />
             </div>
         </div>
         
@@ -273,8 +275,10 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
                  <span className="text-[9px] text-slate-500 font-bold whitespace-nowrap">MY CARE</span>
                  <span className="text-[9px] text-slate-500 font-bold whitespace-nowrap">POINT</span>
              </div>
+             {/* 포인트 숫자 우측에 황금동전 이모지 추가 */}
              <div className="bg-yellow-50 px-3 py-1.5 rounded-xl border border-yellow-200 shadow-sm flex items-center gap-1">
                  <span className="text-lg font-black text-blue-700 animate-pulse">{currentUser?.points?.toLocaleString()}</span>
+                 <Coins className="w-5 h-5 text-yellow-500 fill-yellow-500" />
              </div>
           </div>
 
@@ -390,9 +394,9 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
            <div className="space-y-2">{noticeFeeds.length > 0 ? noticeFeeds.map(feed => (<div key={feed.id} onClick={onNavigateToNews} className="bg-white px-4 py-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 transition-transform active:scale-[0.99] hover:border-blue-200 cursor-pointer"><div className="flex-1 min-w-0"><p className="text-xs font-bold text-slate-800 line-clamp-1 mb-0.5">{feed.title || feed.content}{isToday(feed.created_at) && <span className="ml-1 px-1 py-0.5 bg-red-500 text-white text-[8px] font-bold rounded-sm inline-block">NEW</span>}</p><span className="text-[10px] text-slate-400">{feed.formattedTime} • {feed.author}</span></div><ChevronRight className="w-4 h-4 text-slate-300" /></div>)) : <div className="text-center text-xs text-slate-400 py-6 bg-white rounded-2xl border border-slate-100 border-dashed">등록된 공지가 없습니다.</div>}</div>
         </div>
 
-        {/* 2. 출퇴근/생일 (h-56으로 높이 키움) */}
+        {/* 2. 출퇴근/생일 (h-56으로 높이 키움, flex 비율 조정) */}
         <div className="flex gap-4 h-56">
-            <div className="flex-[2] bg-white rounded-2xl p-4 shadow-sm border border-blue-100 flex flex-col relative overflow-hidden">
+            <div className="flex-1 bg-white rounded-2xl p-4 shadow-sm border border-blue-100 flex flex-col relative overflow-hidden">
                   <div className="flex justify-between items-start mb-2 relative z-10">
                     <div>
                         <h2 className="text-xs font-bold text-slate-400 mb-0.5 flex items-center gap-1"><span className="text-xl mr-1">⏰</span>출/퇴근 체크</h2>
@@ -415,20 +419,16 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                   </div>
                   <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-blue-50 rounded-full opacity-50 z-0"></div>
             </div>
-            <div className="flex-1 h-full"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} /></div>
+            <div className="flex-[1.5] h-full"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} /></div>
         </div>
         
-        {/* 중간 글쓰기 버튼 삭제됨 (포인트 안내만 남김) */}
-        <div className="flex flex-col items-end gap-1 mb-2">
-            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-white px-2 py-1 rounded-full shadow-sm border border-slate-100"><div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner"><Coins className="w-2.5 h-2.5 text-white fill-white"/></div>게시글 1개당 +50P (일 최대 +100P 가능)</div>
-        </div>
-
         {/* 3. 우리들 소식 (보상부) -> 바로 위에 글쓰기 버튼 추가 */}
-        {/* [NEW] 글쓰기 버튼 위치: 우리들 소식 위 좌측 끝단 */}
-        <div className="flex justify-start mb-2">
+        {/* [NEW] 글쓰기 버튼 & 안내문구 위치: 우리들 소식 위 좌측 끝단 */}
+        <div className="flex items-center gap-2 mb-2">
              <button onClick={() => onWriteClickWithCategory(null)} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center gap-1.5 hover:shadow-xl transition-all active:scale-95">
                 <span>➕</span> 글쓰기
              </button>
+             <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-white px-2 py-1 rounded-full shadow-sm border border-slate-100"><div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner"><Coins className="w-2.5 h-2.5 text-white fill-white"/></div>게시글 1개당 +50P (일 최대 +100P 가능)</div>
         </div>
 
         <div className="bg-white p-4 rounded-3xl shadow-sm border border-purple-100 cursor-pointer hover:border-purple-300 transition-colors" onClick={() => onWriteClickWithCategory('dept_news')}>
@@ -578,7 +578,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
 };
 
 const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTab, boosterActive, initialCategory }) => {
-  const [writeCategory, setWriteCategory] = useState(initialCategory || 'praise');
+  const [writeCategory, setWriteCategory] = useState(initialCategory || ''); // 초기값을 빈 문자열로 설정하여 선택 유도
   const [imagePreview, setImagePreview] = useState(null);
   const [regionMain, setRegionMain] = useState('');
   const [regionSub, setRegionSub] = useState('');
@@ -587,26 +587,24 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
   const handleImageChange = (e) => { const file = e.target.files[0]; if (file) setImagePreview(URL.createObjectURL(file)); };
   
   const categories = useMemo(() => {
-    // 기본적으로 칭찬, 맛집, 꿀팁은 항상 보임
-    const allCategories = [
+    const baseCategories = [
+        {id: 'dept_news', label: '우리들 소식'}, // 순서 변경: 우리들 소식이 가장 먼저 나오도록
         {id: 'praise', label: '칭찬하기'},
         {id: 'matjib', label: '맛집소개'},
         {id: 'knowhow', label: '꿀팁'}
     ];
-    // 우리들 소식도 기본으로 추가 (요청: 나머지 탭도 활성화)
-    allCategories.unshift({id: 'dept_news', label: '우리들 소식'});
-
-    // 공지사항은 관리자만
+    // 관리자만 공지사항 카테고리 선택 가능
     if (currentUser?.role === 'admin') {
-        allCategories.push({id: 'news', label: '공지사항'});
+        baseCategories.push({id: 'news', label: '공지사항 (관리자)'});
     }
-    return allCategories;
+    return baseCategories;
   }, [currentUser]);
 
   useEffect(() => {
-      if (!initialCategory && categories.length > 0) { setWriteCategory(categories[0].id); } 
-      else if (initialCategory && categories.some(c => c.id === initialCategory)) { setWriteCategory(initialCategory); } 
-      else if (categories.length > 0) { setWriteCategory(categories[0].id); }
+      // initialCategory가 있으면 그걸로 설정, 없으면 빈 값 유지 (선택 유도)
+      if (initialCategory && categories.some(c => c.id === initialCategory)) {
+          setWriteCategory(initialCategory);
+      } 
       if (currentUser?.dept && Object.keys(ORGANIZATION).includes(currentUser.dept)) { setDeptNewsOrg(currentUser.dept); }
   }, [categories, initialCategory, currentUser]);
 
@@ -623,16 +621,31 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
         </div>
         <div className="p-6">
             <form onSubmit={handlePostSubmit}>
-            <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-                {categories.map((cat) => (
-                    <label key={cat.id} className="flex-shrink-0 cursor-pointer">
-                        <input type="radio" name="category" value={cat.id} className="peer hidden" checked={writeCategory === cat.id} onChange={() => setWriteCategory(cat.id)} />
-                        <span className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center ${writeCategory === cat.id ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50'}`}>{cat.label}</span>
-                    </label>
-                ))}
+            
+            {/* [NEW] 콤보박스 (Select) 형태의 카테고리 선택 */}
+            <div className="mb-6">
+                <label className="block text-xs font-bold text-slate-500 mb-2 ml-1">게시글 유형을 선택해 주세요</label>
+                <div className="relative">
+                    <select 
+                        name="category" 
+                        value={writeCategory} 
+                        onChange={(e) => setWriteCategory(e.target.value)}
+                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm font-bold text-slate-700 appearance-none focus:border-blue-500 transition-colors cursor-pointer"
+                        required
+                    >
+                        <option value="" disabled>선택해주세요...</option>
+                        {categories.map((cat) => (
+                            <option key={cat.id} value={cat.id}>{cat.label}</option>
+                        ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-slate-400">
+                        <ChevronDownIcon className="w-5 h-5" />
+                    </div>
+                </div>
             </div>
             
             <div className="space-y-4 mb-8">
+                {/* 카테고리별 분기 처리 */}
                 {writeCategory === 'praise' && (
                     <div className="bg-green-50 p-4 rounded-2xl border border-green-100 animate-fade-in">
                         <label className="text-xs font-bold text-green-700 block mb-2 ml-1">누구를 칭찬하나요?</label>
@@ -640,14 +653,10 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
                     </div>
                 )}
                 {writeCategory === 'dept_news' && (
-                     <div className="bg-red-50 p-4 rounded-2xl border border-red-100 animate-fade-in">
-                         <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xs font-bold text-white bg-red-500 px-2 py-0.5 rounded-md">작성 권한</span>
-                            <p className="text-[10px] text-red-700 font-bold bg-red-100 px-2 py-0.5 rounded">해당 조직의 소속 직원만 작성 가능합니다.</p>
-                         </div>
-                         <p className="text-xs text-red-800 font-bold mb-2">📢 우리 조직의 즐거운 소식을 전해주세요!</p>
-                         <select name="regionMain" className="w-full p-3 bg-white border border-red-200 rounded-xl text-xs outline-none mb-2 text-red-900 font-bold" value={deptNewsOrg} onChange={(e) => setDeptNewsOrg(e.target.value)} required><option value="">소식 구분 (조직 선택)</option>{Object.keys(ORGANIZATION).map(org => <option key={org} value={org}>{org}</option>)}</select>
-                         <input name="title" type="text" placeholder="제목을 입력하세요 (예: 00팀 회식~!)" className="w-full p-3 bg-white border border-red-200 rounded-xl text-sm outline-none focus:border-red-500 font-bold mb-3" required />
+                     <div className="bg-purple-50 p-4 rounded-2xl border border-purple-100 animate-fade-in">
+                         <p className="text-xs text-purple-800 font-bold mb-2">📢 우리 조직의 즐거운 소식을 전해주세요!</p>
+                         <select name="regionMain" className="w-full p-3 bg-white border border-purple-200 rounded-xl text-xs outline-none mb-2 text-purple-900 font-bold" value={deptNewsOrg} onChange={(e) => setDeptNewsOrg(e.target.value)} required><option value="">소식 구분 (조직 선택)</option>{Object.keys(ORGANIZATION).map(org => <option key={org} value={org}>{org}</option>)}</select>
+                         <input name="title" type="text" placeholder="제목을 입력하세요 (예: 00팀 회식~!)" className="w-full p-3 bg-white border border-purple-200 rounded-xl text-sm outline-none focus:border-purple-500 font-bold mb-3" required />
                      </div>
                 )}
                 {writeCategory === 'matjib' && (
@@ -666,24 +675,30 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
                          <input name="title" type="text" placeholder="공지 제목" className="w-full p-3 bg-white border border-red-200 rounded-xl text-sm outline-none focus:border-red-500 font-bold mb-3" required />
                      </div>
                 )}
-                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                    <textarea name="content" className="w-full h-32 bg-transparent text-sm outline-none resize-none placeholder-slate-400" placeholder="내용을 자세히 작성해주세요..." required></textarea>
-                </div>
-                <div className="flex items-center gap-3">
-                    <label className="cursor-pointer flex items-center justify-center w-20 h-20 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl hover:border-blue-400 hover:bg-blue-50 transition-all">
-                        <div className="text-center"><ImageIcon className="w-6 h-6 text-slate-400 mx-auto mb-1" /><span className="text-[10px] text-slate-400">사진</span></div>
-                        <input type="file" name="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-                    </label>
-                    {imagePreview && (
-                        <div className="w-20 h-20 rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative group">
-                            <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                            <button type="button" onClick={() => setImagePreview(null)} className="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center text-white"><X className="w-5 h-5"/></button>
+                
+                {/* 공통 입력 폼 (내용, 사진) */}
+                {writeCategory && (
+                    <div className="animate-fade-in space-y-4">
+                        <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                            <textarea name="content" className="w-full h-32 bg-transparent text-sm outline-none resize-none placeholder-slate-400" placeholder="내용을 자세히 작성해주세요..." required></textarea>
                         </div>
-                    )}
-                </div>
+                        <div className="flex items-center gap-3">
+                            <label className="cursor-pointer flex items-center justify-center w-20 h-20 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl hover:border-blue-400 hover:bg-blue-50 transition-all">
+                                <div className="text-center"><ImageIcon className="w-6 h-6 text-slate-400 mx-auto mb-1" /><span className="text-[10px] text-slate-400">사진</span></div>
+                                <input type="file" name="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                            </label>
+                            {imagePreview && (
+                                <div className="w-20 h-20 rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative group">
+                                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                    <button type="button" onClick={() => setImagePreview(null)} className="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center text-white"><X className="w-5 h-5"/></button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
             
-            <button type="submit" className="w-full bg-slate-800 text-white p-4 rounded-2xl text-sm font-bold hover:bg-slate-900 shadow-lg transition-all flex items-center justify-center gap-2">
+            <button type="submit" disabled={!writeCategory} className="w-full bg-slate-800 text-white p-4 rounded-2xl text-sm font-bold hover:bg-slate-900 shadow-lg transition-all flex items-center justify-center gap-2 disabled:bg-slate-300">
                 등록하기 <span className="text-yellow-400 bg-white/10 px-1.5 py-0.5 rounded text-xs">{pointRewardText}</span>
             </button>
             </form>
@@ -692,6 +707,13 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
     </div>
   );
 };
+
+// 헬퍼 컴포넌트: Select 아이콘용 (ChevronDown)
+const ChevronDownIcon = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+    </svg>
+);
 
 const RankingTab = ({ feeds, profiles, allPointHistory }) => { const [selectedDate, setSelectedDate] = useState(new Date()); const isSelectedMonth = (dateString) => { if(!dateString) return false; const d = new Date(dateString); return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear(); }; const handlePrevMonth = () => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() - 1))); const handleNextMonth = () => { const nextMonth = new Date(selectedDate); nextMonth.setMonth(selectedDate.getMonth() + 1); if (nextMonth <= new Date()) setSelectedDate(nextMonth); }; const pointRanking = useMemo(() => { const monthlyPoints = {}; allPointHistory.forEach(record => { if (isSelectedMonth(record.created_at) && record.type === 'earn') monthlyPoints[record.user_id] = (monthlyPoints[record.user_id] || 0) + record.amount; }); return Object.entries(monthlyPoints).map(([id, points]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: points, unit: 'P', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); }, [allPointHistory, profiles, selectedDate]); const postCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { postCounts[f.author_id] = (postCounts[f.author_id] || 0) + 1; }); const postRanking = Object.entries(postCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '건', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); const likeCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { const likes = f.likes ? (Array.isArray(f.likes) ? f.likes.length : 0) : 0; if(likes > 0) likeCounts[f.author_id] = (likeCounts[f.author_id] || 0) + likes; }); const likeRanking = Object.entries(likeCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '개', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); const RankItem = ({ rank, name, value, unit, team, color }) => (<div className="flex items-center p-3 bg-white border border-slate-100 rounded-2xl shadow-sm relative overflow-hidden">{rank <= 3 && <div className="absolute right-0 top-0 bg-yellow-100 text-yellow-600 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">🎁 1,000P</div>}<div className={`text-xl font-black mr-4 w-8 text-center ${color}`}>{rank}</div><div className="flex-1"><p className="text-sm font-bold text-slate-800">{name || 'Unknown'}</p><p className="text-[10px] text-slate-400">{team}</p></div><div className="text-base font-black text-slate-700 ml-4">{value}<span className="text-[10px] text-slate-400 ml-0.5 font-normal">{unit}</span></div></div>); return (<div className="p-5 space-y-8 pb-28 animate-fade-in bg-blue-50"><div className="bg-white p-5 rounded-[2rem] shadow-sm border border-blue-100 text-center relative"><div className="flex justify-between items-center mb-4 px-2"><button onClick={handlePrevMonth} className="p-1 hover:bg-slate-100 rounded-full"><ChevronLeft className="w-5 h-5 text-slate-400" /></button><h2 className="text-lg font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2><button onClick={handleNextMonth} className="p-1 hover:bg-slate-100 rounded-full disabled:opacity-30" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-5 h-5 text-slate-400" /></button></div><div className="flex justify-center gap-2 mt-2"><span className="text-[10px] bg-green-50 text-green-600 px-2 py-1 rounded">🏆 소통상/좋아요상: 1~3등 1,000P</span></div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Coins className="w-4 h-4 text-yellow-500"/> 월간 획득 포인트 랭킹</h3><div className="space-y-2">{pointRanking.length > 0 ? pointRanking.map((p, i) => <RankItem key={i} rank={i+1} name={p.name} team={p.team} value={p.value.toLocaleString()} unit="P" color="text-yellow-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Pencil className="w-4 h-4 text-green-500"/> 소통왕 (게시글)</h3><div className="space-y-2">{postRanking.length > 0 ? postRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-green-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Heart className="w-4 h-4 text-red-500"/> 인기왕 (좋아요)</h3><div className="space-y-2">{likeRanking.length > 0 ? likeRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-red-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div></div>); };
 
