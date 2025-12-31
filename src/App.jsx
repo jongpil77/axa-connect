@@ -254,28 +254,41 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
     <div className="bg-white/80 backdrop-blur-md p-4 sticky top-0 z-30 border-b border-slate-100 shadow-sm">
       <div className="flex justify-between items-center mb-1">
           <div className="text-[10px] text-blue-400 font-bold pl-1">{todayDate}</div>
-          {boosterActive && <div className="text-[10px] text-white bg-gradient-to-r from-purple-500 to-pink-500 px-2 py-0.5 rounded-full font-bold animate-pulse flex items-center gap-1"><Zap className="w-3 h-3 fill-yellow-300 text-yellow-300"/>포인트 2배 부스터 ON</div>}
+          {/* 우측 상단 소속 표시 */}
+          <div className="text-[10px] text-slate-500 font-bold pr-1 flex items-center gap-2">
+              {currentUser && <span>{currentUser.dept} {currentUser.team} 님</span>}
+              {boosterActive && <div className="text-[9px] text-white bg-gradient-to-r from-purple-500 to-pink-500 px-2 py-0.5 rounded-full font-bold animate-pulse flex items-center gap-1"><Zap className="w-3 h-3 fill-yellow-300 text-yellow-300"/> 부스터 ON</div>}
+          </div>
       </div>
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-1 relative">
-            <img src={AXA_LOGO_URL} alt="AXA Logo" className="w-8 h-auto mr-1" />
+            {/* 로고 크기 확대 */}
+            <img src={AXA_LOGO_URL} alt="AXA Logo" className="w-10 h-auto mr-1" />
             <div className="relative flex items-center">
-                <h1 className="text-xl font-black text-slate-800 tracking-tight">AXA Connect</h1>
-                <div className="w-4 h-0.5 bg-slate-300 mx-1 rounded-full"></div>
+                {/* 텍스트 2줄로 쌓기, 간격 좁히기 */}
+                <div className="flex flex-col leading-[0.8]">
+                    <span className="text-lg font-black text-slate-800 tracking-tighter">AXA</span>
+                    <span className="text-lg font-black text-slate-800 tracking-tighter">Connect</span>
+                </div>
+                {/* S자 모양 전선 (SVG) */}
+                <svg width="30" height="20" className="mx-1" viewBox="0 0 30 20">
+                   <path d="M0 10 C 10 10, 10 2, 15 2 S 20 10, 30 10" stroke="#cbd5e1" strokeWidth="2" fill="none" />
+                </svg>
                 <Plug className="w-4 h-4 text-blue-500 fill-blue-500 rotate-90" />
             </div>
         </div>
         
         <div className="flex items-center gap-3 relative">
-          <button onClick={onOpenGift} className="p-1 rounded-full hover:bg-slate-100 active:scale-95 transition-all relative"><Gift className="w-8 h-8 text-pink-500" /></button>
+          <button onClick={onOpenGift} className="p-1.5 rounded-full hover:bg-slate-100 active:scale-95 transition-all relative text-2xl">🎁</button>
           
           <div className="flex items-center gap-2 mr-1 cursor-pointer" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-end leading-none">
                  <span className="text-[9px] text-slate-500 font-bold whitespace-nowrap">MY CARE</span>
                  <span className="text-[9px] text-slate-500 font-bold whitespace-nowrap">POINT</span>
              </div>
+             {/* 포인트 폰트 확대 및 동전 위치 변경 */}
              <div className="bg-yellow-50 px-3 py-1.5 rounded-xl border border-yellow-200 shadow-sm flex items-center gap-1">
-                 <span className="text-lg font-black text-blue-700 animate-pulse">{currentUser?.points?.toLocaleString()}</span>
+                 <span className="text-2xl font-black text-blue-700 animate-pulse leading-none">{currentUser?.points?.toLocaleString()}</span>
                  <Coins className="w-5 h-5 text-yellow-500 fill-yellow-500" />
              </div>
           </div>
@@ -392,18 +405,18 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
            <div className="space-y-2">{noticeFeeds.length > 0 ? noticeFeeds.map(feed => (<div key={feed.id} onClick={onNavigateToNews} className="bg-white px-4 py-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 transition-transform active:scale-[0.99] hover:border-blue-200 cursor-pointer"><div className="flex-1 min-w-0"><p className="text-xs font-bold text-slate-800 line-clamp-1 mb-0.5">{feed.title || feed.content}{isToday(feed.created_at) && <span className="ml-1 px-1 py-0.5 bg-red-500 text-white text-[8px] font-bold rounded-sm inline-block">NEW</span>}</p><span className="text-[10px] text-slate-400">{feed.formattedTime} • {feed.author}</span></div><ChevronRight className="w-4 h-4 text-slate-300" /></div>)) : <div className="text-center text-xs text-slate-400 py-6 bg-white rounded-2xl border border-slate-100 border-dashed">등록된 공지가 없습니다.</div>}</div>
         </div>
 
-        {/* 2. 출퇴근/생일 (h-52로 높이 조정, 좌우 배치 변경) */}
-        <div className="flex gap-4 h-52">
+        {/* 2. 출퇴근/생일 (h-44로 높이 축소, 좌우 배치 변경) */}
+        <div className="flex gap-4 h-44">
             <div className="flex-1 bg-white rounded-2xl p-3 shadow-sm border border-blue-100 flex flex-col relative overflow-hidden">
                   <div className="flex justify-between items-start mb-2 relative z-10">
                     <div>
-                        <h2 className="text-xs font-bold text-slate-400 mb-0.5 flex items-center gap-1"><span className="text-xl mr-1">⏰</span>근태 관리</h2>
+                        <h2 className="text-xs font-bold text-slate-400 mb-0.5 flex items-center gap-1"><span className="text-xl mr-1">⏰</span>출/퇴근 체크</h2>
                     </div>
                   </div>
                   <div className="flex-1 flex gap-2 relative z-10">
                      {/* 좌측: 출근 체크 */}
                      <div className="flex-1 flex flex-col gap-2 justify-center bg-blue-50/50 rounded-xl p-1 border border-blue-100">
-                         <span className="text-[10px] font-bold text-center text-slate-500">출근 체크</span>
+                         <span className="text-[10px] font-bold text-center text-slate-500">출근</span>
                          {!mood ? (
                              <div className="grid grid-cols-1 gap-1 h-full">
                                  <button onClick={() => handleMoodCheck('good')} className="bg-white hover:bg-blue-100 rounded-lg flex items-center justify-center transition-all active:scale-95 shadow-sm border border-blue-100 py-1"><Smile className="w-5 h-5 text-blue-500"/></button>
@@ -413,15 +426,15 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                          ) : (
                              <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-xl border border-blue-200">
                                  <div className="text-2xl animate-bounce">🏢</div>
-                                 <span className="text-xs font-black text-blue-600 mt-1">출근완료</span>
+                                 <span className="text-xs font-black text-blue-600 mt-1">완료</span>
                              </div>
                          )}
                      </div>
                      {/* 우측: 퇴근 체크 */}
                      <div className="flex-1 flex flex-col gap-2 justify-center bg-orange-50/50 rounded-xl p-1 border border-orange-100">
-                         <span className="text-[10px] font-bold text-center text-slate-500">퇴근 체크</span>
+                         <span className="text-[10px] font-bold text-center text-slate-500">퇴근</span>
                          <button onClick={handleCheckOut} disabled={!mood || hasCheckedOut} className={`flex-1 ${hasCheckedOut ? 'bg-slate-100 text-slate-300' : !mood ? 'bg-slate-100 text-slate-300' : 'bg-slate-800 text-white hover:bg-slate-900 shadow-md'} rounded-xl flex flex-col items-center justify-center text-xs font-bold transition-all active:scale-95`}>
-                             {hasCheckedOut ? <><span className="text-xl mb-1">🏠</span><span>완료</span></> : <><span className="text-xl mb-1">🏃</span><span>퇴근하기</span></>}
+                             {hasCheckedOut ? <><span className="text-xl mb-1">🏠</span><span>완료</span></> : <><span className="text-xl mb-1">🏃</span><span>퇴근</span></>}
                          </button>
                      </div>
                   </div>
@@ -429,10 +442,12 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
             <div className="flex-[1.5] h-full"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} /></div>
         </div>
         
-        {/* [NEW] 포인트 안내 텍스트 & 안내 문구 (우리들 소식 위쪽, 우측 정렬) */}
-        <div className="flex flex-col items-end mb-2 gap-1 px-1">
-            <p className="text-[10px] text-slate-400 font-bold animate-pulse">👇 해당 유형(섹션)을 클릭하여 글을 작성해보세요!</p>
-            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-white px-2 py-1 rounded-full shadow-sm border border-slate-100"><div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner"><Coins className="w-2.5 h-2.5 text-white fill-white"/></div>게시글 1개당 +50P (일 최대 +100P 가능)</div>
+        {/* [NEW] 글쓰기 버튼 & 포인트 안내 (우리들 소식 위쪽) */}
+        <div className="flex justify-between items-center mb-2 px-1">
+             <button onClick={() => onWriteClickWithCategory(null)} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center gap-1.5 hover:shadow-xl transition-all active:scale-95">
+                <span>➕</span> 글쓰기
+             </button>
+             <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-white px-2 py-1 rounded-full shadow-sm border border-slate-100"><div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner"><Coins className="w-2.5 h-2.5 text-white fill-white"/></div>게시글 1개당 +50P (일 최대 +100P 가능)</div>
         </div>
 
         {/* 3. 우리들 소식 */}
