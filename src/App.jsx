@@ -269,7 +269,10 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
           <button onClick={onOpenGift} className="p-1 rounded-full hover:bg-slate-100 active:scale-95 transition-all relative"><Gift className="w-8 h-8 text-pink-500" /></button>
           <div className="flex items-center gap-2 mr-1 cursor-pointer bg-yellow-50 px-3 py-1.5 rounded-xl border border-yellow-200 shadow-sm" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-start leading-none"><span className="text-[9px] text-slate-500 font-bold whitespace-nowrap">MY CARE</span><span className="text-[9px] text-slate-500 font-bold whitespace-nowrap">POINT</span></div>
-             <div className="flex items-center gap-1"><Coins className="w-5 h-5 text-yellow-500 fill-yellow-500" /><span className="text-lg font-black text-blue-700 animate-pulse">{currentUser?.points?.toLocaleString()}</span></div>
+             <div className="flex items-center gap-1">
+                 {/* 황금동전 이미지(Coins 아이콘) 삭제됨 */}
+                 <span className="text-lg font-black text-blue-700 animate-pulse">{currentUser?.points?.toLocaleString()}</span>
+             </div>
           </div>
           <div className="flex flex-col items-center">
               <button onClick={() => setShowSettings(!showSettings)} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors relative z-40"><Settings className="w-6 h-6 text-slate-400" /></button>
@@ -404,23 +407,20 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
             <div className="flex-1 h-full"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} /></div>
         </div>
         
+        {/* 중간 글쓰기 버튼 삭제됨 */}
         <div className="flex flex-col items-end gap-1 mb-2">
-            <button onClick={() => onWriteClickWithCategory(null)} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2.5 rounded-full shadow-lg shadow-blue-200 hover:shadow-xl transition-all flex items-center gap-2 active:scale-95 border border-blue-400"><Pencil className="w-4 h-4" /><span className="text-sm font-bold">글쓰기</span></button>
             <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-white px-2 py-1 rounded-full shadow-sm border border-slate-100"><div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner"><Coins className="w-2.5 h-2.5 text-white fill-white"/></div>게시글 1개당 +50P (일 최대 +100P 가능)</div>
         </div>
 
+        {/* 1. 공지사항 (순서 유지) */}
         <div>
            <div className="flex justify-between items-center mb-3 px-1"><h2 className="text-sm font-bold text-slate-700 flex items-center gap-1.5"><Megaphone className="w-4 h-4 text-red-500"/> 공지사항</h2><button onClick={onNavigateToNews} className="text-xs text-slate-400 font-medium hover:text-blue-600 flex items-center gap-0.5">더보기 <ChevronRight className="w-3 h-3" /></button></div>
            <div className="space-y-2">{noticeFeeds.length > 0 ? noticeFeeds.map(feed => (<div key={feed.id} onClick={onNavigateToNews} className="bg-white px-4 py-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 transition-transform active:scale-[0.99] hover:border-blue-200 cursor-pointer"><div className="flex-1 min-w-0"><p className="text-xs font-bold text-slate-800 line-clamp-1 mb-0.5">{feed.title || feed.content}{isToday(feed.created_at) && <span className="ml-1 px-1 py-0.5 bg-red-500 text-white text-[8px] font-bold rounded-sm inline-block">NEW</span>}</p><span className="text-[10px] text-slate-400">{feed.formattedTime} • {feed.author}</span></div><ChevronRight className="w-4 h-4 text-slate-300" /></div>)) : <div className="text-center text-xs text-slate-400 py-6 bg-white rounded-2xl border border-slate-100 border-dashed">등록된 공지가 없습니다.</div>}</div>
         </div>
 
-        <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer hover:border-green-200 transition-colors" onClick={() => onWriteClickWithCategory('praise')}>
-           <h3 className="text-sm font-bold text-green-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Heart className="w-4 h-4 fill-green-500 text-green-500"/> 칭찬합시다</h3>
-           <div className="space-y-2 pointer-events-none">{praiseFeeds.length > 0 ? praiseFeeds.map(feed => (<div key={feed.id} className="p-3 bg-green-50/30 rounded-2xl border border-green-100 transition-colors"><p className="text-[10px] font-bold text-slate-500 mb-1">To. {feed.target_name || '동료'}</p><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed">{feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>)) : <p className="text-xs text-slate-400 py-2">아직 게시글이 없습니다.</p>}</div>
-        </div>
-
+        {/* 2. 우리들 소식 (보상부) -> (보상부) 텍스트 삭제 및 순서 변경 */}
         <div className="bg-white p-4 rounded-3xl shadow-sm border border-purple-100 cursor-pointer hover:border-purple-300 transition-colors" onClick={() => onWriteClickWithCategory('dept_news')}>
-           <h3 className="text-sm font-bold text-purple-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Building2 className="w-4 h-4 text-purple-500"/> 우리들 소식 (보상부)</h3>
+           <h3 className="text-sm font-bold text-purple-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Building2 className="w-4 h-4 text-purple-500"/> 우리들 소식</h3>
            <div className="space-y-2 pointer-events-none">
                 {deptFeeds.length > 0 ? deptFeeds.map(feed => (
                     <div key={feed.id} className="p-3 bg-purple-50/30 rounded-2xl border border-purple-100 transition-colors">
@@ -430,7 +430,14 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                 )) : <p className="text-xs text-slate-400 py-2">등록된 소식이 없습니다.</p>}
            </div>
         </div>
+
+        {/* 3. 칭찬합시다 (순서 변경) */}
+        <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer hover:border-green-200 transition-colors" onClick={() => onWriteClickWithCategory('praise')}>
+           <h3 className="text-sm font-bold text-green-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Heart className="w-4 h-4 fill-green-500 text-green-500"/> 칭찬합시다</h3>
+           <div className="space-y-2 pointer-events-none">{praiseFeeds.length > 0 ? praiseFeeds.map(feed => (<div key={feed.id} className="p-3 bg-green-50/30 rounded-2xl border border-green-100 transition-colors"><p className="text-[10px] font-bold text-slate-500 mb-1">To. {feed.target_name || '동료'}</p><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed">{feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>)) : <p className="text-xs text-slate-400 py-2">아직 게시글이 없습니다.</p>}</div>
+        </div>
         
+        {/* 4. 꿀팁 -> 맛집소개 순서 (그리드 내부 순서 유지) */}
         <div className="grid grid-cols-2 gap-4">
             <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer hover:border-blue-300 transition-colors" onClick={() => onWriteClickWithCategory('knowhow')}>
                <h3 className="text-sm font-bold text-blue-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Sparkles className="w-4 h-4 fill-blue-500 text-blue-500"/> 꿀팁</h3>
@@ -798,7 +805,6 @@ export default function App() {
   const fetchFeeds = useCallback(async () => {
     if (!supabase) return; 
     try {
-        // profiles JOIN 수정: is_reporter, is_ambassador 필드 추가
         const { data: posts } = await supabase.from('posts').select(`*, profiles:author_id (name, dept, team, role, is_reporter, is_ambassador), comments (*, profiles:author_id (name, role))`).order('created_at', { ascending: false });
         if (posts) {
             const formatted = posts.map(post => {
@@ -867,14 +873,10 @@ export default function App() {
   const handleDeletePost = async (postId) => {
     if (!currentUser) return;
     const postToDelete = feeds.find(f => f.id === postId); if (!postToDelete) return;
-    
-    // 삭제 권한 체크: 작성자 본인 또는 관리자만 삭제 가능
     if (currentUser.id !== postToDelete.author_id && currentUser.role !== 'admin') { alert('삭제 권한이 없습니다.'); return; }
-    
     if (!window.confirm('게시글을 삭제하시겠습니까? 삭제 시 지급된 포인트가 회수됩니다.')) return;
     try {
         const { error } = await supabase.from('posts').delete().eq('id', postId); if (error) throw error;
-        // 포인트 회수 로직 (칭찬, 꿀팁 등 포인트 지급 게시글인 경우)
         if (['praise', 'knowhow', 'matjib', 'dept_news'].includes(postToDelete.type)) {
             const deductAmount = 50; 
             const newPoints = Math.max(0, currentUser.points - deductAmount); 
@@ -942,14 +944,12 @@ export default function App() {
     } catch (err) { console.error('가입 실패: ', err.message); alert('가입 실패: ' + err.message); } finally { setLoading(false); }
   };
 
-  // --- 핵심 수정: handlePostSubmit에 보안 로직 적용 (Option B) ---
   const handlePostSubmit = async (e) => {
     e.preventDefault(); 
     if (!currentUser || !checkSupabaseConfig()) return;
 
     const category = e.target.category.value;
     
-    // [보안 방어 로직] 공지사항(news) 작성 권한 체크
     if (category === 'news' && currentUser.role !== 'admin') {
         alert('⛔ 권한이 없습니다.\n공지사항은 관리자만 작성할 수 있습니다.');
         return; 
