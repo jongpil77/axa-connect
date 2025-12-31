@@ -268,29 +268,27 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
                 {/* 텍스트 줄 간격 최소화 */}
                 <div className="flex flex-col leading-none -space-y-1 relative">
                     <span className="text-xl font-black text-slate-800 tracking-tighter">AXA</span>
-                    <span className="text-xl font-black text-slate-800 tracking-tighter relative">
-                        Connect
-                        {/* 플러그 위치 수정: Connect의 t 위에 배치 */}
-                        <Plug className="w-4 h-4 text-blue-500 fill-blue-500 absolute -right-2 -top-3 rotate-45" />
-                    </span>
+                    <span className="text-xl font-black text-slate-800 tracking-tighter">Connect</span>
+                    {/* 플러그 위치 수정: Connect의 t 위에 배치 */}
+                    <Plug className="w-3.5 h-3.5 text-blue-500 fill-blue-500 absolute -right-1 bottom-[1px] rotate-12" />
                 </div>
             </div>
         </div>
         
         <div className="flex items-center gap-2 relative">
           {/* 선물 상자 아이콘 우측 이동 */}
-          <button onClick={onOpenGift} className="p-1.5 rounded-full hover:bg-slate-100 active:scale-95 transition-all relative text-2xl mr-6">🎁</button>
+          <button onClick={onOpenGift} className="p-1.5 rounded-full hover:bg-slate-100 active:scale-95 transition-all relative text-2xl mr-4">🎁</button>
           
           <div className="flex items-center gap-2 mr-1 cursor-pointer" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-end leading-none">
                  <span className="text-[9px] text-slate-500 font-bold whitespace-nowrap">MY CARE</span>
                  <span className="text-[9px] text-slate-500 font-bold whitespace-nowrap">POINT</span>
              </div>
-             {/* 포인트 폰트 더 확대 및 P마크 동전(더 키움) 우측 배치 */}
+             {/* 포인트 폰트 확대 및 P마크 동전 우측 배치 */}
              <div className="bg-yellow-50 px-3 py-1 rounded-xl border border-yellow-200 shadow-sm flex items-center gap-1">
                  <span className="text-2xl font-black text-blue-700 animate-pulse leading-none pt-0.5">{currentUser?.points?.toLocaleString()}</span>
-                 <div className="w-7 h-7 rounded-full bg-yellow-400 border-2 border-yellow-500 flex items-center justify-center shadow-sm relative">
-                    <span className="text-[14px] font-black text-yellow-600 drop-shadow-[0_1px_0_rgba(255,255,255,0.5)]">P</span>
+                 <div className="w-5 h-5 rounded-full bg-yellow-400 border border-yellow-500 flex items-center justify-center shadow-sm relative">
+                    <span className="text-[10px] font-black text-yellow-600 drop-shadow-[0_1px_0_rgba(255,255,255,0.5)]">P</span>
                  </div>
              </div>
           </div>
@@ -447,22 +445,17 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
         {/* [NEW] 글쓰기 버튼 & 포인트 안내 (우리들 소식 위쪽) */}
         <div className="flex justify-between items-center mb-2 px-1">
              <button onClick={() => onWriteClickWithCategory(null)} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center gap-1.5 hover:shadow-xl transition-all active:scale-95">
-                <span>➕</span> 글쓰기 ✏️
+                <span>➕</span> 글쓰기
              </button>
              <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-white px-2 py-1 rounded-full shadow-sm border border-slate-100"><div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner"><Coins className="w-2.5 h-2.5 text-white fill-white"/></div>게시글 1개당 +50P (일 최대 +100P 가능)</div>
         </div>
 
         {/* 3. 우리들 소식 */}
-        {/* [수정] 섹션 전체 클릭 이벤트 삭제, 헤더 추가 */}
-        <div className="bg-white p-4 rounded-3xl shadow-sm border border-purple-100">
-           <div className="flex justify-between items-center mb-3">
-               <h3 className="text-sm font-bold text-purple-600 flex items-center gap-1.5"><Building2 className="w-4 h-4 text-purple-500"/> 우리들 소식</h3>
-               <button onClick={() => onNavigateToFeed('dept_news')} className="text-xs text-slate-400 font-medium hover:text-purple-600 flex items-center gap-0.5">더보기 <ChevronRight className="w-3 h-3" /></button>
-           </div>
-           <div className="space-y-2">
+        <div className="bg-white p-4 rounded-3xl shadow-sm border border-purple-100 cursor-pointer hover:border-purple-300 transition-colors" onClick={() => onWriteClickWithCategory('dept_news')}>
+           <h3 className="text-sm font-bold text-purple-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Building2 className="w-4 h-4 text-purple-500"/> 우리들 소식</h3>
+           <div className="space-y-2 pointer-events-none">
                 {deptFeeds.length > 0 ? deptFeeds.map(feed => (
-                    // [수정] 개별 아이템 클릭 시 피드로 이동
-                    <div key={feed.id} onClick={() => onNavigateToFeed('dept_news')} className="p-3 bg-purple-50/30 rounded-2xl border border-purple-100 transition-transform active:scale-[0.99] cursor-pointer hover:bg-purple-50/50">
+                    <div key={feed.id} className="p-3 bg-purple-50/30 rounded-2xl border border-purple-100 transition-colors">
                         <div className="flex items-center justify-between mb-1"><span className="text-[9px] text-purple-700 font-bold bg-white px-1.5 rounded border border-purple-200">{feed.region_main}</span>{isToday(feed.created_at) && <span className="text-[9px]">🆕</span>}</div>
                         <p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>
                     </div>
@@ -471,46 +464,20 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
         </div>
 
         {/* 4. 칭찬합시다 */}
-        {/* [수정] 섹션 전체 클릭 이벤트 삭제, 헤더 추가 */}
-        <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100">
-           <div className="flex justify-between items-center mb-3">
-               <h3 className="text-sm font-bold text-green-600 flex items-center gap-1.5"><Heart className="w-4 h-4 fill-green-500 text-green-500"/> 칭찬합시다</h3>
-               <button onClick={() => onNavigateToFeed('praise')} className="text-xs text-slate-400 font-medium hover:text-green-600 flex items-center gap-0.5">더보기 <ChevronRight className="w-3 h-3" /></button>
-           </div>
-           <div className="space-y-2">{praiseFeeds.length > 0 ? praiseFeeds.map(feed => (
-               <div key={feed.id} onClick={() => onNavigateToFeed('praise')} className="p-3 bg-green-50/30 rounded-2xl border border-green-100 transition-transform active:scale-[0.99] cursor-pointer hover:bg-green-50/50">
-                   <p className="text-[10px] font-bold text-slate-500 mb-1">To. {feed.target_name || '동료'}</p>
-                   <p className="text-xs text-slate-700 line-clamp-2 leading-relaxed">{feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}
-               </div>
-           )) : <p className="text-xs text-slate-400 py-2">아직 게시글이 없습니다.</p>}</div>
+        <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer hover:border-green-200 transition-colors" onClick={() => onWriteClickWithCategory('praise')}>
+           <h3 className="text-sm font-bold text-green-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Heart className="w-4 h-4 fill-green-500 text-green-500"/> 칭찬합시다</h3>
+           <div className="space-y-2 pointer-events-none">{praiseFeeds.length > 0 ? praiseFeeds.map(feed => (<div key={feed.id} className="p-3 bg-green-50/30 rounded-2xl border border-green-100 transition-colors"><p className="text-[10px] font-bold text-slate-500 mb-1">To. {feed.target_name || '동료'}</p><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed">{feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>)) : <p className="text-xs text-slate-400 py-2">아직 게시글이 없습니다.</p>}</div>
         </div>
         
         {/* 5. 꿀팁 / 맛집소개 */}
         <div className="grid grid-cols-2 gap-4">
-            {/* [수정] 꿀팁 섹션 */}
-            <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 flex flex-col">
-               <div className="flex justify-between items-center mb-3">
-                   <h3 className="text-sm font-bold text-blue-600 flex items-center gap-1.5"><Sparkles className="w-4 h-4 fill-blue-500 text-blue-500"/> 꿀팁</h3>
-                   <button onClick={() => onNavigateToFeed('knowhow')} className="text-[10px] text-slate-400 hover:text-blue-600"><ChevronRight className="w-3 h-3" /></button>
-               </div>
-               <div className="space-y-2 flex-1">{knowhowFeeds.length > 0 ? knowhowFeeds.map(feed => (
-                   <div key={feed.id} onClick={() => onNavigateToFeed('knowhow')} className="p-3 bg-blue-50/30 rounded-2xl border border-blue-100 transition-transform active:scale-[0.99] cursor-pointer hover:bg-blue-50/50">
-                       <p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}
-                   </div>
-               )) : <p className="text-xs text-slate-400 py-2">등록된 글이 없습니다.</p>}</div>
+            <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer hover:border-blue-300 transition-colors" onClick={() => onWriteClickWithCategory('knowhow')}>
+               <h3 className="text-sm font-bold text-blue-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Sparkles className="w-4 h-4 fill-blue-500 text-blue-500"/> 꿀팁</h3>
+               <div className="space-y-2 pointer-events-none">{knowhowFeeds.length > 0 ? knowhowFeeds.map(feed => (<div key={feed.id} className="p-3 bg-blue-50/30 rounded-2xl border border-blue-100 transition-colors"><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>)) : <p className="text-xs text-slate-400 py-2">등록된 글이 없습니다.</p>}</div>
             </div>
-            
-            {/* [수정] 맛집 섹션 */}
-            <div className="bg-white p-4 rounded-3xl shadow-sm border border-orange-100 flex flex-col">
-               <div className="flex justify-between items-center mb-3">
-                   <h3 className="text-sm font-bold text-orange-600 flex items-center gap-1.5"><Utensils className="w-4 h-4 fill-orange-500 text-orange-500"/> 맛집</h3>
-                   <button onClick={() => onNavigateToFeed('matjib')} className="text-[10px] text-slate-400 hover:text-orange-600"><ChevronRight className="w-3 h-3" /></button>
-               </div>
-               <div className="space-y-2 flex-1">{matjibFeeds.length > 0 ? matjibFeeds.map(feed => (
-                   <div key={feed.id} onClick={() => onNavigateToFeed('matjib')} className="p-3 bg-orange-50/30 rounded-2xl border border-orange-100 transition-transform active:scale-[0.99] cursor-pointer hover:bg-orange-50/50">
-                       <p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}
-                   </div>
-               )) : <p className="text-xs text-slate-400 py-2">등록된 글이 없습니다.</p>}</div>
+            <div className="bg-white p-4 rounded-3xl shadow-sm border border-orange-100 cursor-pointer hover:border-orange-300 transition-colors" onClick={() => onWriteClickWithCategory('matjib')}>
+               <h3 className="text-sm font-bold text-orange-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Utensils className="w-4 h-4 fill-orange-500 text-orange-500"/> 맛집 소개</h3>
+               <div className="space-y-2 pointer-events-none">{matjibFeeds.length > 0 ? matjibFeeds.map(feed => (<div key={feed.id} className="p-3 bg-orange-50/30 rounded-2xl border border-orange-100 transition-colors"><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>)) : <p className="text-xs text-slate-400 py-2">등록된 글이 없습니다.</p>}</div>
             </div>
         </div>
       </div>
@@ -675,33 +642,30 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
         <div className="p-6">
             <form onSubmit={handlePostSubmit}>
             
-            {/* [수정] 탭(Tab) 형태의 카테고리 선택 */}
-            <div className="flex flex-wrap gap-2 mb-6">
-                {categories.map((cat) => (
-                    <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => setWriteCategory(cat.id)}
-                        className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all border shadow-sm ${
-                            writeCategory === cat.id 
-                            ? 'bg-slate-800 text-white border-slate-800 scale-105' 
-                            : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
-                        }`}
+            {/* [NEW] 콤보박스 (Select) 형태의 카테고리 선택 */}
+            <div className="mb-6">
+                <label className="block text-xs font-bold text-slate-500 mb-2 ml-1">게시글 유형을 선택해 주세요</label>
+                <div className="relative">
+                    <select 
+                        name="category" 
+                        value={writeCategory} 
+                        onChange={(e) => setWriteCategory(e.target.value)}
+                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm font-bold text-slate-700 appearance-none focus:border-blue-500 transition-colors cursor-pointer"
+                        required
                     >
-                        {cat.label}
-                    </button>
-                ))}
+                        <option value="" disabled>선택해주세요...</option>
+                        {categories.map((cat) => (
+                            <option key={cat.id} value={cat.id}>{cat.label}</option>
+                        ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-slate-400">
+                        <ChevronDownIcon className="w-5 h-5" />
+                    </div>
+                </div>
             </div>
             
-            <input type="hidden" name="category" value={writeCategory} />
-
             <div className="space-y-4 mb-8">
-                {!writeCategory && (
-                    <div className="text-center py-10 text-slate-400 text-sm">
-                        👆 위에서 게시글 유형을 선택해주세요.
-                    </div>
-                )}
-
+                {/* 카테고리별 분기 처리 */}
                 {writeCategory === 'praise' && (
                     <div className="bg-green-50 p-4 rounded-2xl border border-green-100 animate-fade-in">
                         <label className="text-xs font-bold text-green-700 block mb-2 ml-1">누구를 칭찬하나요?</label>
@@ -758,6 +722,436 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
                 등록하기 <span className="text-yellow-400 bg-white/10 px-1.5 py-0.5 rounded text-xs">{pointRewardText}</span>
             </button>
             </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 헬퍼 컴포넌트: Select 아이콘용 (ChevronDown)
+const ChevronDownIcon = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+    </svg>
+);
+
+const RankingTab = ({ feeds, profiles, allPointHistory }) => { const [selectedDate, setSelectedDate] = useState(new Date()); const isSelectedMonth = (dateString) => { if(!dateString) return false; const d = new Date(dateString); return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear(); }; const handlePrevMonth = () => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() - 1))); const handleNextMonth = () => { const nextMonth = new Date(selectedDate); nextMonth.setMonth(selectedDate.getMonth() + 1); if (nextMonth <= new Date()) setSelectedDate(nextMonth); }; const pointRanking = useMemo(() => { const monthlyPoints = {}; allPointHistory.forEach(record => { if (isSelectedMonth(record.created_at) && record.type === 'earn') monthlyPoints[record.user_id] = (monthlyPoints[record.user_id] || 0) + record.amount; }); return Object.entries(monthlyPoints).map(([id, points]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: points, unit: 'P', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); }, [allPointHistory, profiles, selectedDate]); const postCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { postCounts[f.author_id] = (postCounts[f.author_id] || 0) + 1; }); const postRanking = Object.entries(postCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '건', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); const likeCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { const likes = f.likes ? (Array.isArray(f.likes) ? f.likes.length : 0) : 0; if(likes > 0) likeCounts[f.author_id] = (likeCounts[f.author_id] || 0) + likes; }); const likeRanking = Object.entries(likeCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '개', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); const RankItem = ({ rank, name, value, unit, team, color }) => (<div className="flex items-center p-3 bg-white border border-slate-100 rounded-2xl shadow-sm relative overflow-hidden">{rank <= 3 && <div className="absolute right-0 top-0 bg-yellow-100 text-yellow-600 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">🎁 1,000P</div>}<div className={`text-xl font-black mr-4 w-8 text-center ${color}`}>{rank}</div><div className="flex-1"><p className="text-sm font-bold text-slate-800">{name || 'Unknown'}</p><p className="text-[10px] text-slate-400">{team}</p></div><div className="text-base font-black text-slate-700 ml-4">{value}<span className="text-[10px] text-slate-400 ml-0.5 font-normal">{unit}</span></div></div>); return (<div className="p-5 space-y-8 pb-28 animate-fade-in bg-blue-50"><div className="bg-white p-5 rounded-[2rem] shadow-sm border border-blue-100 text-center relative"><div className="flex justify-between items-center mb-4 px-2"><button onClick={handlePrevMonth} className="p-1 hover:bg-slate-100 rounded-full"><ChevronLeft className="w-5 h-5 text-slate-400" /></button><h2 className="text-lg font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2><button onClick={handleNextMonth} className="p-1 hover:bg-slate-100 rounded-full disabled:opacity-30" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-5 h-5 text-slate-400" /></button></div><div className="flex justify-center gap-2 mt-2"><span className="text-[10px] bg-green-50 text-green-600 px-2 py-1 rounded">🏆 소통상/좋아요상: 1~3등 1,000P</span></div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Coins className="w-4 h-4 text-yellow-500"/> 월간 획득 포인트 랭킹</h3><div className="space-y-2">{pointRanking.length > 0 ? pointRanking.map((p, i) => <RankItem key={i} rank={i+1} name={p.name} team={p.team} value={p.value.toLocaleString()} unit="P" color="text-yellow-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Pencil className="w-4 h-4 text-green-500"/> 소통왕 (게시글)</h3><div className="space-y-2">{postRanking.length > 0 ? postRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-green-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Heart className="w-4 h-4 text-red-500"/> 인기왕 (좋아요)</h3><div className="space-y-2">{likeRanking.length > 0 ? likeRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-red-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div></div>); };
+
+const BottomNav = ({ activeTab, onTabChange }) => {
+    const getTabColor = (id, isActive) => {
+        if (!isActive) return 'text-blue-300 hover:text-white';
+        switch (id) {
+            case 'home': return 'text-white bg-blue-500 shadow-md';
+            case 'feed': return 'text-white bg-green-500 shadow-md';
+            case 'news': return 'text-white bg-red-500 shadow-md';
+            case 'ranking': return 'text-white bg-yellow-500 shadow-md';
+            default: return 'text-white bg-white/20 shadow-md';
+        }
+    };
+    return (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[360px] bg-[#00008F] backdrop-blur-md border border-blue-900 shadow-[0_8px_30px_rgb(0,0,0,0.3)] p-1.5 z-30 flex justify-between items-center rounded-full h-20">
+            {[{ id: 'home', icon: User, label: '홈' }, { id: 'feed', icon: MessageCircle, label: '소통' }, { id: 'news', icon: Bell, label: '소식' }, { id: 'ranking', icon: Award, label: '랭킹' }].map(item => (
+                <button key={item.id} onClick={() => onTabChange(item.id)} className={`flex-1 flex flex-col items-center justify-center gap-1 h-full rounded-2xl transition-all duration-300 ${getTabColor(item.id, activeTab === item.id)}`}><item.icon className={`w-7 h-7 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} /><span className="text-[10px] font-bold">{item.label}</span></button>
+            ))}
+        </div>
+    );
+};
+
+const Comment = ({ comment, currentUser, handleDeleteComment }) => (<div className="flex gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">{comment.parent_id && <CornerDownRight className="w-4 h-4 text-slate-300 mt-1 flex-shrink-0" />}<div className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold shadow-sm ${comment.profiles?.role === 'admin' ? 'bg-red-400' : 'bg-blue-400'}`}>{formatInitial(comment.profiles?.name || 'Unknown')}</div><div className="flex-1 min-w-0"><div className="flex justify-between items-start"><p className="text-xs font-bold text-slate-700 flex items-center gap-1">{comment.profiles?.name || '알 수 없음'}{comment.profiles?.role === 'admin' && <span className="px-1 py-0.5 bg-red-50 text-red-500 text-[9px] rounded-md">관리자</span>}</p><span className="text-[9px] text-slate-400">{new Date(comment.created_at).toLocaleDateString()}</span></div><p className="text-xs text-slate-600 leading-relaxed mt-0.5 break-words">{comment.content}</p><div className="flex gap-2 mt-1 justify-end">{(currentUser?.id === comment.author_id || currentUser?.role === 'admin') && (<button onClick={() => handleDeleteComment(comment.id)} className="text-[10px] text-slate-400 hover:text-red-500 transition-colors flex items-center gap-0.5"><Trash2 className="w-3 h-3"/> 삭제</button>)}</div></div></div>);
+
+export default function App() {
+  const [supabase, setSupabase] = useState(supabaseClient);
+  const [session, setSession] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [profiles, setProfiles] = useState([]);
+  const [feeds, setFeeds] = useState([]);
+  const [pointHistory, setPointHistory] = useState([]);
+  const [allPointHistory, setAllPointHistory] = useState([]);
+  const [redemptionList, setRedemptionList] = useState([]); 
+  const [loading, setLoading] = useState(false);
+  const [isSignupMode, setIsSignupMode] = useState(false);
+  const [showWriteModal, setShowWriteModal] = useState(false);
+  const [showUserInfoModal, setShowUserInfoModal] = useState(false);
+  const [showBirthdayPopup, setShowBirthdayPopup] = useState(false);
+  const [showGiftModal, setShowGiftModal] = useState(false);
+  const [showAdminManageModal, setShowAdminManageModal] = useState(false);
+  const [writeCategory, setWriteCategory] = useState(null); 
+  const [showGiftNotificationModal, setShowGiftNotificationModal] = useState(false);
+  const [newGifts, setNewGifts] = useState([]);
+  
+  const [showChangeDeptModal, setShowChangeDeptModal] = useState(false);
+  const [showChangePwdModal, setShowChangePwdModal] = useState(false);
+  const [showAdminGrantModal, setShowAdminGrantModal] = useState(false);
+  const [showRedemptionListModal, setShowRedemptionListModal] = useState(false); 
+  const [showAdminAlertModal, setShowAdminAlertModal] = useState(false); 
+  const [toast, setToast] = useState({ visible: false, message: '', emoji: '' });
+
+  const [activeTab, setActiveTab] = useState('home');
+  const [activeFeedFilter, setActiveFeedFilter] = useState('all');
+  const [mood, setMood] = useState(null);
+  const [hasCheckedOut, setHasCheckedOut] = useState(false);
+  const [boosterActive, setBoosterActive] = useState(false);
+
+  const weeklyBirthdays = React.useMemo(() => getWeeklyBirthdays(profiles), [profiles]);
+
+  useEffect(() => {
+    const savedBooster = localStorage.getItem('axa_booster_active') === 'true';
+    setBoosterActive(savedBooster);
+  }, []);
+  
+  useEffect(() => { localStorage.setItem('axa_booster_active', boosterActive); }, [boosterActive]);
+
+  const checkBirthday = useCallback((user) => {
+    if (!user.birthdate || user.birthday_granted) return; 
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1;
+    const [_, m, d] = user.birthdate.split('-').map(Number);
+    if (currentMonth === m) setShowBirthdayPopup(true);
+  }, []);
+  
+  const checkGiftNotifications = useCallback(async (userId) => {
+      if (!supabase) return;
+      try {
+          const threeDaysAgo = new Date();
+          threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+          const { data } = await supabase.from('point_history').select('*').eq('user_id', userId).eq('type', 'earn').ilike('reason', '%선물 받음%').gte('created_at', threeDaysAgo.toISOString()).order('created_at', { ascending: false });
+          if (data && data.length > 0) {
+              const lastChecked = localStorage.getItem(`last_gift_check_${userId}`);
+              const newGiftsList = data.filter(gift => !lastChecked || new Date(gift.created_at) > new Date(lastChecked));
+              if (newGiftsList.length > 0) { setNewGifts(newGiftsList); setShowGiftNotificationModal(true); localStorage.setItem(`last_gift_check_${userId}`, new Date().toISOString()); }
+          }
+      } catch (err) { console.error(err); }
+  }, [supabase]);
+
+  const checkAdminNotifications = async (user) => {
+      if (user.role !== 'admin' || !supabase) return;
+      const todayStr = new Date().toISOString().split('T')[0];
+      const hideDate = localStorage.getItem('hide_admin_alert');
+      if (hideDate === todayStr) return;
+      try { const { count, error } = await supabase.from('redemption_requests').select('*', { count: 'exact', head: true }).neq('status', 'completed'); if (!error && count > 0) setShowAdminAlertModal(true); } catch (err) { console.error(err); }
+  };
+  const handleCloseAdminAlert = (doNotShowToday) => { if (doNotShowToday) { const todayStr = new Date().toISOString().split('T')[0]; localStorage.setItem('hide_admin_alert', todayStr); } setShowAdminAlertModal(false); };
+
+  const fetchUserData = useCallback(async (userId) => {
+    if (!supabase) return; 
+    try {
+        const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
+        if (data) {
+            setCurrentUser(data);
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (data.last_attendance === todayStr) setMood('checked');
+            const lastCheckout = localStorage.getItem(`checkout_${userId}_${todayStr}`);
+            if (lastCheckout) setHasCheckedOut(true); else setHasCheckedOut(false);
+            checkBirthday(data); checkAdminNotifications(data); checkGiftNotifications(userId);
+        }
+    } catch (err) { console.error(err); }
+  }, [supabase, checkBirthday, checkGiftNotifications]);
+
+  const fetchPointHistory = useCallback(async (userId) => {
+    if (!supabase) return; 
+    try { const { data } = await supabase.from('point_history').select('*').eq('user_id', userId).order('created_at', { ascending: false }); if (data) setPointHistory(data); } catch (err) { console.error(err); }
+  }, [supabase]);
+
+  const fetchAllPointHistory = useCallback(async () => {
+      if (!supabase) return;
+      try { const { data } = await supabase.from('point_history').select('user_id, amount, type, created_at'); if (data) setAllPointHistory(data); } catch(err) { console.error(err); }
+  }, [supabase]);
+
+  const fetchFeeds = useCallback(async () => {
+    if (!supabase) return; 
+    try {
+        const { data: posts } = await supabase.from('posts').select(`*, profiles:author_id (name, dept, team, role, is_reporter, is_ambassador), comments (*, profiles:author_id (name, role))`).order('created_at', { ascending: false });
+        if (posts) {
+            const formatted = posts.map(post => {
+                const sortedComments = post.comments ? post.comments.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)) : [];
+                return { ...post, author: post.profiles?.name || '알 수 없음', team: post.profiles?.team, formattedTime: new Date(post.created_at).toLocaleDateString(), likes: post.likes ? (typeof post.likes === 'string' ? JSON.parse(post.likes) : post.likes) : [], isLiked: false, comments: sortedComments, totalComments: sortedComments.length, profiles: post.profiles };
+            });
+            if (currentUser) formatted.forEach(p => { p.isLiked = p.likes.includes(currentUser.id); });
+            setFeeds(formatted);
+        }
+    } catch (err) { console.error(err); }
+  }, [supabase, currentUser]);
+
+  const fetchProfiles = useCallback(async () => { if (!supabase) return; try { const { data } = await supabase.from('profiles').select('*'); if (data) setProfiles(data); } catch (err) { console.error(err); } }, [supabase]);
+
+  const fetchRedemptionList = useCallback(async () => { if (!supabase) return; try { const { data } = await supabase.from('redemption_requests').select('*').order('created_at', { ascending: false }); if(data) setRedemptionList(data); } catch (err) { console.error(err); } }, [supabase]);
+
+  useEffect(() => {
+    if (!supabase) return; 
+    const channel = supabase.channel('public:comments_posts')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => { fetchFeeds(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => { fetchFeeds(); })
+        .subscribe();
+    try {
+        supabase.auth.getSession().then(({ data: { session } }) => { setSession(session); if (session) { fetchUserData(session.user.id); fetchPointHistory(session.user.id); } });
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { setSession(session); if (session) { fetchUserData(session.user.id); fetchPointHistory(session.user.id); } else setCurrentUser(null); });
+        fetchFeeds(); fetchProfiles(); fetchAllPointHistory();
+        return () => { subscription.unsubscribe(); supabase.removeChannel(channel); };
+    } catch(err) { console.error("Supabase init error:", err); }
+  }, [supabase, fetchFeeds, fetchPointHistory, fetchProfiles, fetchUserData, fetchAllPointHistory]);
+
+  const checkSupabaseConfig = () => { if (!supabase) return false; if (SUPABASE_URL.includes('your-project-url')) return false; return true; };
+  
+  const handleBirthdayGrant = async () => {
+    if (!currentUser || !checkSupabaseConfig()) return;
+    try {
+        const newPoints = (currentUser.points || 0) + 1000;
+        await supabase.from('profiles').update({ points: newPoints, birthday_granted: true }).eq('id', currentUser.id);
+        await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '생일 축하 포인트', amount: 1000, type: 'earn' });
+        setShowBirthdayPopup(false); fetchUserData(currentUser.id); fetchPointHistory(currentUser.id); fetchAllPointHistory(); 
+    } catch (err) { console.error('오류 발생: ', err.message); }
+  };
+
+  const handleLikePost = async (postId, currentLikes, isLiked) => {
+      if (!currentUser || !checkSupabaseConfig()) return;
+      const userId = currentUser.id;
+      let newLikes = [...currentLikes];
+      if (isLiked) { newLikes = newLikes.filter(id => id !== userId); } else { newLikes.push(userId); }
+      setFeeds(feeds.map(f => f.id === postId ? { ...f, likes: newLikes, isLiked: !isLiked } : f));
+      try { await supabase.from('posts').update({ likes: newLikes }).eq('id', postId); } catch (err) { console.error(err); fetchFeeds(); }
+  };
+
+  const handleAddComment = async (e, postId, parentId = null) => {
+      e.preventDefault(); const content = e.target.commentContent.value; if (!content || !currentUser) return;
+      const tempComment = { id: `temp-${Date.now()}`, post_id: postId, author_id: currentUser.id, content: content, parent_id: parentId, created_at: new Date().toISOString(), profiles: { name: currentUser.name, role: currentUser.role } };
+      setFeeds(prevFeeds => prevFeeds.map(feed => { if (feed.id === postId) { return { ...feed, comments: [...feed.comments, tempComment], totalComments: feed.totalComments + 1 }; } return feed; }));
+      e.target.reset(); 
+      try { await supabase.from('comments').insert({ post_id: postId, author_id: currentUser.id, content: content, parent_id: parentId }); } catch (err) { console.error('Comment failed:', err); fetchFeeds(); }
+  };
+  
+  const handleDeleteComment = async (commentId) => {
+      if (!window.confirm('댓글을 삭제하시겠습니까?')) return;
+      setFeeds(prevFeeds => prevFeeds.map(feed => { const updatedComments = feed.comments.filter(c => c.id !== commentId); if (updatedComments.length !== feed.comments.length) { return { ...feed, comments: updatedComments, totalComments: updatedComments.length }; } return feed; }));
+      try { await supabase.from('comments').delete().eq('id', commentId); } catch (err) { console.error('Delete failed:', err); fetchFeeds(); }
+  };
+
+  const handleDeletePost = async (postId) => {
+    if (!currentUser) return;
+    const postToDelete = feeds.find(f => f.id === postId); if (!postToDelete) return;
+    if (currentUser.id !== postToDelete.author_id && currentUser.role !== 'admin') { alert('삭제 권한이 없습니다.'); return; }
+    if (!window.confirm('게시글을 삭제하시겠습니까? 삭제 시 지급된 포인트가 회수됩니다.')) return;
+    try {
+        const { error } = await supabase.from('posts').delete().eq('id', postId); if (error) throw error;
+        if (['praise', 'knowhow', 'matjib', 'dept_news'].includes(postToDelete.type)) {
+            const deductAmount = 50; 
+            const newPoints = Math.max(0, currentUser.points - deductAmount); 
+            await supabase.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
+            await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '게시글 삭제 (회수)', amount: deductAmount, type: 'use' });
+            fetchUserData(currentUser.id); fetchAllPointHistory(); 
+        }
+        await fetchFeeds();
+    } catch (err) { console.error('삭제 실패: ', err.message); }
+  };
+
+  const handleRedeemPoints = async () => {
+    if (!currentUser || currentUser.points < 10000) return; if (!window.confirm('10,000P를 사용하여 포인트 차감 신청을 하시겠습니까?')) return;
+    try {
+        await supabase.from('redemption_requests').insert({ user_id: currentUser.id, user_name: currentUser.name, amount: 10000, status: 'pending' });
+        const newPoints = currentUser.points - 10000;
+        await supabase.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
+        await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '포인트 차감 신청', amount: 10000, type: 'use' });
+        fetchUserData(currentUser.id); fetchPointHistory(currentUser.id); setShowUserInfoModal(false);
+    } catch (err) { console.error('신청 실패: ', err.message); }
+  };
+  
+  const handleCompleteRedemption = async (requestId) => { if (!supabase) return; try { await supabase.from('redemption_requests').update({ status: 'completed' }).eq('id', requestId); fetchRedemptionList(); } catch (err) { console.error(err); } };
+
+  const handleGiftPoints = async (targetUserId, amount) => {
+    if (!currentUser || !supabase) return;
+    const giftAmount = parseInt(amount);
+    if (isNaN(giftAmount) || giftAmount <= 0) return;
+    try {
+        const myNewPoints = currentUser.points - giftAmount;
+        await supabase.from('profiles').update({ points: myNewPoints }).eq('id', currentUser.id);
+        await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '포인트 선물 (보냄)', amount: giftAmount, type: 'gift_sent' });
+        const { data: targetUser } = await supabase.from('profiles').select('points, name').eq('id', targetUserId).single();
+        const targetNewPoints = (targetUser.points || 0) + giftAmount;
+        await supabase.from('profiles').update({ points: targetNewPoints }).eq('id', targetUserId);
+        await supabase.from('point_history').insert({ user_id: targetUserId, reason: `선물 받음 (${currentUser.name})`, amount: giftAmount, type: 'earn' });
+        setShowGiftModal(false); alert(`${targetUser.name}님에게 선물이 완료되었습니다! 🎁`); fetchUserData(currentUser.id); fetchPointHistory(currentUser.id); fetchAllPointHistory();
+    } catch (err) { console.error(err); alert('선물하기 중 오류가 발생했습니다.'); }
+  };
+
+  const handleAdminUpdateUser = async (userId, updates) => { try { await supabase.from('profiles').update(updates).eq('id', userId); fetchProfiles(); } catch (err) { console.error(err); } };
+  const handleAdminDeleteUser = async (userId) => { if(!window.confirm('정말 삭제하시겠습니까?')) return; try { await supabase.from('profiles').delete().eq('id', userId); fetchProfiles(); } catch(err) { console.error(err); } };
+
+  const handleLogin = async (e) => {
+    e.preventDefault(); if (!checkSupabaseConfig()) return; setLoading(true);
+    const email = e.target.email.value; const password = e.target.password.value;
+    try {
+        const { data: userCheck } = await supabase.from('profiles').select('id').eq('email', email).maybeSingle();
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) { if (userCheck === null) alert('가입되지 않은 이메일 계정입니다.'); else alert('비밀번호가 일치하지 않습니다.'); }
+    } catch (err) { console.error('로그인 실패: ', err.message); alert('로그인 중 오류가 발생했습니다.'); } finally { setLoading(false); }
+  };
+
+  const handleSignup = async (e) => {
+    e.preventDefault(); if (!checkSupabaseConfig()) return; setLoading(true);
+    const { name, email, password, dept, team, birthdate } = e.target;
+    try {
+        const { data: existingUser } = await supabase.from('profiles').select('id').eq('email', email).maybeSingle();
+        if (existingUser) { alert('이미 가입된 이메일입니다.'); setLoading(false); return; }
+        const initialData = { name: name.value, dept: dept.value, team: team.value, role: 'member', points: INITIAL_POINTS, birthdate: birthdate.value, email: email.value };
+        const { data: signUpResult, error } = await supabase.auth.signUp({ email: email.value, password: password.value, options: { data: initialData } });
+        if (error) throw error;
+        await supabase.from('point_history').insert({ user_id: signUpResult.user.id, reason: '최초 가입 포인트', amount: INITIAL_POINTS, type: 'earn' });
+        alert('가입이 완료되었습니다. 로그인해주세요.'); setIsSignupMode(false);
+    } catch (err) { console.error('가입 실패: ', err.message); alert('가입 실패: ' + err.message); } finally { setLoading(false); }
+  };
+
+  const handlePostSubmit = async (e) => {
+    e.preventDefault(); 
+    if (!currentUser || !checkSupabaseConfig()) return;
+
+    // input hidden으로 받은 category 값
+    const category = e.target.category.value;
+    
+    if (category === 'news' && currentUser.role !== 'admin') {
+        alert('⛔ 권한이 없습니다.\n공지사항은 관리자만 작성할 수 있습니다.');
+        return; 
+    }
+
+    const regionMain = e.target.regionMain ? e.target.regionMain.value : null; 
+    
+    const isRewardCategory = ['praise', 'knowhow', 'matjib', 'dept_news'].includes(category);
+    const today = new Date().toISOString().split('T')[0];
+    const todayPosts = feeds.filter(f => f.author_id === currentUser.id && f.created_at.startsWith(today)).length;
+    
+    if (isRewardCategory && todayPosts >= 2) {
+        if(!window.confirm('하루 글쓰기 제한(2회)을 초과했습니다. 포인트 지급 없이 작성하시겠습니까?')) return;
+    }
+
+    const rewardAmountBase = 50; 
+    const rewardPoints = (isRewardCategory && todayPosts < 2) ? (boosterActive ? rewardAmountBase * 2 : rewardAmountBase) : 0; 
+    
+    const content = e.target.content.value;
+    const title = e.target.title ? e.target.title.value : null;
+    const targetName = e.target.targetName ? e.target.targetName.value : null;
+    const regionSub = e.target.regionSub ? e.target.regionSub.value : null;
+    
+    const file = e.target.file?.files[0];
+    let publicImageUrl = null;
+
+    try {
+        if (file) {
+           const fileExt = file.name.split('.').pop(); 
+           const fileName = `${Date.now()}_${Math.random()}.${fileExt}`;
+           const { error: uploadError } = await supabase.storage.from('images').upload(fileName, file);
+           if (!uploadError) { 
+               const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(fileName); 
+               publicImageUrl = publicUrl; 
+           }
+        }
+
+        const { error: postError } = await supabase.from('posts').insert({
+            content: content, 
+            type: category, 
+            author_id: currentUser.id, 
+            image_url: publicImageUrl, 
+            target_name: targetName, 
+            title: title, 
+            region_main: regionMain, 
+            region_sub: regionSub, 
+            likes: [] 
+        });
+
+        if (postError) throw postError;
+
+        if (rewardPoints > 0) {
+            const newPoints = (currentUser.points || 0) + rewardPoints;
+            await supabase.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
+            let categoryLabel = category === 'praise' ? '칭찬하기' : category === 'matjib' ? '맛집소개' : category === 'knowhow' ? '꿀팁' : '우리들 소식';
+            await supabase.from('point_history').insert({ user_id: currentUser.id, reason: `게시글 작성 (${categoryLabel})`, amount: rewardPoints, type: 'earn' });
+        }
+        
+        setShowWriteModal(false);
+        fetchUserData(currentUser.id); fetchAllPointHistory(); await fetchFeeds(); 
+        alert('게시글이 등록되었습니다!');
+
+    } catch (err) { console.error('작성 실패: ', err.message); alert('게시글 등록에 실패했습니다.\n' + err.message); }
+  };
+
+  const handleMoodCheck = async (selectedMood) => {
+    if (mood || !checkSupabaseConfig()) return;
+    setMood('checked');
+    const points = boosterActive ? 40 : 20;
+    const messages = ["오늘 하루도 활기차게! 화이팅! 🚀", "당신의 열정을 응원합니다! 🔥", "좋은 일만 가득한 하루 되세요! 🍀", "힘내세요! 당신은 최고입니다! 👍", "오늘도 멋진 성과 기대할게요! 🌟"];
+    const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+
+    setToast({ visible: true, message: `${randomMsg}\n(+${points}P)`, emoji: "👋" });
+    setTimeout(() => setToast({ visible: false, message: '', emoji: '' }), 3000); 
+
+    try {
+        const newPoints = (currentUser.points || 0) + points;
+        const todayStr = new Date().toISOString().split('T')[0];
+        await supabase.from('profiles').update({ points: newPoints, last_attendance: todayStr }).eq('id', currentUser.id);
+        await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '출근체크', amount: points, type: 'earn' });
+        fetchUserData(currentUser.id); fetchAllPointHistory();
+    } catch (err) { console.error(err); }
+  };
+
+  const handleCheckOut = async () => {
+      if (!mood || hasCheckedOut || !checkSupabaseConfig()) return;
+      setHasCheckedOut(true);
+      const points = boosterActive ? 40 : 20;
+      const messages = ["오늘 하루 정말 고생 많으셨어요! 🏠", "편안한 저녁 보내세요! 🌙", "수고하셨습니다! 내일도 화이팅! 💪", "푹 쉬고 재충전하세요! 🔋"];
+      const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+
+      setToast({ visible: true, message: `${randomMsg}\n(+${points}P)`, emoji: "🏃" });
+      setTimeout(() => setToast({ visible: false, message: '', emoji: '' }), 3000);
+      const todayStr = new Date().toISOString().split('T')[0];
+      localStorage.setItem(`checkout_${currentUser.id}_${todayStr}`, 'true');
+
+      try {
+          const newPoints = (currentUser.points || 0) + points;
+          await supabase.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
+          await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '퇴근체크', amount: points, type: 'earn' });
+          fetchUserData(currentUser.id); fetchAllPointHistory();
+      } catch (err) { console.error(err); }
+  };
+
+  const handleLogout = async () => { if (!supabase) return; try { await supabase.auth.signOut(); setCurrentUser(null); setSession(null); setMood(null); setHasCheckedOut(false); setPointHistory([]); } catch (err) { console.error('로그아웃 실패: ', err.message); } };
+  const handleChangeDept = async (newDept, newTeam) => { if (!currentUser || !supabase) return; try { await supabase.from('profiles').update({ dept: newDept, team: newTeam }).eq('id', currentUser.id); fetchUserData(currentUser.id); setShowChangeDeptModal(false); alert('소속이 변경되었습니다.'); } catch(err) { console.error(err); } };
+  const handleChangePassword = async (newPassword) => { if (!currentUser || !supabase) return; try { const { error } = await supabase.auth.updateUser({ password: newPassword }); if (error) throw error; setShowChangePwdModal(false); alert('비밀번호가 변경되었습니다. 다시 로그인해주세요.'); handleLogout(); } catch(err) { console.error(err); } };
+  const handleAdminGrantPoints = async (targetUserId, amount) => { if (!currentUser || !supabase) return; if (currentUser.role !== 'admin') return; try { const { data: targetUser } = await supabase.from('profiles').select('points').eq('id', targetUserId).single(); if (!targetUser) return; const newPoints = (targetUser.points || 0) + parseInt(amount); await supabase.from('profiles').update({ points: newPoints }).eq('id', targetUserId); await supabase.from('point_history').insert({ user_id: targetUserId, reason: '관리자 특별 지급', amount: parseInt(amount), type: 'earn' }); setShowAdminGrantModal(false); alert('포인트 지급이 완료되었습니다.'); fetchProfiles(); fetchAllPointHistory(); } catch(err) { console.error(err); } };
+
+  const handleTabChange = (tabId) => {
+      setActiveTab(tabId);
+      if (tabId === 'feed') { setActiveFeedFilter('all'); }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-100 flex justify-center font-sans">
+      <div className="w-full max-w-md h-full min-h-screen shadow-2xl relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100">
+        <div className="relative z-10 h-full flex flex-col">
+          {!session ? (
+            <AuthForm isSignupMode={isSignupMode} setIsSignupMode={setIsSignupMode} handleLogin={handleLogin} handleSignup={handleSignup} loading={loading} />
+          ) : (
+            <>
+              <Header currentUser={currentUser} onOpenUserInfo={() => setShowUserInfoModal(true)} handleLogout={handleLogout} onOpenChangeDept={() => setShowChangeDeptModal(true)} onOpenChangePwd={() => setShowChangePwdModal(true)} onOpenAdminGrant={() => setShowAdminGrantModal(true)} onOpenRedemptionList={() => { fetchRedemptionList(); setShowRedemptionListModal(true); }} onOpenGift={() => setShowGiftModal(true)} onOpenAdminManage={() => setShowAdminManageModal(true)} boosterActive={boosterActive} />
+              <main className="flex-1 overflow-y-auto scrollbar-hide">
+                {activeTab === 'home' && <HomeTab mood={mood} handleMoodCheck={handleMoodCheck} handleCheckOut={handleCheckOut} hasCheckedOut={hasCheckedOut} feeds={feeds} weeklyBirthdays={weeklyBirthdays} onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }} onNavigateToNews={() => setActiveTab('news')} onNavigateToFeed={(type) => { setActiveTab('feed'); setActiveFeedFilter(type); }} boosterActive={boosterActive} />}
+                {activeTab === 'feed' && <FeedTab feeds={feeds} activeFeedFilter={activeFeedFilter} setActiveFeedFilter={setActiveFeedFilter} onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }} currentUser={currentUser} handleDeletePost={handleDeletePost} handleLikePost={handleLikePost} handleAddComment={handleAddComment} handleDeleteComment={handleDeleteComment} boosterActive={boosterActive} />}
+                {activeTab === 'ranking' && <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} />}
+              </main>
+              <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
+              
+              {showWriteModal && <WriteModal setShowWriteModal={setShowWriteModal} handlePostSubmit={handlePostSubmit} currentUser={currentUser} activeTab={activeTab} boosterActive={boosterActive} initialCategory={writeCategory} />}
+              {showUserInfoModal && currentUser && <UserInfoModal currentUser={currentUser} pointHistory={pointHistory} setShowUserInfoModal={setShowUserInfoModal} handleRedeemPoints={handleRedeemPoints} />}
+              {showBirthdayPopup && currentUser && <BirthdayPopup currentUser={currentUser} handleBirthdayGrant={handleBirthdayGrant} setShowBirthdayPopup={setShowBirthdayPopup} />}
+              {showGiftModal && <GiftModal onClose={() => setShowGiftModal(false)} onGift={handleGiftPoints} profiles={profiles} currentUser={currentUser} pointHistory={pointHistory} />}
+              {showGiftNotificationModal && <GiftNotificationModal onClose={() => setShowGiftNotificationModal(false)} gifts={newGifts} />}
+              
+              {showAdminManageModal && <AdminManageModal onClose={() => setShowAdminManageModal(false)} profiles={profiles} onUpdateUser={handleAdminUpdateUser} onDeleteUser={handleAdminDeleteUser} boosterActive={boosterActive} setBoosterActive={setBoosterActive} />}
+              {showChangeDeptModal && <ChangeDeptModal onClose={() => setShowChangeDeptModal(false)} onSave={handleChangeDept} />}
+              {showChangePwdModal && <ChangePasswordModal onClose={() => setShowChangePwdModal(false)} onSave={handleChangePassword} />}
+              {showAdminGrantModal && <AdminGrantModal onClose={() => setShowAdminGrantModal(false)} onGrant={handleAdminGrantPoints} profiles={profiles} />}
+              {showRedemptionListModal && <RedemptionListModal onClose={() => setShowRedemptionListModal(false)} redemptionList={redemptionList} onComplete={handleCompleteRedemption} />}
+              {showAdminAlertModal && <AdminAlertModal onClose={handleCloseAdminAlert} />}
+              
+              <MoodToast visible={toast.visible} message={toast.message} emoji={toast.emoji} />
+            </>
+          )}
         </div>
       </div>
     </div>
