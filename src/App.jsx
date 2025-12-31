@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { User, Heart, MessageCircle, Gift, Bell, Sparkles, Smile, Frown, Meh, Megaphone, X, Send, Settings, ChevronRight, LogOut, Image as ImageIcon, Coins, Pencil, Trash2, Loader2, Lock, Clock, Award, Wallet, Building2, CornerDownRight, Link as LinkIcon, MapPin, Search, Key, Edit3, ClipboardList, CheckSquare, ChevronLeft, Zap, Users, Briefcase } from 'lucide-react';
+import { User, Heart, MessageCircle, Gift, Bell, Sparkles, Smile, Frown, Meh, Megaphone, X, Send, Settings, ChevronRight, LogOut, Image as ImageIcon, Coins, Pencil, Trash2, Loader2, Lock, Clock, Award, Wallet, Building2, CornerDownRight, Link as LinkIcon, MapPin, Search, Key, Edit3, ClipboardList, CheckSquare, ChevronLeft, Zap, Users, Briefcase, Utensils } from 'lucide-react';
 
 // --- [필수] Supabase 설정 ---
 const SUPABASE_URL = 'https://clsvsqiikgnreqqvcrxj.supabase.co'; 
@@ -30,9 +30,8 @@ const REGIONS = {
     '제주': ['제주시', '서귀포시']  
 };
 
-const INITIAL_POINTS = 1000; // 변경: 기본 최초 가입 포인트 1000
+const INITIAL_POINTS = 1000;
 const AXA_LOGO_URL = "https://upload.wikimedia.org/wikipedia/commons/9/94/AXA_Logo.svg"; 
-const ADMIN_EMAIL = "jongpil.kim@axa.co.kr"; 
 
 // --- Helper Functions ---
 const formatName = (name) => {
@@ -68,7 +67,6 @@ const getWeeklyBirthdays = (profiles) => {
     profiles.forEach(p => {
         if (!p.birthdate) return;
         const [_, m, d] = p.birthdate.split('-').map(Number);
-        // 양력 기준 적용
         const birthDate = new Date(currentYear, m - 1, d); 
         let normalizedBirthDate = normalizeDate(birthDate);
 
@@ -79,7 +77,7 @@ const getWeeklyBirthdays = (profiles) => {
              normalizedBirthDate = normalizeDate(nextYearBirthDate);
         }
         
-        const typeLabel = '(+)'; // 양력만 표시
+        const typeLabel = '(+)'; 
 
         if (normalizedBirthDate >= normalizedToday && normalizedBirthDate < normalizeDate(endOfCurrentWeek)) {
              currentBirthdays.push({ name: p.name, date: `${m}/${d}`, typeLabel });
@@ -147,13 +145,10 @@ const AdminAlertModal = ({ onClose }) => {
     );
 };
 
-// 이메일 인증 및 1인 1계정 정책 적용
+// AuthForm (기존 유지)
 const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, loading }) => {
   const [birthdate, setBirthdate] = useState('');
-  const [calendarType, setCalendarType] = useState('solar'); 
   const [selectedDept, setSelectedDept] = useState('');
-  
-  // 이메일 인증 관련 상태
   const [email, setEmail] = useState('');
   const [emailCodeSent, setEmailCodeSent] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
@@ -164,7 +159,6 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
           alert('회사 이메일(***@axa.co.kr)만 사용 가능합니다.');
           return;
       }
-      // 실제 메일 발송 대신 시뮬레이션
       alert(`[인증번호 발송]\n${email}로 인증코드가 발송되었습니다.\n(테스트 코드: 1234)`);
       setEmailCodeSent(true);
   };
@@ -192,28 +186,11 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
           <form onSubmit={handleSignup} className="space-y-4">
             <div><label className="block text-xs font-bold text-slate-500 mb-1 ml-1">이름</label><input name="name" type="text" placeholder="홍길동" className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm focus:border-blue-500 transition-colors" required /></div>
             
-            {/* 이메일 인증 섹션 */}
             <div>
                 <label className="block text-xs font-bold text-slate-500 mb-1 ml-1">회사 이메일</label>
                 <div className="flex gap-2">
-                    <input 
-                        name="email" 
-                        type="email" 
-                        placeholder="example@axa.co.kr" 
-                        className="flex-1 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm focus:border-blue-500 transition-colors" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        readOnly={emailVerified}
-                        required 
-                    />
-                    <button 
-                        type="button" 
-                        onClick={handleSendVerification} 
-                        disabled={emailVerified || !email}
-                        className="bg-blue-100 text-blue-600 text-xs font-bold px-3 rounded-2xl hover:bg-blue-200 disabled:opacity-50 whitespace-nowrap"
-                    >
-                        {emailVerified ? '인증완료' : '인증요청'}
-                    </button>
+                    <input name="email" type="email" placeholder="example@axa.co.kr" className="flex-1 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm focus:border-blue-500 transition-colors" value={email} onChange={(e) => setEmail(e.target.value)} readOnly={emailVerified} required />
+                    <button type="button" onClick={handleSendVerification} disabled={emailVerified || !email} className="bg-blue-100 text-blue-600 text-xs font-bold px-3 rounded-2xl hover:bg-blue-200 disabled:opacity-50 whitespace-nowrap">{emailVerified ? '인증완료' : '인증요청'}</button>
                 </div>
             </div>
 
@@ -221,47 +198,25 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
                 <div className="animate-fade-in">
                     <label className="block text-xs font-bold text-slate-500 mb-1 ml-1">인증 코드</label>
                     <div className="flex gap-2">
-                        <input 
-                            type="text" 
-                            placeholder="코드 입력" 
-                            className="flex-1 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm focus:border-blue-500 transition-colors" 
-                            value={verificationCode}
-                            onChange={(e) => setVerificationCode(e.target.value)}
-                        />
-                        <button 
-                            type="button" 
-                            onClick={handleVerifyCode} 
-                            className="bg-slate-800 text-white text-xs font-bold px-3 rounded-2xl hover:bg-slate-700 whitespace-nowrap"
-                        >
-                            확인
-                        </button>
+                        <input type="text" placeholder="코드 입력" className="flex-1 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm focus:border-blue-500 transition-colors" value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} />
+                        <button type="button" onClick={handleVerifyCode} className="bg-slate-800 text-white text-xs font-bold px-3 rounded-2xl hover:bg-slate-700 whitespace-nowrap">확인</button>
                     </div>
                 </div>
             )}
             
             <div>
                 <label className="block text-xs font-bold text-slate-500 mb-1 ml-1">생년월일 (양력)</label>
-                <div className="flex gap-2">
-                    <input name="birthdate" type="date" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm text-slate-600 focus:border-blue-500 transition-colors" required />
-                </div>
+                <div className="flex gap-2"><input name="birthdate" type="date" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm text-slate-600 focus:border-blue-500 transition-colors" required /></div>
             </div>
 
             <div><label className="block text-xs font-bold text-slate-500 mb-1 ml-1">비밀번호</label><input name="password" type="password" placeholder="비밀번호 설정" className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm focus:border-blue-500 transition-colors" required /></div>
             <div className="space-y-2 bg-slate-50 p-3 rounded-2xl border border-slate-100">
               <div className="grid grid-cols-2 gap-2">
-                <select name="dept" className="w-full p-2 bg-white border border-slate-200 rounded-xl outline-none text-xs text-slate-700" onChange={(e) => setSelectedDept(e.target.value)} required>
-                    <option value="">본부/부문</option>
-                    {Object.keys(ORGANIZATION).map(dept => <option key={dept} value={dept}>{dept}</option>)}
-                </select>
-                <select name="team" className="w-full p-2 bg-white border border-slate-200 rounded-xl outline-none text-xs text-slate-700" disabled={!selectedDept} required>
-                    <option value="">팀/센터</option>
-                    {selectedDept && ORGANIZATION[selectedDept].map(team => <option key={team} value={team}>{team}</option>)}
-                </select>
+                <select name="dept" className="w-full p-2 bg-white border border-slate-200 rounded-xl outline-none text-xs text-slate-700" onChange={(e) => setSelectedDept(e.target.value)} required><option value="">본부/부문</option>{Object.keys(ORGANIZATION).map(dept => <option key={dept} value={dept}>{dept}</option>)}</select>
+                <select name="team" className="w-full p-2 bg-white border border-slate-200 rounded-xl outline-none text-xs text-slate-700" disabled={!selectedDept} required><option value="">팀/센터</option>{selectedDept && ORGANIZATION[selectedDept].map(team => <option key={team} value={team}>{team}</option>)}</select>
               </div>
             </div>
-            <button type="submit" disabled={loading || !emailVerified} className="w-full bg-blue-600 text-white p-4 rounded-2xl text-sm font-bold hover:bg-blue-700 shadow-lg transition-all mt-2 disabled:bg-slate-300 flex justify-center">
-                {loading ? <Loader2 className="animate-spin w-5 h-5" /> : '가입 완료 (1,000P 지급)'}
-            </button>
+            <button type="submit" disabled={loading || !emailVerified} className="w-full bg-blue-600 text-white p-4 rounded-2xl text-sm font-bold hover:bg-blue-700 shadow-lg transition-all mt-2 disabled:bg-slate-300 flex justify-center">{loading ? <Loader2 className="animate-spin w-5 h-5" /> : '가입 완료 (1,000P 지급)'}</button>
             <button type="button" onClick={() => setIsSignupMode(false)} className="w-full text-slate-400 text-xs py-2 hover:text-blue-600">로그인으로 돌아가기</button>
           </form>
         ) : (
@@ -304,9 +259,10 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
              </div>
           </div>
 
-          <button onClick={onOpenUserInfo} className="w-9 h-9 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md hover:ring-2 ring-blue-200 transition-all">
-            {displayName}
-          </button>
+          <div className="flex flex-col items-end mr-1" onClick={onOpenUserInfo}>
+             <span className="text-[9px] text-slate-400 font-bold">MY CARE 포인트</span>
+             <span className="text-sm font-black text-blue-600">{currentUser?.points?.toLocaleString()} P</span>
+          </div>
 
           <button onClick={() => setShowSettings(!showSettings)} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors relative z-40"><Settings className="w-5 h-5 text-slate-400" /></button>
           
@@ -344,90 +300,29 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
   );
 };
 
-// ... (ChangeDeptModal, ChangePasswordModal, AdminGrantModal, RedemptionListModal existing code - omitted for brevity, logic maintained) ...
-const ChangeDeptModal = ({ onClose, onSave }) => {
-    const [dept, setDept] = useState('');
-    const [team, setTeam] = useState('');
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-            <div className="bg-white w-full max-w-xs rounded-2xl p-6 shadow-2xl relative">
-                <button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button>
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Building2 className="w-5 h-5"/> 소속 변경</h3>
-                <div className="space-y-3">
-                    <select className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" onChange={(e) => setDept(e.target.value)}><option value="">본부/부문 선택</option>{Object.keys(ORGANIZATION).map(d => <option key={d} value={d}>{d}</option>)}</select>
-                    <select className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" disabled={!dept} onChange={(e) => setTeam(e.target.value)}><option value="">팀 선택</option>{dept && ORGANIZATION[dept].map(t => <option key={t} value={t}>{t}</option>)}</select>
-                    <button onClick={() => onSave(dept, team)} disabled={!dept || !team} className="w-full bg-blue-600 text-white p-3 rounded-xl font-bold hover:bg-blue-700 disabled:bg-slate-300 transition-colors">변경 저장</button>
-                </div>
-            </div>
-        </div>
-    );
-};
-const ChangePasswordModal = ({ onClose, onSave }) => {
-    const [password, setPassword] = useState('');
-    const isValid = password.length >= 6 && /^\d+$/.test(password);
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-            <div className="bg-white w-full max-w-xs rounded-2xl p-6 shadow-2xl relative">
-                <button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button>
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Key className="w-5 h-5"/> 비밀번호 변경</h3>
-                <div className="space-y-3">
-                    <input type="password" placeholder="새 비밀번호 (6자리 이상 숫자)" className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" value={password} onChange={(e) => setPassword(e.target.value)}/>
-                    <button onClick={() => onSave(password)} disabled={!isValid} className="w-full bg-blue-600 text-white p-3 rounded-xl font-bold hover:bg-blue-700 disabled:bg-slate-300 transition-colors">비밀번호 변경</button>
-                </div>
-            </div>
-        </div>
-    );
-};
-const AdminGrantModal = ({ onClose, onGrant, profiles }) => {
-    const [dept, setDept] = useState('');
-    const [targetUser, setTargetUser] = useState('');
-    const [amount, setAmount] = useState('');
-    const filteredUsers = profiles.filter(p => p.dept === dept);
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-            <div className="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl relative">
-                <button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button>
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-blue-600"><Gift className="w-5 h-5"/> 특별 포인트 지급</h3>
-                <div className="space-y-3">
-                    <select className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" onChange={(e) => { setDept(e.target.value); setTargetUser(''); }}><option value="">소속 선택</option>{Object.keys(ORGANIZATION).map(d => <option key={d} value={d}>{d}</option>)}</select>
-                    <select className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" disabled={!dept} onChange={(e) => setTargetUser(e.target.value)}><option value="">직원 선택</option>{filteredUsers.map(u => <option key={u.id} value={u.id}>{u.name} ({u.team})</option>)}</select>
-                    <input type="number" placeholder="지급 포인트 (숫자만 입력)" className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none font-bold" value={amount} onChange={(e) => setAmount(e.target.value)}/>
-                    <button onClick={() => onGrant(targetUser, amount)} disabled={!targetUser || !amount} className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 rounded-xl font-bold hover:shadow-lg disabled:opacity-50 transition-all">포인트 지급하기</button>
-                </div>
-            </div>
-        </div>
-    );
-};
-const RedemptionListModal = ({ onClose, redemptionList }) => (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-            <div className="bg-white w-full max-w-lg rounded-2xl p-6 shadow-2xl relative max-h-[80vh] flex flex-col">
-                <button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button>
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-purple-600"><ClipboardList className="w-5 h-5"/> 포인트 차감 신청 내역</h3>
-                <div className="flex-1 overflow-y-auto">
-                    {redemptionList && redemptionList.length > 0 ? (
-                        <div className="space-y-2">{redemptionList.map((item, index) => (<div key={index} className="flex justify-between items-center p-3 bg-slate-50 border border-slate-100 rounded-xl"><div><p className="text-sm font-bold text-slate-700">{item.user_name}</p><p className="text-[10px] text-slate-400">{new Date(item.created_at).toLocaleDateString()} 신청</p></div><div className="text-red-500 font-bold text-sm">-{item.amount?.toLocaleString()} P</div></div>))}</div>
-                    ) : (<p className="text-center text-slate-400 py-10 text-sm">신청 내역이 없습니다.</p>)}
-                </div>
-            </div>
-        </div>
-);
+// ... (ChangeDeptModal, ChangePasswordModal, AdminGrantModal, RedemptionListModal, UserInfoModal, BirthdayPopup, AdminManageModal - 기존 유지)
+const ChangeDeptModal = ({ onClose, onSave }) => { const [dept, setDept] = useState(''); const [team, setTeam] = useState(''); return (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-xs rounded-2xl p-6 shadow-2xl relative"><button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button><h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Building2 className="w-5 h-5"/> 소속 변경</h3><div className="space-y-3"><select className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" onChange={(e) => setDept(e.target.value)}><option value="">본부/부문 선택</option>{Object.keys(ORGANIZATION).map(d => <option key={d} value={d}>{d}</option>)}</select><select className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" disabled={!dept} onChange={(e) => setTeam(e.target.value)}><option value="">팀 선택</option>{dept && ORGANIZATION[dept].map(t => <option key={t} value={t}>{t}</option>)}</select><button onClick={() => onSave(dept, team)} disabled={!dept || !team} className="w-full bg-blue-600 text-white p-3 rounded-xl font-bold hover:bg-blue-700 disabled:bg-slate-300 transition-colors">변경 저장</button></div></div></div>); };
+const ChangePasswordModal = ({ onClose, onSave }) => { const [password, setPassword] = useState(''); const isValid = password.length >= 6 && /^\d+$/.test(password); return (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-xs rounded-2xl p-6 shadow-2xl relative"><button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button><h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Key className="w-5 h-5"/> 비밀번호 변경</h3><div className="space-y-3"><input type="password" placeholder="새 비밀번호 (6자리 이상 숫자)" className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" value={password} onChange={(e) => setPassword(e.target.value)}/><button onClick={() => onSave(password)} disabled={!isValid} className="w-full bg-blue-600 text-white p-3 rounded-xl font-bold hover:bg-blue-700 disabled:bg-slate-300 transition-colors">비밀번호 변경</button></div></div></div>); };
+const AdminGrantModal = ({ onClose, onGrant, profiles }) => { const [dept, setDept] = useState(''); const [targetUser, setTargetUser] = useState(''); const [amount, setAmount] = useState(''); const filteredUsers = profiles.filter(p => p.dept === dept); return (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl relative"><button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button><h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-blue-600"><Gift className="w-5 h-5"/> 특별 포인트 지급</h3><div className="space-y-3"><select className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" onChange={(e) => { setDept(e.target.value); setTargetUser(''); }}><option value="">소속 선택</option>{Object.keys(ORGANIZATION).map(d => <option key={d} value={d}>{d}</option>)}</select><select className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" disabled={!dept} onChange={(e) => setTargetUser(e.target.value)}><option value="">직원 선택</option>{filteredUsers.map(u => <option key={u.id} value={u.id}>{u.name} ({u.team})</option>)}</select><input type="number" placeholder="지급 포인트 (숫자만 입력)" className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none font-bold" value={amount} onChange={(e) => setAmount(e.target.value)}/><button onClick={() => onGrant(targetUser, amount)} disabled={!targetUser || !amount} className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 rounded-xl font-bold hover:shadow-lg disabled:opacity-50 transition-all">포인트 지급하기</button></div></div></div>); };
+const RedemptionListModal = ({ onClose, redemptionList }) => (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-lg rounded-2xl p-6 shadow-2xl relative max-h-[80vh] flex flex-col"><button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button><h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-purple-600"><ClipboardList className="w-5 h-5"/> 포인트 차감 신청 내역</h3><div className="flex-1 overflow-y-auto">{redemptionList && redemptionList.length > 0 ? (<div className="space-y-2">{redemptionList.map((item, index) => (<div key={index} className="flex justify-between items-center p-3 bg-slate-50 border border-slate-100 rounded-xl"><div><p className="text-sm font-bold text-slate-700">{item.user_name}</p><p className="text-[10px] text-slate-400">{new Date(item.created_at).toLocaleDateString()} 신청</p></div><div className="text-red-500 font-bold text-sm">-{item.amount?.toLocaleString()} P</div></div>))}</div>) : (<p className="text-center text-slate-400 py-10 text-sm">신청 내역이 없습니다.</p>)}</div></div></div>);
+const AdminManageModal = ({ onClose, profiles, onUpdateUser, onDeleteUser, boosterActive, setBoosterActive }) => { const [searchTerm, setSearchTerm] = useState(''); const filtered = profiles.filter(p => p.name.includes(searchTerm) || p.email.includes(searchTerm)); return (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-4xl rounded-2xl p-6 shadow-2xl relative h-[80vh] flex flex-col"><button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button><h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Users className="w-5 h-5"/> 사용자 및 이벤트 관리</h3><div className="flex gap-4 mb-4"><div className="flex-1 bg-purple-50 p-4 rounded-xl border border-purple-100 flex items-center justify-between"><div><h4 className="font-bold text-purple-700 flex items-center gap-1"><Zap className="w-4 h-4"/> 포인트 부스터 이벤트</h4><p className="text-xs text-slate-500">활성화 시 모든 획득 포인트 2배</p></div><label className="relative inline-flex items-center cursor-pointer"><input type="checkbox" className="sr-only peer" checked={boosterActive} onChange={() => setBoosterActive(!boosterActive)} /><div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div></label></div></div><div className="mb-2 flex gap-2"><input className="flex-1 p-2 border border-slate-200 rounded-lg text-sm" placeholder="이름/이메일 검색" value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} /></div><div className="flex-1 overflow-y-auto border border-slate-200 rounded-xl"><table className="w-full text-sm text-left"><thead className="bg-slate-50 text-slate-600 font-bold sticky top-0"><tr><th className="p-3">이름</th><th className="p-3">부서/팀</th><th className="p-3">권한</th><th className="p-3">리포터</th><th className="p-3">관리</th></tr></thead><tbody>{filtered.map(user => (<tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50"><td className="p-3">{user.name}</td><td className="p-3 text-xs">{user.dept}<br/>{user.team}</td><td className="p-3"><select value={user.role} onChange={(e) => onUpdateUser(user.id, { role: e.target.value })} className="border rounded p-1 text-xs"><option value="member">일반</option><option value="admin">관리자</option></select></td><td className="p-3"><input type="checkbox" checked={user.is_reporter || false} onChange={(e) => onUpdateUser(user.id, { is_reporter: e.target.checked })} /></td><td className="p-3"><button onClick={() => onDeleteUser(user.id)} className="text-red-500 hover:bg-red-50 p-1.5 rounded"><Trash2 className="w-4 h-4"/></button></td></tr>))}</tbody></table></div></div></div>); };
+const UserInfoModal = ({ currentUser, pointHistory, setShowUserInfoModal, handleRedeemPoints }) => (<div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-md rounded-[2rem] p-0 shadow-2xl max-h-[90vh] overflow-y-auto relative"><div className="bg-gradient-to-r from-blue-600 to-blue-500 p-6 rounded-t-[2rem] flex justify-between items-center sticky top-0 z-10"><div className="flex flex-col text-white"><h3 className="text-lg font-bold flex items-center gap-2"><User className="w-5 h-5"/> {currentUser.name}</h3><p className="text-xs opacity-90 ml-7 mt-0.5 flex items-center gap-1 font-medium"><Building2 className="w-3 h-3"/> {currentUser.dept} / {currentUser.team}{currentUser.is_reporter && <span className="bg-yellow-400 text-yellow-900 text-[9px] px-1.5 py-0.5 rounded ml-2 font-bold">리포터</span>}</p></div><button onClick={() => setShowUserInfoModal(false)} className="p-2 bg-white/20 hover:bg-white/30 rounded-full text-white transition-colors"><X className="w-5 h-5" /></button></div><div className="p-6 space-y-5">{currentUser.points >= 10000 ? (<div className="bg-blue-50 p-4 rounded-2xl border border-blue-100 text-center"><p className="text-sm text-blue-800 font-bold mb-2">🎉 보유 포인트가 10,000P 이상입니다!</p><button onClick={handleRedeemPoints} className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors shadow-md"><Wallet className="w-4 h-4" /> 10,000P 상품권 교환 신청</button></div>) : (<div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center"><p className="text-xs text-slate-500">10,000P 부터 상품권 교환 신청이 가능해요 🎁</p><div className="mt-2 w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div className="bg-blue-400 h-full transition-all duration-500" style={{ width: `${Math.min((currentUser.points / 10000) * 100, 100)}%` }}></div></div><p className="text-[10px] text-slate-400 mt-1 text-right">{Math.floor((currentUser.points / 10000) * 100)}% 달성</p></div>)}<div><h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1"><Clock className="w-4 h-4 text-slate-400"/> 포인트 히스토리</h4><div className="space-y-2 max-h-60 overflow-y-auto pr-1 scrollbar-hide">{pointHistory.length > 0 ? pointHistory.map((history) => (<div key={history.id} className="flex justify-between items-center p-3 bg-white border border-slate-100 rounded-xl shadow-sm"><div className="flex-1 min-w-0"><p className="text-xs font-bold text-slate-700 line-clamp-1">{history.reason}</p><span className="text-[10px] text-slate-400">{new Date(history.created_at).toLocaleDateString()}</span></div><div className="text-sm font-black ml-4 flex items-center gap-1" style={{ color: history.type.includes('use') || history.type === 'gift_sent' ? '#ef4444' : '#10b981' }}>{history.type.includes('use') || history.type === 'gift_sent' ? '-' : '+'}{history.amount.toLocaleString()} P</div></div>)) : (<div className="text-center text-xs text-slate-400 py-6">아직 활동 내역이 없습니다.</div>)}</div></div></div></div></div>);
+const BirthdayPopup = ({ currentUser, handleBirthdayGrant, setShowBirthdayPopup }) => { const [doNotShow, setDoNotShow] = useState(false); const handleClose = () => { if (doNotShow) { localStorage.setItem('birthday_popup_closed_' + new Date().getFullYear(), 'true'); } setShowBirthdayPopup(false); }; return (<div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-sm rounded-[2rem] p-8 shadow-2xl relative text-center"><button onClick={handleClose} className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 rounded-full"><X className="w-5 h-5" /></button><div className="text-5xl mb-4"><span className="text-6xl animate-pulse">🎂</span></div><h3 className="text-lg font-black text-slate-800 mb-2">생일 축하 드립니다!</h3><p className="text-sm text-slate-500 mb-6">소중한 {currentUser.name} 님의 생일을 맞아<br/>특별한 선물을 준비했어요.</p><div className="bg-yellow-50 p-4 rounded-2xl border border-yellow-200 mb-6"><span className="text-2xl font-black text-yellow-600 flex items-center justify-center gap-2"><Coins className="w-6 h-6 fill-yellow-500 text-yellow-600"/> +1,000 P</span></div><button onClick={handleBirthdayGrant} className="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold hover:bg-blue-700 shadow-lg transition-all flex justify-center items-center gap-2 mb-3"><Gift className="w-5 h-5"/> 포인트 받기</button><div className="flex items-center justify-center gap-2 cursor-pointer" onClick={() => setDoNotShow(!doNotShow)}><div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${doNotShow ? 'bg-blue-500 border-blue-500' : 'bg-white border-slate-300'}`}>{doNotShow && <CheckSquare className="w-3 h-3 text-white" />}</div><span className="text-xs text-slate-400 select-none">더 이상 열지 않기</span></div></div></div>); };
+const BirthdayNotifier = ({ weeklyBirthdays }) => { const [view, setView] = useState('current'); const list = view === 'current' ? weeklyBirthdays.current : weeklyBirthdays.next; return (<div className="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 h-full flex flex-col"><h3 className="font-bold text-lg mb-3 flex items-center text-slate-800"><span className="mr-2">🎂</span> 생일자</h3><div className="flex bg-blue-50 p-1 rounded-xl mb-3 border border-blue-100"><button onClick={() => setView('current')} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all ${view === 'current' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>이번 주</button><button onClick={() => setView('next')} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all ${view === 'next' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>다음 주</button></div><div className="flex-1 overflow-y-auto pr-1 scrollbar-hide">{list.length > 0 ? (<div className="space-y-2">{list.map((b, index) => (<div key={index} className="flex items-center gap-2 p-2 bg-blue-100/50 border border-blue-100 rounded-xl"><div className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-xs shadow-sm">🎂</div><div><p className="text-xs font-bold text-slate-700">{b.name}</p><p className="text-[10px] text-slate-400">{b.date} <span className="text-blue-500 font-bold">{b.typeLabel}</span></p></div></div>))}</div>) : (<div className="h-full flex flex-col items-center justify-center text-slate-300 text-xs gap-1"><Smile className="w-5 h-5 opacity-50"/><span>생일자가 없어요</span></div>)}</div></div>); };
 
-// 선물하기 모달
+// 선물하기 모달 업데이트: 월 한도 메시지 및 부서 검색 기능 강화
 const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => {
     const [targetUser, setTargetUser] = useState('');
     const [amount, setAmount] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
-
-    // 월 선물 한도 체크 (매월 1000P)
     const currentMonth = new Date().getMonth();
-    const usedGiftPoints = pointHistory
-        .filter(h => h.type === 'gift_sent' && new Date(h.created_at).getMonth() === currentMonth)
-        .reduce((sum, h) => sum + h.amount, 0);
+    const usedGiftPoints = pointHistory.filter(h => h.type === 'gift_sent' && new Date(h.created_at).getMonth() === currentMonth).reduce((sum, h) => sum + h.amount, 0);
     const remainingLimit = 1000 - usedGiftPoints;
-
+    
+    // 부서/팀/이름으로 검색
     const filteredUsers = profiles.filter(p => 
         p.id !== currentUser.id && 
-        (p.name.includes(searchTerm) || p.team.includes(searchTerm))
+        (p.name.includes(searchTerm) || p.team.includes(searchTerm) || p.dept.includes(searchTerm))
     );
 
     return (
@@ -435,7 +330,8 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => 
             <div className="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl relative">
                 <button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button>
                 <h3 className="text-lg font-bold mb-2 flex items-center gap-2 text-pink-500"><Gift className="w-5 h-5"/> 마음 선물하기</h3>
-                <p className="text-xs text-slate-500 mb-4">동료에게 포인트를 선물해보세요. (월 한도 1,000P)</p>
+                <p className="text-xs text-slate-500 mb-2">동료에게 포인트를 선물해보세요.</p>
+                <p className="text-xs font-bold text-red-500 mb-4 bg-red-50 p-2 rounded-lg text-center">⚠️ 선물하기 월 최대 1,000포인트 가능</p>
                 
                 <div className="bg-pink-50 p-3 rounded-xl mb-4 border border-pink-100">
                     <div className="flex justify-between text-xs mb-1">
@@ -450,34 +346,16 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => 
                 <div className="space-y-3">
                     <div className="relative">
                          <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400"/>
-                         <input 
-                             type="text" 
-                             placeholder="이름 또는 팀으로 검색" 
-                             className="w-full p-3 pl-9 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none"
-                             value={searchTerm}
-                             onChange={(e) => setSearchTerm(e.target.value)}
-                         />
+                         <input type="text" placeholder="이름, 부서 또는 팀으로 검색" className="w-full p-3 pl-9 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                     </div>
                     
                     <select className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" onChange={(e) => setTargetUser(e.target.value)} size={5}>
-                        {filteredUsers.map(u => <option key={u.id} value={u.id} className="p-2 hover:bg-blue-50 rounded-lg">{u.name} ({u.team})</option>)}
+                        {filteredUsers.map(u => <option key={u.id} value={u.id} className="p-2 hover:bg-blue-50 rounded-lg">{u.name} ({u.dept}/{u.team})</option>)}
                     </select>
                     
-                    <input 
-                        type="number" 
-                        placeholder="선물할 포인트 (숫자만)" 
-                        className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none font-bold"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                    />
+                    <input type="number" placeholder="선물할 포인트 (숫자만)" className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none font-bold" value={amount} onChange={(e) => setAmount(e.target.value)} />
                     
-                    <button 
-                        onClick={() => onGift(targetUser, amount)} 
-                        disabled={!targetUser || !amount || parseInt(amount) > remainingLimit || parseInt(amount) > currentUser.points} 
-                        className="w-full bg-pink-500 text-white p-3 rounded-xl font-bold hover:bg-pink-600 disabled:bg-slate-300 transition-colors"
-                    >
-                        선물 보내기
-                    </button>
+                    <button onClick={() => onGift(targetUser, amount)} disabled={!targetUser || !amount || parseInt(amount) > remainingLimit || parseInt(amount) > currentUser.points} className="w-full bg-pink-500 text-white p-3 rounded-xl font-bold hover:bg-pink-600 disabled:bg-slate-300 transition-colors">선물 보내기</button>
                     {parseInt(amount) > currentUser.points && <p className="text-[10px] text-red-500 text-center">보유 포인트가 부족합니다.</p>}
                 </div>
             </div>
@@ -485,299 +363,68 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => 
     );
 };
 
-// 관리자 관리 페이지 (사용자 관리 + 이벤트 설정)
-const AdminManageModal = ({ onClose, profiles, onUpdateUser, onDeleteUser, boosterActive, setBoosterActive }) => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedUser, setSelectedUser] = useState(null);
-
-    const filtered = profiles.filter(p => p.name.includes(searchTerm) || p.email.includes(searchTerm));
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-            <div className="bg-white w-full max-w-4xl rounded-2xl p-6 shadow-2xl relative h-[80vh] flex flex-col">
-                <button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button>
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Users className="w-5 h-5"/> 사용자 및 이벤트 관리</h3>
-                
-                <div className="flex gap-4 mb-4">
-                    <div className="flex-1 bg-purple-50 p-4 rounded-xl border border-purple-100 flex items-center justify-between">
-                        <div>
-                            <h4 className="font-bold text-purple-700 flex items-center gap-1"><Zap className="w-4 h-4"/> 포인트 부스터 이벤트</h4>
-                            <p className="text-xs text-slate-500">활성화 시 모든 획득 포인트 2배</p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" className="sr-only peer" checked={boosterActive} onChange={() => setBoosterActive(!boosterActive)} />
-                          <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-                        </label>
-                    </div>
-                </div>
-
-                <div className="mb-2 flex gap-2">
-                    <input className="flex-1 p-2 border border-slate-200 rounded-lg text-sm" placeholder="이름/이메일 검색" value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} />
-                </div>
-                
-                <div className="flex-1 overflow-y-auto border border-slate-200 rounded-xl">
-                    <table className="w-full text-sm text-left">
-                        <thead className="bg-slate-50 text-slate-600 font-bold sticky top-0">
-                            <tr>
-                                <th className="p-3">이름</th>
-                                <th className="p-3">부서/팀</th>
-                                <th className="p-3">권한</th>
-                                <th className="p-3">리포터</th>
-                                <th className="p-3">관리</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filtered.map(user => (
-                                <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50">
-                                    <td className="p-3">{user.name}</td>
-                                    <td className="p-3 text-xs">{user.dept}<br/>{user.team}</td>
-                                    <td className="p-3">
-                                        <select 
-                                            value={user.role} 
-                                            onChange={(e) => onUpdateUser(user.id, { role: e.target.value })}
-                                            className="border rounded p-1 text-xs"
-                                        >
-                                            <option value="member">일반</option>
-                                            <option value="admin">관리자</option>
-                                        </select>
-                                    </td>
-                                    <td className="p-3">
-                                         <input 
-                                            type="checkbox" 
-                                            checked={user.is_reporter || false} 
-                                            onChange={(e) => onUpdateUser(user.id, { is_reporter: e.target.checked })}
-                                         />
-                                    </td>
-                                    <td className="p-3">
-                                        <button onClick={() => onDeleteUser(user.id)} className="text-red-500 hover:bg-red-50 p-1.5 rounded"><Trash2 className="w-4 h-4"/></button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const UserInfoModal = ({ currentUser, pointHistory, setShowUserInfoModal, handleRedeemPoints }) => (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fade-in">
-      <div className="bg-white w-full max-w-md rounded-[2rem] p-0 shadow-2xl max-h-[90vh] overflow-y-auto relative">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-500 p-6 rounded-t-[2rem] flex justify-between items-center sticky top-0 z-10">
-            <div className="flex flex-col text-white">
-                <h3 className="text-lg font-bold flex items-center gap-2"><User className="w-5 h-5"/> {currentUser.name}</h3>
-                <p className="text-xs opacity-90 ml-7 mt-0.5 flex items-center gap-1 font-medium">
-                    <Building2 className="w-3 h-3"/> {currentUser.dept} / {currentUser.team}
-                    {currentUser.is_reporter && <span className="bg-yellow-400 text-yellow-900 text-[9px] px-1.5 py-0.5 rounded ml-2 font-bold">리포터</span>}
-                </p>
-            </div>
-            <button onClick={() => setShowUserInfoModal(false)} className="p-2 bg-white/20 hover:bg-white/30 rounded-full text-white transition-colors"><X className="w-5 h-5" /></button>
-        </div>
-        
-        <div className="p-6 space-y-5">
-            {currentUser.points >= 10000 ? (
-                <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100 text-center">
-                    <p className="text-sm text-blue-800 font-bold mb-2">🎉 보유 포인트가 10,000P 이상입니다!</p>
-                    <button 
-                        onClick={handleRedeemPoints}
-                        className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors shadow-md"
-                    >
-                        <Wallet className="w-4 h-4" /> 10,000P 상품권 교환 신청
-                    </button>
-                </div>
-            ) : (
-                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                    <p className="text-xs text-slate-500">10,000P 부터 상품권 교환 신청이 가능해요 🎁</p>
-                    <div className="mt-2 w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                        <div className="bg-blue-400 h-full transition-all duration-500" style={{ width: `${Math.min((currentUser.points / 10000) * 100, 100)}%` }}></div>
-                    </div>
-                    <p className="text-[10px] text-slate-400 mt-1 text-right">{Math.floor((currentUser.points / 10000) * 100)}% 달성</p>
-                </div>
-            )}
-
-            <div>
-                <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1"><Clock className="w-4 h-4 text-slate-400"/> 포인트 히스토리</h4>
-                <div className="space-y-2 max-h-60 overflow-y-auto pr-1 scrollbar-hide">
-                    {pointHistory.length > 0 ? pointHistory.map((history) => (
-                        <div key={history.id} className="flex justify-between items-center p-3 bg-white border border-slate-100 rounded-xl shadow-sm">
-                            <div className="flex-1 min-w-0">
-                                <p className="text-xs font-bold text-slate-700 line-clamp-1">{history.reason}</p>
-                                <span className="text-[10px] text-slate-400">{new Date(history.created_at).toLocaleDateString()}</span>
-                            </div>
-                            <div className="text-sm font-black ml-4 flex items-center gap-1" style={{ 
-                                color: history.type.includes('use') || history.type === 'gift_sent' ? '#ef4444' : '#10b981' 
-                            }}>
-                                {history.type.includes('use') || history.type === 'gift_sent' ? '-' : '+'}{history.amount.toLocaleString()} P
-                            </div>
-                        </div>
-                    )) : (
-                        <div className="text-center text-xs text-slate-400 py-6">아직 활동 내역이 없습니다.</div>
-                    )}
-                </div>
-            </div>
-        </div>
-      </div>
-    </div>
-);
-
-const BirthdayPopup = ({ currentUser, handleBirthdayGrant, setShowBirthdayPopup }) => {
-    const [doNotShow, setDoNotShow] = useState(false);
-
-    const handleClose = () => {
-        if (doNotShow) {
-            localStorage.setItem('birthday_popup_closed_' + new Date().getFullYear(), 'true');
-        }
-        setShowBirthdayPopup(false);
-    };
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-            <div className="bg-white w-full max-w-sm rounded-[2rem] p-8 shadow-2xl relative text-center">
-                <button onClick={handleClose} className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 rounded-full"><X className="w-5 h-5" /></button>
-                <div className="text-5xl mb-4">
-                    <span className="text-6xl animate-pulse">🎂</span>
-                </div>
-                <h3 className="text-lg font-black text-slate-800 mb-2">생일 축하 드립니다!</h3>
-                <p className="text-sm text-slate-500 mb-6">소중한 {currentUser.name} 님의 생일을 맞아<br/>특별한 선물을 준비했어요.</p>
-                <div className="bg-yellow-50 p-4 rounded-2xl border border-yellow-200 mb-6">
-                    <span className="text-2xl font-black text-yellow-600 flex items-center justify-center gap-2">
-                        <Coins className="w-6 h-6 fill-yellow-500 text-yellow-600"/> +1,000 P
-                    </span>
-                </div>
-                
-                <button onClick={handleBirthdayGrant} className="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold hover:bg-blue-700 shadow-lg transition-all flex justify-center items-center gap-2 mb-3">
-                    <Gift className="w-5 h-5"/> 포인트 받기
-                </button>
-                
-                <div className="flex items-center justify-center gap-2 cursor-pointer" onClick={() => setDoNotShow(!doNotShow)}>
-                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${doNotShow ? 'bg-blue-500 border-blue-500' : 'bg-white border-slate-300'}`}>
-                        {doNotShow && <CheckSquare className="w-3 h-3 text-white" />}
-                    </div>
-                    <span className="text-xs text-slate-400 select-none">더 이상 열지 않기</span>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const BirthdayNotifier = ({ weeklyBirthdays }) => {
-    const [view, setView] = useState('current'); 
-    const list = view === 'current' ? weeklyBirthdays.current : weeklyBirthdays.next;
-    return (
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 h-full flex flex-col">
-            <h3 className="font-bold text-lg mb-3 flex items-center text-slate-800"><span className="mr-2">🎂</span> 생일자</h3>
-            <div className="flex bg-blue-50 p-1 rounded-xl mb-3 border border-blue-100">
-                <button onClick={() => setView('current')} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all ${view === 'current' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>이번 주</button>
-                <button onClick={() => setView('next')} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all ${view === 'next' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>다음 주</button>
-            </div>
-            <div className="flex-1 overflow-y-auto pr-1 scrollbar-hide">
-                {list.length > 0 ? (<div className="space-y-2">{list.map((b, index) => (<div key={index} className="flex items-center gap-2 p-2 bg-blue-100/50 border border-blue-100 rounded-xl"><div className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-xs shadow-sm">🎂</div><div><p className="text-xs font-bold text-slate-700">{b.name}</p><p className="text-[10px] text-slate-400">{b.date} <span className="text-blue-500 font-bold">{b.typeLabel}</span></p></div></div>))}</div>) : (<div className="h-full flex flex-col items-center justify-center text-slate-300 text-xs gap-1"><Smile className="w-5 h-5 opacity-50"/><span>생일자가 없어요</span></div>)}
-            </div>
-        </div>
-    );
-};
-
+// HomeTab: 꿀팁과 맛집 분리
 const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClick, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive }) => {
     const noticeFeeds = feeds.filter(f => f.type === 'news').slice(0, 3);
-    const praiseFeeds = feeds.filter(f => f.type === 'praise').slice(0, 5); 
-    const infoFeeds = feeds.filter(f => f.type === 'knowhow' || f.type === 'matjib').slice(0, 5); 
+    const praiseFeeds = feeds.filter(f => f.type === 'praise').slice(0, 3); 
+    const knowhowFeeds = feeds.filter(f => f.type === 'knowhow').slice(0, 2);
+    const matjibFeeds = feeds.filter(f => f.type === 'matjib').slice(0, 2);
 
     const handleSectionClick = (type) => onNavigateToFeed(type);
 
     return (
-      <div className="p-5 space-y-6 pb-32 animate-fade-in relative bg-blue-50 min-h-full">
+      <div className="p-5 space-y-5 pb-32 animate-fade-in relative bg-blue-50 min-h-full">
         <div className="grid grid-cols-2 gap-4">
             <div className="col-span-1">
                 <div className="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 h-full flex flex-col">
                   <div className="flex justify-between items-start mb-1">
-                    <div>
-                        <h2 className="text-xs font-bold text-slate-400 mb-0.5 flex items-center gap-1">출/퇴근 체크</h2>
-                        <p className="text-sm font-black text-slate-700">{mood ? '출석 완료!' : '오늘도 화이팅!'}</p>
-                    </div>
+                    <div><h2 className="text-xs font-bold text-slate-400 mb-0.5 flex items-center gap-1">출/퇴근 체크</h2><p className="text-sm font-black text-slate-700">{mood ? '출석 완료!' : '오늘도 화이팅!'}</p></div>
                   </div>
                   <div className="flex gap-2 h-full mt-2 items-end">
-                     {!mood ? (
-                         <button onClick={handleMoodCheck} className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-bold text-xs shadow-md active:scale-95 transition-all">출근하기 (+{boosterActive ? 40 : 20}P)</button>
-                     ) : (
-                         <div className="w-full flex gap-1">
-                             <div className="flex-1 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center text-xs font-bold py-3 cursor-default">완료</div>
-                             <button onClick={handleCheckOut} disabled={hasCheckedOut} className={`flex-1 ${hasCheckedOut ? 'bg-slate-100 text-slate-400' : 'bg-green-500 text-white hover:bg-green-600'} rounded-xl flex items-center justify-center text-xs font-bold py-3 transition-all active:scale-95`}>
-                                 {hasCheckedOut ? '퇴근완료' : `퇴근 (+${boosterActive ? 40 : 20}P)`}
-                             </button>
-                         </div>
-                     )}
+                     {!mood ? (<button onClick={handleMoodCheck} className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-bold text-xs shadow-md active:scale-95 transition-all">출근하기 (+{boosterActive ? 40 : 20}P)</button>) : (<div className="w-full flex gap-1"><div className="flex-1 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center text-xs font-bold py-3 cursor-default">완료</div><button onClick={handleCheckOut} disabled={hasCheckedOut} className={`flex-1 ${hasCheckedOut ? 'bg-slate-100 text-slate-400' : 'bg-green-500 text-white hover:bg-green-600'} rounded-xl flex items-center justify-center text-xs font-bold py-3 transition-all active:scale-95`}>{hasCheckedOut ? '퇴근완료' : `퇴근 (+${boosterActive ? 40 : 20}P)`}</button></div>)}
                   </div>
                 </div>
             </div>
-            <div className="col-span-1">
-                <BirthdayNotifier weeklyBirthdays={weeklyBirthdays} />
-            </div>
+            <div className="col-span-1"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} /></div>
         </div>
 
         <div>
-           <div className="flex justify-between items-center mb-3 px-1">
-             <h2 className="text-sm font-bold text-slate-700 flex items-center gap-1.5"><Megaphone className="w-4 h-4 text-red-500"/> 공지사항</h2>
-             <button onClick={onNavigateToNews} className="text-xs text-slate-400 font-medium hover:text-blue-600 flex items-center gap-0.5">더보기 <ChevronRight className="w-3 h-3" /></button>
-           </div>
-           <div className="space-y-2">
-             {noticeFeeds.length > 0 ? noticeFeeds.map(feed => ( 
-               <div key={feed.id} onClick={onNavigateToNews} className="bg-white px-4 py-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 transition-transform active:scale-[0.99] hover:border-blue-200 cursor-pointer">
-                 <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-slate-800 line-clamp-1 mb-0.5">{feed.title || feed.content}{isToday(feed.created_at) && <span className="ml-1 px-1 py-0.5 bg-red-500 text-white text-[8px] font-bold rounded-sm inline-block">NEW</span>}</p>
-                    <span className="text-[10px] text-slate-400">{feed.formattedTime} • {feed.author}</span>
-                 </div>
-                 <ChevronRight className="w-4 h-4 text-slate-300" />
-               </div>
-             )) : <div className="text-center text-xs text-slate-400 py-6 bg-white rounded-2xl border border-slate-100 border-dashed">등록된 공지가 없습니다.</div>}
-           </div>
+           <div className="flex justify-between items-center mb-3 px-1"><h2 className="text-sm font-bold text-slate-700 flex items-center gap-1.5"><Megaphone className="w-4 h-4 text-red-500"/> 공지사항</h2><button onClick={onNavigateToNews} className="text-xs text-slate-400 font-medium hover:text-blue-600 flex items-center gap-0.5">더보기 <ChevronRight className="w-3 h-3" /></button></div>
+           <div className="space-y-2">{noticeFeeds.length > 0 ? noticeFeeds.map(feed => (<div key={feed.id} onClick={onNavigateToNews} className="bg-white px-4 py-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 transition-transform active:scale-[0.99] hover:border-blue-200 cursor-pointer"><div className="flex-1 min-w-0"><p className="text-xs font-bold text-slate-800 line-clamp-1 mb-0.5">{feed.title || feed.content}{isToday(feed.created_at) && <span className="ml-1 px-1 py-0.5 bg-red-500 text-white text-[8px] font-bold rounded-sm inline-block">NEW</span>}</p><span className="text-[10px] text-slate-400">{feed.formattedTime} • {feed.author}</span></div><ChevronRight className="w-4 h-4 text-slate-300" /></div>)) : <div className="text-center text-xs text-slate-400 py-6 bg-white rounded-2xl border border-slate-100 border-dashed">등록된 공지가 없습니다.</div>}</div>
         </div>
-        <div className="flex justify-end">
-            <button onClick={onWriteClick} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2.5 rounded-full shadow-lg shadow-blue-200 hover:shadow-xl transition-all flex items-center gap-2 active:scale-95 border border-blue-400">
-                 <Pencil className="w-4 h-4" />
-                 <span className="text-sm font-bold">글쓰기</span>
-                 <div className="bg-white/20 px-1.5 py-0.5 rounded text-[10px] font-bold flex items-center"><Coins className="w-2.5 h-2.5 text-yellow-300 fill-yellow-300 mr-0.5"/>{boosterActive ? '100P' : '50P'}</div>
-            </button>
-        </div>
+        
+        <div className="flex justify-end"><button onClick={onWriteClick} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2.5 rounded-full shadow-lg shadow-blue-200 hover:shadow-xl transition-all flex items-center gap-2 active:scale-95 border border-blue-400"><Pencil className="w-4 h-4" /><span className="text-sm font-bold">글쓰기</span><div className="bg-white/20 px-1.5 py-0.5 rounded text-[10px] font-bold flex items-center"><Coins className="w-2.5 h-2.5 text-yellow-300 fill-yellow-300 mr-0.5"/>{boosterActive ? '100P' : '50P'}</div></button></div>
 
-        <div className="flex items-center justify-center gap-1.5 py-1 bg-blue-100/50 rounded-lg text-blue-600 text-[10px] font-bold mx-1 border border-blue-100">
-            <Coins className="w-3 h-3 text-yellow-500 fill-yellow-500"/>
-            게시물 작성시 +{boosterActive ? 100 : 50}P (일 최대 {boosterActive ? 200 : 100}P)
+        <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer" onClick={() => handleSectionClick('praise')}>
+           <h3 className="text-sm font-bold text-green-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Heart className="w-4 h-4 fill-green-500 text-green-500"/> 칭찬합시다</h3>
+           <div className="space-y-2 pointer-events-none">{praiseFeeds.map(feed => (<div key={feed.id} className="p-3 bg-green-50/30 rounded-2xl border border-green-100 transition-colors"><p className="text-[10px] font-bold text-slate-500 mb-1">To. {feed.target_name || '동료'}</p><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed">{feed.content}</p></div>))}</div>
         </div>
-
-        <div className="grid grid-cols-2 gap-4 min-h-[300px]">
-            <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer" onClick={() => handleSectionClick('praise')}>
-               <h3 className="text-sm font-bold text-green-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Heart className="w-4 h-4 fill-green-500 text-green-500"/> 칭찬합시다</h3>
-               <div className="space-y-2 pointer-events-none">
-                 {praiseFeeds.map(feed => (
-                    <div key={feed.id} className="p-3 bg-green-50/30 rounded-2xl border border-green-100 transition-colors">
-                        <p className="text-[10px] font-bold text-slate-500 mb-1">To. {feed.target_name || '동료'}</p>
-                        <p className="text-xs text-slate-700 line-clamp-2 leading-relaxed">{feed.content}</p>
-                    </div>
-                  ))}
-               </div>
-            </div>
+        
+        <div className="grid grid-cols-2 gap-4">
             <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer" onClick={() => handleSectionClick('knowhow')}>
-               <h3 className="text-sm font-bold text-blue-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Sparkles className="w-4 h-4 fill-blue-500 text-blue-500"/> 꿀팁 & 맛집</h3>
-               <div className="space-y-2 pointer-events-none">
-                 {infoFeeds.map(feed => (
-                    <div key={feed.id} className="p-3 bg-blue-50/30 rounded-2xl border border-blue-100 transition-colors">
-                       <span className="text-[9px] font-bold text-blue-500 border border-blue-200 px-1 rounded mr-1">{feed.type === 'matjib' ? '맛집' : '꿀팁'}</span>
-                       <p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>
-                    </div>
-                  ))}
-               </div>
+               <h3 className="text-sm font-bold text-blue-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Sparkles className="w-4 h-4 fill-blue-500 text-blue-500"/> 꿀팁</h3>
+               <div className="space-y-2 pointer-events-none">{knowhowFeeds.map(feed => (<div key={feed.id} className="p-3 bg-blue-50/30 rounded-2xl border border-blue-100 transition-colors"><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p></div>))}</div>
+            </div>
+            <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer" onClick={() => handleSectionClick('matjib')}>
+               <h3 className="text-sm font-bold text-orange-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Utensils className="w-4 h-4 fill-orange-500 text-orange-500"/> 맛집</h3>
+               <div className="space-y-2 pointer-events-none">{matjibFeeds.map(feed => (<div key={feed.id} className="p-3 bg-orange-50/30 rounded-2xl border border-orange-100 transition-colors"><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p></div>))}</div>
             </div>
         </div>
       </div>
     );
 };
 
+// FeedTab: 필터 분리 및 지역 검색 기능 추가
 const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClick, currentUser, handleDeletePost, handleLikePost, handleAddComment, handleDeleteComment, boosterActive }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const filteredFeeds = feeds.filter(f => {
       const matchesFilter = activeFeedFilter === 'all' || f.type === activeFeedFilter || (activeFeedFilter === 'dept_news' && f.type === 'dept_news');
-      const matchesSearch = searchTerm === "" || (f.title && f.title.toLowerCase().includes(searchTerm.toLowerCase())) || (f.content && f.content.toLowerCase().includes(searchTerm.toLowerCase())) || (f.author && f.author.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesSearch = searchTerm === "" || 
+          (f.title && f.title.toLowerCase().includes(searchTerm.toLowerCase())) || 
+          (f.content && f.content.toLowerCase().includes(searchTerm.toLowerCase())) || 
+          (f.author && f.author.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (f.region_main && f.region_main.includes(searchTerm)) || // 지역명 검색 추가
+          (f.region_sub && f.region_sub.includes(searchTerm));
       return matchesFilter && matchesSearch;
   });
 
@@ -785,11 +432,17 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClick, c
     <div className="p-5 space-y-5 pb-28 animate-fade-in bg-blue-50">
       <div className="bg-white p-2 rounded-2xl shadow-sm border border-blue-100 flex items-center gap-2">
           <Search className="w-4 h-4 text-slate-400 ml-2" />
-          <input type="text" placeholder="검색어를 입력하세요 (제목, 내용, 작성자)" className="flex-1 bg-transparent text-xs p-2 outline-none" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
+          <input type="text" placeholder="검색 (제목, 내용, 작성자, 지역명)" className="flex-1 bg-transparent text-xs p-2 outline-none" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-        {[{ id: 'all', label: '전체' }, { id: 'dept_news', label: '보상부 소식' }, { id: 'praise', label: '칭찬해요' }, { id: 'knowhow', label: '꿀팁/맛집' }].map(tab => (
+        {[
+            { id: 'all', label: '전체' }, 
+            { id: 'dept_news', label: '우리들 소식' }, // 우리들 소식
+            { id: 'praise', label: '칭찬해요' }, 
+            { id: 'knowhow', label: '업무 꿀팁' },
+            { id: 'matjib', label: '맛집 소개' } // 맛집 분리
+        ].map(tab => (
           <button key={tab.id} onClick={() => setActiveFeedFilter(tab.id)} className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${activeFeedFilter === tab.id ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white text-slate-500 border-slate-200'}`}>{tab.label}</button>
         ))}
       </div>
@@ -825,9 +478,10 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClick, c
                     <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-bold border ${
                         feed.type === 'praise' ? 'bg-green-50 text-green-600 border-green-100' : 
                         feed.type === 'news' ? 'bg-red-50 text-red-600 border-red-100' : 
-                        feed.type === 'dept_news' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-blue-50 text-blue-600 border-blue-100'
+                        feed.type === 'dept_news' ? 'bg-purple-50 text-purple-600 border-purple-100' : 
+                        feed.type === 'matjib' ? 'bg-orange-50 text-orange-600 border-orange-100' : 'bg-blue-50 text-blue-600 border-blue-100'
                     }`}>
-                        {feed.type === 'praise' ? '칭찬해요' : feed.type === 'news' ? '📢 공지사항' : feed.type === 'dept_news' ? '🏢 보상부 소식' : '업무꿀팁/맛집'}
+                        {feed.type === 'praise' ? '칭찬해요' : feed.type === 'news' ? '📢 공지사항' : feed.type === 'dept_news' ? '🏢 우리들 소식' : feed.type === 'matjib' ? '맛집 소개' : '업무꿀팁'}
                     </span>
                     {feed.region_main && <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-50 text-slate-500 border border-slate-200"><MapPin className="w-2.5 h-2.5 inline mr-0.5"/>{feed.region_main} {feed.region_sub}</span>}
                 </div>
@@ -871,6 +525,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClick, c
   );
 };
 
+// WriteModal: 보상부 소식 작성 제한 및 카테고리 분리
 const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTab, boosterActive }) => {
   const [writeCategory, setWriteCategory] = useState('');
   const [imagePreview, setImagePreview] = useState(null);
@@ -885,11 +540,12 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
   const categories = useMemo(() => {
     const baseCategories = [
         {id: 'praise', label: '칭찬하기'},
-        {id: 'matjib', label: '맛집/꿀팁'}
+        {id: 'matjib', label: '맛집소개'},
+        {id: 'knowhow', label: '업무꿀팁'}
     ];
-    // 보상부 소속이거나 리포터인 경우 소식방 작성 가능
+    // 보상부(팀) 소속 직원만 '우리들 소식' 작성 가능 (부서명에 '보상' 포함 여부로 체크)
     if (currentUser?.dept?.includes('보상') || currentUser?.is_reporter) {
-        baseCategories.unshift({id: 'dept_news', label: '보상부 소식'});
+        baseCategories.unshift({id: 'dept_news', label: '우리들 소식'});
     }
     if (activeTab === 'news' && currentUser?.role === 'admin') {
         baseCategories.push({id: 'news', label: '공지사항'});
@@ -978,66 +634,9 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
   );
 };
 
-const RankingTab = ({ feeds, profiles, allPointHistory }) => {
-    // 랭킹 로직 유지, 1-3등 1000P 수령 표시(UI만 구현, 실제 지급은 관리자가)
-    const [selectedDate, setSelectedDate] = useState(new Date());
-
-    const isSelectedMonth = (dateString) => {
-        if(!dateString) return false;
-        const d = new Date(dateString);
-        return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear();
-    };
-    const handlePrevMonth = () => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() - 1)));
-    const handleNextMonth = () => { const nextMonth = new Date(selectedDate); nextMonth.setMonth(selectedDate.getMonth() + 1); if (nextMonth <= new Date()) setSelectedDate(nextMonth); };
-
-    const pointRanking = useMemo(() => {
-        const monthlyPoints = {};
-        allPointHistory.forEach(record => { if (isSelectedMonth(record.created_at) && record.type === 'earn') monthlyPoints[record.user_id] = (monthlyPoints[record.user_id] || 0) + record.amount; });
-        return Object.entries(monthlyPoints).map(([id, points]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: points, unit: 'P', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3);
-    }, [allPointHistory, profiles, selectedDate]);
-
-    const postCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { postCounts[f.author_id] = (postCounts[f.author_id] || 0) + 1; });
-    const postRanking = Object.entries(postCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '건', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3);
-
-    const likeCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { const likes = f.likes ? (Array.isArray(f.likes) ? f.likes.length : 0) : 0; if(likes > 0) likeCounts[f.author_id] = (likeCounts[f.author_id] || 0) + likes; });
-    const likeRanking = Object.entries(likeCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '개', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3);
-
-    const RankItem = ({ rank, name, value, unit, team, color }) => (
-        <div className="flex items-center p-3 bg-white border border-slate-100 rounded-2xl shadow-sm relative overflow-hidden">
-            {rank <= 3 && <div className="absolute right-0 top-0 bg-yellow-100 text-yellow-600 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">🎁 1,000P</div>}
-            <div className={`text-xl font-black mr-4 w-8 text-center ${color}`}>{rank}</div>
-            <div className="flex-1"><p className="text-sm font-bold text-slate-800">{name || 'Unknown'}</p><p className="text-[10px] text-slate-400">{team}</p></div>
-            <div className="text-base font-black text-slate-700 ml-4">{value}<span className="text-[10px] text-slate-400 ml-0.5 font-normal">{unit}</span></div>
-        </div>
-    );
-
-    return (
-        <div className="p-5 space-y-8 pb-28 animate-fade-in bg-blue-50">
-            <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-blue-100 text-center relative">
-                <div className="flex justify-between items-center mb-4 px-2">
-                    <button onClick={handlePrevMonth} className="p-1 hover:bg-slate-100 rounded-full"><ChevronLeft className="w-5 h-5 text-slate-400" /></button>
-                    <h2 className="text-lg font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2>
-                    <button onClick={handleNextMonth} className="p-1 hover:bg-slate-100 rounded-full disabled:opacity-30" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-5 h-5 text-slate-400" /></button>
-                </div>
-            </div>
-            <div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Coins className="w-4 h-4 text-yellow-500"/> 월간 획득 포인트 랭킹</h3><div className="space-y-2">{pointRanking.length > 0 ? pointRanking.map((p, i) => <RankItem key={i} rank={i+1} name={p.name} team={p.team} value={p.value.toLocaleString()} unit="P" color="text-yellow-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div>
-            <div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Pencil className="w-4 h-4 text-green-500"/> 소통왕 (게시글)</h3><div className="space-y-2">{postRanking.length > 0 ? postRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-green-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div>
-            <div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Heart className="w-4 h-4 text-red-500"/> 인기왕 (좋아요)</h3><div className="space-y-2">{likeRanking.length > 0 ? likeRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-red-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div>
-        </div>
-    );
-};
-
-// ... BottomNav code is same ...
-const BottomNav = ({ activeTab, setActiveTab }) => (
-  <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[380px] bg-[#00008F] backdrop-blur-md border border-blue-900 shadow-[0_8px_30px_rgb(0,0,0,0.3)] p-2 z-30 flex justify-between items-center rounded-3xl">
-    {[{ id: 'home', icon: User, label: '홈' }, { id: 'feed', icon: MessageCircle, label: '소통' }, { id: 'news', icon: Bell, label: '소식' }, { id: 'ranking', icon: Award, label: '랭킹' }].map(item => (
-      <button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex flex-1 flex-col items-center gap-1 px-2 py-3 rounded-2xl transition-all duration-300 ${activeTab === item.id ? 'text-white bg-white/20 shadow-lg scale-105' : 'text-blue-300 hover:text-white'}`}>
-        <item.icon className={`w-5 h-5 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} />
-        <span className="text-[10px] font-bold">{item.label}</span>
-      </button>
-    ))}
-  </div>
-);
+// ... (RankingTab, BottomNav - 기존 유지)
+const RankingTab = ({ feeds, profiles, allPointHistory }) => { const [selectedDate, setSelectedDate] = useState(new Date()); const isSelectedMonth = (dateString) => { if(!dateString) return false; const d = new Date(dateString); return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear(); }; const handlePrevMonth = () => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() - 1))); const handleNextMonth = () => { const nextMonth = new Date(selectedDate); nextMonth.setMonth(selectedDate.getMonth() + 1); if (nextMonth <= new Date()) setSelectedDate(nextMonth); }; const pointRanking = useMemo(() => { const monthlyPoints = {}; allPointHistory.forEach(record => { if (isSelectedMonth(record.created_at) && record.type === 'earn') monthlyPoints[record.user_id] = (monthlyPoints[record.user_id] || 0) + record.amount; }); return Object.entries(monthlyPoints).map(([id, points]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: points, unit: 'P', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); }, [allPointHistory, profiles, selectedDate]); const postCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { postCounts[f.author_id] = (postCounts[f.author_id] || 0) + 1; }); const postRanking = Object.entries(postCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '건', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); const likeCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { const likes = f.likes ? (Array.isArray(f.likes) ? f.likes.length : 0) : 0; if(likes > 0) likeCounts[f.author_id] = (likeCounts[f.author_id] || 0) + likes; }); const likeRanking = Object.entries(likeCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '개', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); const RankItem = ({ rank, name, value, unit, team, color }) => (<div className="flex items-center p-3 bg-white border border-slate-100 rounded-2xl shadow-sm relative overflow-hidden">{rank <= 3 && <div className="absolute right-0 top-0 bg-yellow-100 text-yellow-600 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">🎁 1,000P</div>}<div className={`text-xl font-black mr-4 w-8 text-center ${color}`}>{rank}</div><div className="flex-1"><p className="text-sm font-bold text-slate-800">{name || 'Unknown'}</p><p className="text-[10px] text-slate-400">{team}</p></div><div className="text-base font-black text-slate-700 ml-4">{value}<span className="text-[10px] text-slate-400 ml-0.5 font-normal">{unit}</span></div></div>); return (<div className="p-5 space-y-8 pb-28 animate-fade-in bg-blue-50"><div className="bg-white p-5 rounded-[2rem] shadow-sm border border-blue-100 text-center relative"><div className="flex justify-between items-center mb-4 px-2"><button onClick={handlePrevMonth} className="p-1 hover:bg-slate-100 rounded-full"><ChevronLeft className="w-5 h-5 text-slate-400" /></button><h2 className="text-lg font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2><button onClick={handleNextMonth} className="p-1 hover:bg-slate-100 rounded-full disabled:opacity-30" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-5 h-5 text-slate-400" /></button></div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Coins className="w-4 h-4 text-yellow-500"/> 월간 획득 포인트 랭킹</h3><div className="space-y-2">{pointRanking.length > 0 ? pointRanking.map((p, i) => <RankItem key={i} rank={i+1} name={p.name} team={p.team} value={p.value.toLocaleString()} unit="P" color="text-yellow-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Pencil className="w-4 h-4 text-green-500"/> 소통왕 (게시글)</h3><div className="space-y-2">{postRanking.length > 0 ? postRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-green-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Heart className="w-4 h-4 text-red-500"/> 인기왕 (좋아요)</h3><div className="space-y-2">{likeRanking.length > 0 ? likeRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-red-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div></div>); };
+const BottomNav = ({ activeTab, setActiveTab }) => (<div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[380px] bg-[#00008F] backdrop-blur-md border border-blue-900 shadow-[0_8px_30px_rgb(0,0,0,0.3)] p-2 z-30 flex justify-between items-center rounded-3xl">{[{ id: 'home', icon: User, label: '홈' }, { id: 'feed', icon: MessageCircle, label: '소통' }, { id: 'news', icon: Bell, label: '소식' }, { id: 'ranking', icon: Award, label: '랭킹' }].map(item => (<button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex flex-1 flex-col items-center gap-1 px-2 py-3 rounded-2xl transition-all duration-300 ${activeTab === item.id ? 'text-white bg-white/20 shadow-lg scale-105' : 'text-blue-300 hover:text-white'}`}><item.icon className={`w-5 h-5 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} /><span className="text-[10px] font-bold">{item.label}</span></button>))}</div>);
 
 // --- Main App Component ---
 export default function App() {
@@ -1258,7 +857,7 @@ export default function App() {
     if (!window.confirm('게시글을 삭제하시겠습니까? 삭제 시 지급된 포인트가 회수됩니다.')) return;
     try {
         const { error } = await supabase.from('posts').delete().eq('id', postId); if (error) throw error;
-        // 포인트 회수 (boosterActive 상태를 알 수 없으므로 기본 50P 회수 또는 작성 당시 포인트 기록이 필요하나 여기선 기본 정책 적용)
+        // 포인트 회수
         if (['praise', 'knowhow', 'matjib', 'dept_news'].includes(postToDelete.type)) {
             const deductAmount = 50; 
             const newPoints = Math.max(0, currentUser.points - deductAmount); 
@@ -1308,9 +907,6 @@ export default function App() {
   // 사용자 관리 (관리자용) - 업데이트
   const handleAdminUpdateUser = async (userId, updates) => {
       try {
-          // Supabase profiles 테이블에 해당 컬럼들이 있어야 함. 없으면 에러 발생 가능성 있음.
-          // 시뮬레이션을 위해 role은 기본 존재, is_reporter 등은 추가 컬럼이라 가정.
-          // 실제 동작을 위해 profiles 테이블에 is_reporter boolean 컬럼 추가 필요.
           await supabase.from('profiles').update(updates).eq('id', userId);
           fetchProfiles();
       } catch (err) { console.error(err); }
@@ -1493,7 +1089,6 @@ export default function App() {
                     boosterActive={boosterActive}
                 />}
                 {activeTab === 'ranking' && <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} />}
-                {/* News Tab can reuse FeedTab logic or custom, reusing NoticeBoard component for brevity if needed but user asked for specific sections */}
               </main>
               <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
               
