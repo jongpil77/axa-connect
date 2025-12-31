@@ -1,6 +1,6 @@
 export default {
   plugins: {
-    '@tailwindcss/postcss': {}, // 기존 tailwindcss 대신 이걸 써야 합니다.
+    tailwindcss: {}, // '@tailwindcss/postcss' 대신 이걸 써야 v3와 호환됩니다.
     autoprefixer: {},
   },
 }
