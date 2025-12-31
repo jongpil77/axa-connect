@@ -743,13 +743,7 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
   );
 };
 
-// ... (RankingTab, BottomNav - 기존 유지)
-const RankingTab = ({ feeds, profiles, allPointHistory }) => { const [selectedDate, setSelectedDate] = useState(new Date()); const isSelectedMonth = (dateString) => { if(!dateString) return false; const d = new Date(dateString); return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear(); }; const handlePrevMonth = () => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() - 1))); const handleNextMonth = () => { const nextMonth = new Date(selectedDate); nextMonth.setMonth(selectedDate.getMonth() + 1); if (nextMonth <= new Date()) setSelectedDate(nextMonth); }; const pointRanking = useMemo(() => { const monthlyPoints = {}; allPointHistory.forEach(record => { if (isSelectedMonth(record.created_at) && record.type === 'earn') monthlyPoints[record.user_id] = (monthlyPoints[record.user_id] || 0) + record.amount; }); return Object.entries(monthlyPoints).map(([id, points]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: points, unit: 'P', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); }, [allPointHistory, profiles, selectedDate]); const postCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { postCounts[f.author_id] = (postCounts[f.author_id] || 0) + 1; }); const postRanking = Object.entries(postCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '건', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); const likeCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { const likes = f.likes ? (Array.isArray(f.likes) ? f.likes.length : 0) : 0; if(likes > 0) likeCounts[f.author_id] = (likeCounts[f.author_id] || 0) + likes; }); const likeRanking = Object.entries(likeCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '개', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); const RankItem = ({ rank, name, value, unit, team, color }) => (<div className="flex items-center p-3 bg-white border border-slate-100 rounded-2xl shadow-sm relative overflow-hidden">{rank <= 3 && <div className="absolute right-0 top-0 bg-yellow-100 text-yellow-600 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">🎁 1,000P</div>}<div className={`text-xl font-black mr-4 w-8 text-center ${color}`}>{rank}</div><div className="flex-1"><p className="text-sm font-bold text-slate-800">{name || 'Unknown'}</p><p className="text-[10px] text-slate-400">{team}</p></div><div className="text-base font-black text-slate-700 ml-4">{value}<span className="text-[10px] text-slate-400 ml-0.5 font-normal">{unit}</span></div></div>); return (<div className="p-5 space-y-8 pb-28 animate-fade-in bg-blue-50"><div className="bg-white p-5 rounded-[2rem] shadow-sm border border-blue-100 text-center relative"><div className="flex justify-between items-center mb-4 px-2"><button onClick={handlePrevMonth} className="p-1 hover:bg-slate-100 rounded-full"><ChevronLeft className="w-5 h-5 text-slate-400" /></button><h2 className="text-lg font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2><button onClick={handleNextMonth} className="p-1 hover:bg-slate-100 rounded-full disabled:opacity-30" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-5 h-5 text-slate-400" /></button></div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Coins className="w-4 h-4 text-yellow-500"/> 월간 획득 포인트 랭킹</h3><div className="space-y-2">{pointRanking.length > 0 ? pointRanking.map((p, i) => <RankItem key={i} rank={i+1} name={p.name} team={p.team} value={p.value.toLocaleString()} unit="P" color="text-yellow-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Pencil className="w-4 h-4 text-green-500"/> 소통왕 (게시글)</h3><div className="space-y-2">{postRanking.length > 0 ? postRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-green-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Heart className="w-4 h-4 text-red-500"/> 인기왕 (좋아요)</h3><div className="space-y-2">{likeRanking.length > 0 ? likeRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-red-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div></div>); };
-const BottomNav = ({ activeTab, setActiveTab }) => (<div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[380px] bg-[#00008F] backdrop-blur-md border border-blue-900 shadow-[0_8px_30px_rgb(0,0,0,0.3)] p-2 z-30 flex justify-between items-center rounded-3xl">{[{ id: 'home', icon: User, label: '홈' }, { id: 'feed', icon: MessageCircle, label: '소통' }, { id: 'news', icon: Bell, label: '소식' }, { id: 'ranking', icon: Award, label: '랭킹' }].map(item => (<button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex flex-1 flex-col items-center gap-1 px-2 py-3 rounded-2xl transition-all duration-300 ${activeTab === item.id ? 'text-white bg-white/20 shadow-lg scale-105' : 'text-blue-300 hover:text-white'}`}><item.icon className={`w-5 h-5 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} /><span className="text-[10px] font-bold">{item.label}</span></button>))}</div>);
-const Comment = ({ comment, currentUser, handleDeleteComment }) => (<div className="flex gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">{comment.parent_id && <CornerDownRight className="w-4 h-4 text-slate-300 mt-1 flex-shrink-0" />}<div className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold shadow-sm ${comment.profiles?.role === 'admin' ? 'bg-red-400' : 'bg-blue-400'}`}>{formatInitial(comment.profiles?.name || 'Unknown')}</div><div className="flex-1 min-w-0"><div className="flex justify-between items-start"><p className="text-xs font-bold text-slate-700 flex items-center gap-1">{comment.profiles?.name || '알 수 없음'}{comment.profiles?.role === 'admin' && <span className="px-1 py-0.5 bg-red-50 text-red-500 text-[9px] rounded-md">관리자</span>}</p><span className="text-[9px] text-slate-400">{new Date(comment.created_at).toLocaleDateString()}</span></div><p className="text-xs text-slate-600 leading-relaxed mt-0.5 break-words">{comment.content}</p><div className="flex gap-2 mt-1 justify-end">{(currentUser?.id === comment.author_id || currentUser?.role === 'admin') && (<button onClick={() => handleDeleteComment(comment.id)} className="text-[10px] text-slate-400 hover:text-red-500 transition-colors flex items-center gap-0.5"><Trash2 className="w-3 h-3"/> 삭제</button>)}</div></div></div>);
-
-// --- Main App Component ---
-export default function App() {
+function App() {
   const [supabase, setSupabase] = useState(null);
   const [session, setSession] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
@@ -784,10 +778,9 @@ export default function App() {
 
   const weeklyBirthdays = React.useMemo(() => getWeeklyBirthdays(profiles), [profiles]);
 
-  // Supabase 스크립트 로드
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = "https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js";
+    script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
     script.async = true;
     script.onload = () => {
         if (window.supabase) {
@@ -798,24 +791,16 @@ export default function App() {
     };
     document.body.appendChild(script);
     
-    // 부스터 설정 복원
     const savedBooster = localStorage.getItem('axa_booster_active') === 'true';
     setBoosterActive(savedBooster);
   }, []);
   
-  // 부스터 상태 변경 시 저장
   useEffect(() => {
       localStorage.setItem('axa_booster_active', boosterActive);
   }, [boosterActive]);
 
   const checkBirthday = useCallback((user) => {
-    if (!user.birthdate || user.birthday_granted) return;
-    
-    // 팝업 "오늘 하루 보지 않기" 체크 확인
-    const currentYear = new Date().getFullYear();
-    const isClosed = localStorage.getItem('birthday_popup_closed_' + currentYear) === 'true';
-    if(isClosed) return;
-
+    if (!user.birthdate || user.birthday_granted) return; 
     const today = new Date();
     const currentMonth = today.getMonth() + 1;
     const [_, m, d] = user.birthdate.split('-').map(Number);
@@ -847,7 +832,6 @@ export default function App() {
             setCurrentUser(data);
             const todayStr = new Date().toISOString().split('T')[0];
             if (data.last_attendance === todayStr) setMood('checked');
-            // 퇴근 여부 확인
             const lastCheckout = localStorage.getItem(`checkout_${userId}_${todayStr}`);
             if (lastCheckout) setHasCheckedOut(true);
             else setHasCheckedOut(false);
@@ -858,7 +842,6 @@ export default function App() {
     } catch (err) { console.error(err); }
   }, [supabase, checkBirthday]);
 
-  // 개인용 포인트 히스토리
   const fetchPointHistory = useCallback(async (userId) => {
     if (!supabase) return; 
     try {
@@ -867,7 +850,6 @@ export default function App() {
     } catch (err) { console.error(err); }
   }, [supabase]);
 
-  // 전체 포인트 히스토리 가져오기 (랭킹용)
   const fetchAllPointHistory = useCallback(async () => {
       if (!supabase) return;
       try {
@@ -967,7 +949,6 @@ export default function App() {
     if (!window.confirm('게시글을 삭제하시겠습니까? 삭제 시 지급된 포인트가 회수됩니다.')) return;
     try {
         const { error } = await supabase.from('posts').delete().eq('id', postId); if (error) throw error;
-        // 포인트 회수
         if (['praise', 'knowhow', 'matjib', 'dept_news'].includes(postToDelete.type)) {
             const deductAmount = 50; 
             const newPoints = Math.max(0, currentUser.points - deductAmount); 
@@ -995,12 +976,10 @@ export default function App() {
     if (isNaN(giftAmount) || giftAmount <= 0) return;
 
     try {
-        // 내 포인트 차감
         const myNewPoints = currentUser.points - giftAmount;
         await supabase.from('profiles').update({ points: myNewPoints }).eq('id', currentUser.id);
         await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '포인트 선물 (보냄)', amount: giftAmount, type: 'gift_sent' });
 
-        // 상대방 포인트 증가
         const { data: targetUser } = await supabase.from('profiles').select('points').eq('id', targetUserId).single();
         const targetNewPoints = (targetUser.points || 0) + giftAmount;
         await supabase.from('profiles').update({ points: targetNewPoints }).eq('id', targetUserId);
@@ -1014,7 +993,6 @@ export default function App() {
     } catch (err) { console.error(err); alert('선물하기 중 오류가 발생했습니다.'); }
   };
 
-  // 사용자 관리 (관리자용) - 업데이트
   const handleAdminUpdateUser = async (userId, updates) => {
       try {
           await supabase.from('profiles').update(updates).eq('id', userId);
@@ -1040,7 +1018,6 @@ export default function App() {
   const handleSignup = async (e) => {
     e.preventDefault(); if (!checkSupabaseConfig()) return; setLoading(true);
     const { name, email, password, dept, team, birthdate } = e.target;
-    // 이메일 중복 체크는 Supabase Auth가 자동 처리
     try {
         const initialData = { name: name.value, dept: dept.value, team: team.value, role: 'member', points: INITIAL_POINTS, birthdate: birthdate.value, email: email.value };
         const { data: signUpResult, error } = await supabase.auth.signUp({ email: email.value, password: password.value, options: { data: initialData } });
@@ -1055,13 +1032,11 @@ export default function App() {
     e.preventDefault(); if (!currentUser || !checkSupabaseConfig()) return;
     const category = e.target.category.value;
     const isRewardCategory = ['praise', 'knowhow', 'matjib', 'dept_news'].includes(category);
-    // 일일 게시글 제한 체크 (2회)
     const today = new Date().toISOString().split('T')[0];
     const todayPosts = feeds.filter(f => f.author_id === currentUser.id && f.created_at.startsWith(today)).length;
     
     if (todayPosts >= 2) {
         if(!window.confirm('하루 글쓰기 제한(2회)을 초과했습니다. 포인트 지급 없이 작성하시겠습니까?')) return;
-        // 포인트 지급 없이 작성 진행
     }
 
     const rewardPoints = (isRewardCategory && todayPosts < 2) ? (boosterActive ? 100 : 50) : 0; 
@@ -1098,7 +1073,7 @@ export default function App() {
         setShowWriteModal(false);
         fetchUserData(currentUser.id); 
         fetchAllPointHistory(); 
-        await fetchFeeds(); // 목록 즉시 갱신
+        await fetchFeeds(); 
 
     } catch (err) { console.error('작성 실패: ', err.message); }
   };
@@ -1145,7 +1120,6 @@ export default function App() {
 
   const handleLogout = async () => { if (!supabase) return; try { await supabase.auth.signOut(); setCurrentUser(null); setSession(null); setMood(null); setHasCheckedOut(false); setPointHistory([]); } catch (err) { console.error('로그아웃 실패: ', err.message); } };
 
-  // ... (handleChangePasswordClick, handleChangeDept, handleChangePassword, handleAdminGrantPoints existing code maintained) ...
   const handleChangeDept = async (newDept, newTeam) => { if (!currentUser || !supabase) return; try { await supabase.from('profiles').update({ dept: newDept, team: newTeam }).eq('id', currentUser.id); fetchUserData(currentUser.id); setShowChangeDeptModal(false); alert('소속이 변경되었습니다.'); } catch(err) { console.error(err); } };
   const handleChangePassword = async (newPassword) => { if (!currentUser || !supabase) return; try { const { error } = await supabase.auth.updateUser({ password: newPassword }); if (error) throw error; setShowChangePwdModal(false); alert('비밀번호가 변경되었습니다. 다시 로그인해주세요.'); handleLogout(); } catch(err) { console.error(err); } };
   const handleAdminGrantPoints = async (targetUserId, amount) => { if (!currentUser || !supabase) return; if (currentUser.role !== 'admin') return; try { const { data: targetUser } = await supabase.from('profiles').select('points').eq('id', targetUserId).single(); if (!targetUser) return; const newPoints = (targetUser.points || 0) + parseInt(amount); await supabase.from('profiles').update({ points: newPoints }).eq('id', targetUserId); await supabase.from('point_history').insert({ user_id: targetUserId, reason: '관리자 특별 지급', amount: parseInt(amount), type: 'earn' }); setShowAdminGrantModal(false); alert('포인트 지급이 완료되었습니다.'); fetchProfiles(); fetchAllPointHistory(); } catch(err) { console.error(err); } };
@@ -1233,3 +1207,5 @@ export default function App() {
     </div>
   );
 }
+
+export default App;
