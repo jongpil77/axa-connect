@@ -5,7 +5,7 @@ import {
   Coins, Pencil, Trash2, Loader2, Lock, Clock, Award, Wallet, Building2, 
   CornerDownRight, Link as LinkIcon, MapPin, Search, Key, Edit3, 
   ClipboardList, CheckSquare, ChevronLeft, Zap, Users, Briefcase, Utensils,
-  ThumbsUp, Coffee, Sun, Moon
+  ThumbsUp, Coffee, Sun, Moon, PlusCircle // PlusCircle 아이콘 추가
 } from 'lucide-react';
 // Supabase를 ESM CDN을 통해 직접 import (번들링 에러 방지)
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -168,8 +168,6 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
           alert('회사 이메일(***@axa.co.kr)만 사용 가능합니다.');
           return;
       }
-      // 실제로는 여기서 DB에 이메일 중복 체크를 해야 하지만, Supabase Auth가 가입 시 자동 체크함
-      // 사용자 편의를 위해 시뮬레이션 코드 발송
       alert(`[인증번호 발송]\n${email}로 인증코드가 발송되었습니다.\n(테스트 코드: 1234)`);
       setEmailCodeSent(true);
   };
@@ -410,14 +408,11 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => 
 };
 
 const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive }) => {
-    // 칭찬합시다 --> 우리들 소식---> 꿀팁 --> 맛집 소개
-    const praiseFeeds = feeds.filter(f => f.type === 'praise').slice(0, 5); 
+    const noticeFeeds = feeds.filter(f => f.type === 'news').slice(0, 5); 
     const deptFeeds = feeds.filter(f => f.type === 'dept_news').slice(0, 5);
+    const praiseFeeds = feeds.filter(f => f.type === 'praise').slice(0, 5); 
     const knowhowFeeds = feeds.filter(f => f.type === 'knowhow').slice(0, 5);
     const matjibFeeds = feeds.filter(f => f.type === 'matjib').slice(0, 5);
-    
-    // 공지는 별도
-    const noticeFeeds = feeds.filter(f => f.type === 'news').slice(0, 3);
 
     return (
       <div className="p-5 space-y-5 pb-32 animate-fade-in relative bg-blue-50 min-h-full">
@@ -426,7 +421,7 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                   <div className="flex justify-between items-start mb-2 relative z-10">
                     <div>
                         <h2 className="text-xs font-bold text-slate-400 mb-0.5 flex items-center gap-1">출/퇴근 체크</h2>
-                        <p className="text-sm font-black text-slate-700">{mood ? (hasCheckedOut ? '오늘 하루 수고하셨어요!' : '업무 중') : '오늘 기분은 어때요?'}</p>
+                        <p className="text-sm font-black text-slate-700">{mood ? '출석 완료!' : '오늘 기분은 어때요?'}</p>
                     </div>
                   </div>
                   
@@ -457,6 +452,7 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                          </div>
                      )}
                   </div>
+                  {/* 데코레이션 */}
                   <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-blue-50 rounded-full opacity-50 z-0"></div>
             </div>
             <div className="flex-1 h-full"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} /></div>
@@ -475,35 +471,28 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
             </div>
         </div>
 
-        {/* 1. 칭찬합시다 */}
         <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer hover:border-green-200 transition-colors" onClick={() => onWriteClickWithCategory('praise')}>
            <h3 className="text-sm font-bold text-green-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Heart className="w-4 h-4 fill-green-500 text-green-500"/> 칭찬합시다</h3>
            <div className="space-y-2 pointer-events-none">{praiseFeeds.map(feed => (<div key={feed.id} className="p-3 bg-green-50/30 rounded-2xl border border-green-100 transition-colors"><p className="text-[10px] font-bold text-slate-500 mb-1">To. {feed.target_name || '동료'}</p><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed">{feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>))}</div>
         </div>
 
-        {/* 2. 우리들 소식 */}
         <div className="bg-white p-4 rounded-3xl shadow-sm border border-purple-100 cursor-pointer hover:border-purple-300 transition-colors" onClick={() => onWriteClickWithCategory('dept_news')}>
-           <h3 className="text-sm font-bold text-purple-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Building2 className="w-4 h-4 text-purple-500"/> 우리들 소식</h3>
+           <h3 className="text-sm font-bold text-purple-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Building2 className="w-4 h-4 text-purple-500"/> 우리들 소식 (보상부)</h3>
            <div className="space-y-2 pointer-events-none">
                 {deptFeeds.length > 0 ? deptFeeds.map(feed => (
                     <div key={feed.id} className="p-3 bg-purple-50/30 rounded-2xl border border-purple-100 transition-colors">
-                        <div className="flex items-center justify-between mb-1">
-                             <span className="text-[9px] text-purple-700 font-bold bg-white px-1.5 rounded border border-purple-200">{feed.region_main}</span>
-                             {isToday(feed.created_at) && <span className="text-[9px]">🆕</span>}
-                        </div>
                         <p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>
+                        {isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}
                     </div>
                 )) : <p className="text-xs text-slate-400 py-2">등록된 소식이 없습니다.</p>}
            </div>
         </div>
         
         <div className="grid grid-cols-2 gap-4">
-            {/* 3. 꿀팁 */}
             <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer hover:border-blue-300 transition-colors" onClick={() => onWriteClickWithCategory('knowhow')}>
                <h3 className="text-sm font-bold text-blue-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Sparkles className="w-4 h-4 fill-blue-500 text-blue-500"/> 꿀팁</h3>
                <div className="space-y-2 pointer-events-none">{knowhowFeeds.map(feed => (<div key={feed.id} className="p-3 bg-blue-50/30 rounded-2xl border border-blue-100 transition-colors"><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>))}</div>
             </div>
-            {/* 4. 맛집 소개 */}
             <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer hover:border-orange-300 transition-colors" onClick={() => onWriteClickWithCategory('matjib')}>
                <h3 className="text-sm font-bold text-orange-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Utensils className="w-4 h-4 fill-orange-500 text-orange-500"/> 맛집 소개</h3>
                <div className="space-y-2 pointer-events-none">{matjibFeeds.map(feed => (<div key={feed.id} className="p-3 bg-orange-50/30 rounded-2xl border border-orange-100 transition-colors"><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>))}</div>
@@ -536,10 +525,10 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
           (f.region_main && f.region_main.includes(searchTerm)) ||
           (f.region_sub && f.region_sub.includes(searchTerm));
       
-      const matchesDept = activeFeedFilter !== 'dept_news' || selectedDeptFilter === 'all' || (f.region_main === selectedDeptFilter);
+      const matchesDept = activeFeedFilter !== 'dept_news' || selectedDeptFilter === 'all' || (f.profiles && f.profiles.dept === selectedDeptFilter);
 
       return matchesFilter && matchesSearch && matchesDept;
-  });
+  }).slice(0, 5);
 
   return (
     <div className="p-5 space-y-5 pb-28 animate-fade-in bg-blue-50">
@@ -551,8 +540,8 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {[
             { id: 'all', label: '전체' }, 
-            { id: 'praise', label: '칭찬해요' }, 
             { id: 'dept_news', label: '우리들 소식' },
+            { id: 'praise', label: '칭찬해요' }, 
             { id: 'knowhow', label: '꿀팁' },
             { id: 'matjib', label: '맛집 소개' }
         ].map(tab => (
@@ -596,7 +585,6 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
                       {feed.author} 
                       {feed.profiles?.role === 'admin' && <span className="bg-red-50 text-red-500 text-[9px] px-1.5 py-0.5 rounded-md border border-red-100">관리자</span>}
                       {feed.profiles?.is_reporter && <span className="bg-yellow-100 text-yellow-700 text-[9px] px-1.5 py-0.5 rounded-md border border-yellow-200">리포터</span>}
-                      {feed.profiles?.is_ambassador && <span className="bg-purple-100 text-purple-700 text-[9px] px-1.5 py-0.5 rounded-md border border-purple-200">앰버서더</span>}
                   </p>
                   <p className="text-[10px] text-slate-400">{feed.formattedTime} • {feed.team}</p>
               </div>
@@ -612,8 +600,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
                     }`}>
                         {feed.type === 'praise' ? '칭찬해요' : feed.type === 'news' ? '📢 공지사항' : feed.type === 'dept_news' ? '🏢 우리들 소식' : feed.type === 'matjib' ? '맛집 소개' : '꿀팁'}
                     </span>
-                    {feed.type === 'dept_news' && feed.region_main && <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-50 text-slate-500 border border-slate-200">{feed.region_main}</span>}
-                    {feed.type === 'matjib' && feed.region_main && <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-50 text-slate-500 border border-slate-200"><MapPin className="w-2.5 h-2.5 inline mr-0.5"/>{feed.region_main} {feed.region_sub}</span>}
+                    {feed.region_main && <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-50 text-slate-500 border border-slate-200"><MapPin className="w-2.5 h-2.5 inline mr-0.5"/>{feed.region_main} {feed.region_sub}</span>}
                 </div>
                 
                 {feed.type === 'praise' && feed.target_name && <p className="text-xs font-bold text-green-600 mb-1">To. {feed.target_name}</p>}
@@ -661,7 +648,6 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
   const [imagePreview, setImagePreview] = useState(null);
   const [regionMain, setRegionMain] = useState('');
   const [regionSub, setRegionSub] = useState('');
-  const [deptNewsOrg, setDeptNewsOrg] = useState('');
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -674,7 +660,7 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
         {id: 'matjib', label: '맛집소개'},
         {id: 'knowhow', label: '꿀팁'}
     ];
-    if (currentUser?.dept?.includes('보상') || currentUser?.is_reporter || currentUser?.role === 'admin') {
+    if (currentUser?.dept?.includes('보상') || currentUser?.is_reporter) {
         baseCategories.unshift({id: 'dept_news', label: '우리들 소식'});
     }
     if (activeTab === 'news' && currentUser?.role === 'admin') {
@@ -689,12 +675,7 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
       } else if (categories.length > 0 && !writeCategory) {
           setWriteCategory(categories[0].id);
       }
-      
-      // 우리들 소식 작성 시 자동으로 본인 조직 선택 (수정 가능하도록)
-      if (currentUser?.dept && Object.keys(ORGANIZATION).includes(currentUser.dept)) {
-          setDeptNewsOrg(currentUser.dept);
-      }
-  }, [categories, initialCategory, currentUser]);
+  }, [categories, initialCategory]);
 
   const showPointReward = ['praise', 'knowhow', 'matjib', 'dept_news'].includes(writeCategory);
   const rewardAmount = boosterActive ? 100 : 50;
@@ -712,8 +693,18 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
             <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
                 {categories.map((cat) => (
                     <label key={cat.id} className="flex-shrink-0 cursor-pointer">
-                        <input type="radio" name="category" value={cat.id} className="peer hidden" checked={writeCategory === cat.id} onChange={() => setWriteCategory(cat.id)} disabled={initialCategory === 'dept_news' && cat.id !== 'dept_news'} />
-                        <span className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center ${writeCategory === cat.id ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50'} ${initialCategory === 'dept_news' && cat.id !== 'dept_news' ? 'opacity-30 cursor-not-allowed' : ''}`}>{cat.label}</span>
+                        <input 
+                            type="radio" 
+                            name="category" 
+                            value={cat.id} 
+                            className="peer hidden" 
+                            checked={writeCategory === cat.id} 
+                            onChange={() => setWriteCategory(cat.id)} 
+                            disabled={initialCategory === 'dept_news' && cat.id !== 'dept_news'}
+                        />
+                        <span className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center ${writeCategory === cat.id ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50'} ${initialCategory === 'dept_news' && cat.id !== 'dept_news' ? 'opacity-30 cursor-not-allowed' : ''}`}>
+                            {cat.label}
+                        </span>
                     </label>
                 ))}
             </div>
@@ -729,15 +720,8 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
                 {writeCategory === 'dept_news' && (
                      <div className="bg-purple-50 p-4 rounded-2xl border border-purple-100 animate-fade-in">
                          <div className="flex items-center gap-2 mb-2"><span className="text-xs font-bold text-white bg-purple-500 px-2 py-0.5 rounded-md">작성 권한</span><p className="text-[10px] text-purple-700 font-bold">소속 직원만 작성 가능합니다.</p></div>
-                         <p className="text-xs text-purple-800 font-bold mb-2">📢 우리 조직/팀의 소식, 자랑거리, 경조사 등을 전해주세요!</p>
-                         
-                         {/* 조직 선택 (필터링용) */}
-                         <select name="regionMain" className="w-full p-3 bg-white border border-purple-200 rounded-xl text-xs outline-none mb-2 text-purple-900 font-bold" value={deptNewsOrg} onChange={(e) => setDeptNewsOrg(e.target.value)} required>
-                             <option value="">소식 구분 (조직 선택)</option>
-                             {Object.keys(ORGANIZATION).map(org => <option key={org} value={org}>{org}</option>)}
-                         </select>
-
-                         <input name="title" type="text" placeholder="제목을 입력하세요 (예: 00팀 회식~!)" className="w-full p-3 bg-white border border-purple-200 rounded-xl text-sm outline-none focus:border-purple-500 font-bold mb-3" required />
+                         <p className="text-xs text-purple-800 font-bold mb-2">📢 우리 조직의 즐거운 소식을 전해주세요!</p>
+                         <input name="title" type="text" placeholder="제목을 입력하세요 (예: 00팀 회식~!)" className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:border-purple-500 font-bold mb-3" required />
                      </div>
                 )}
 
