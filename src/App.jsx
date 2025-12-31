@@ -7,13 +7,14 @@ import {
   ClipboardList, CheckSquare, ChevronLeft, Zap, Users, Briefcase, Utensils,
   ThumbsUp, Coffee, Sun, Moon, PlusCircle, CheckCircle, Plug 
 } from 'lucide-react';
+// Supabase 클라이언트 전역 초기화 (Static Import 사용)
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 // --- [필수] Supabase 설정 ---
 const SUPABASE_URL = 'https://clsvsqiikgnreqqvcrxj.supabase.co'; 
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsc3ZzcWlpa2ducmVxcXZjcnhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzcyNjAsImV4cCI6MjA4MDk1MzI2MH0.lsaycyp6tXjLwb-qB5PIQ0OqKweTWO3WaxZG5GYOUqk';
 
-// --- Supabase 클라이언트 전역 초기화 (Static Import 사용 - 문제 해결 핵심) ---
+// --- Supabase 클라이언트 전역 초기화 ---
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- 상수 데이터 ---
@@ -82,7 +83,7 @@ const getWeeklyBirthdays = (profiles) => {
         const birthDate = new Date(currentYear, m - 1, d); 
         let normalizedBirthDate = normalizeDate(birthDate);
 
-        if (normalizedBirthDate.getTime() === normalizedToday.getTime()) return; 
+        if (normalizedBirthDate.getTime() === normalizedToday.getTime()) return; // 오늘 생일은 별도 팝업 처리
         
         if (normalizedBirthDate < normalizedToday) {
              const nextYearBirthDate = new Date(currentYear + 1, m - 1, d);
@@ -286,33 +287,39 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
       </div>
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-1 relative">
-            <h1 className="text-xl font-black text-slate-800 tracking-tight">AXA Connect</h1>
-            <Plug className="w-3 h-3 text-blue-600 fill-blue-600 absolute -top-1 -right-3" />
+            <img src={AXA_LOGO_URL} alt="AXA Logo" className="w-8 h-auto mr-1" />
+            <div className="relative">
+                <h1 className="text-xl font-black text-slate-800 tracking-tight">AXA Connect</h1>
+                <Plug className="w-3 h-3 text-blue-600 fill-blue-600 absolute -top-1 -right-2" />
+            </div>
         </div>
         
         <div className="flex items-center gap-3 relative">
           <button 
             onClick={onOpenGift} 
-            className="p-1.5 rounded-full hover:bg-slate-100 active:scale-95 transition-all relative"
+            className="p-1 rounded-full hover:bg-slate-100 active:scale-95 transition-all relative"
           >
              <Gift className="w-8 h-8 text-pink-500" />
           </button>
 
           <div 
-            className="flex items-center gap-3 mr-1 cursor-pointer" 
+            className="flex items-center gap-2 mr-1 cursor-pointer bg-yellow-50 px-3 py-1.5 rounded-xl border border-yellow-200 shadow-sm" 
             onClick={onOpenUserInfo}
           >
-             <div className="flex flex-col items-end leading-tight">
-                <span className="text-[9px] text-slate-400 font-bold">MY CARE</span>
-                <span className="text-[9px] text-slate-400 font-bold">POINT</span>
+             <div className="flex flex-col items-start leading-none">
+                <span className="text-[9px] text-slate-500 font-bold whitespace-nowrap">MY CARE</span>
+                <span className="text-[9px] text-slate-500 font-bold whitespace-nowrap">POINT</span>
              </div>
-             <div className="flex items-center gap-1.5">
+             <div className="flex items-center gap-1">
                  <Coins className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                 <span className="text-xl font-black text-blue-700 animate-pulse">{currentUser?.points?.toLocaleString()}</span>
+                 <span className="text-lg font-black text-blue-700 animate-pulse">{currentUser?.points?.toLocaleString()}</span>
              </div>
           </div>
 
-          <button onClick={() => setShowSettings(!showSettings)} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors relative z-40"><Settings className="w-5 h-5 text-slate-400" /></button>
+          <div className="flex flex-col items-center">
+              <button onClick={() => setShowSettings(!showSettings)} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors relative z-40"><Settings className="w-6 h-6 text-slate-400" /></button>
+              <span className="text-[8px] text-slate-400 font-bold -mt-0.5">설정</span>
+          </div>
           
           {showSettings && (
              <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden z-50 animate-fade-in">
@@ -504,10 +511,11 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
         </div>
         
         <div className="flex flex-col items-end gap-1">
+            {/* 글쓰기 버튼 클릭 시 카테고리 선택 팝업을 띄우기 위해 null 전달 */}
             <button onClick={() => onWriteClickWithCategory(null)} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2.5 rounded-full shadow-lg shadow-blue-200 hover:shadow-xl transition-all flex items-center gap-2 active:scale-95 border border-blue-400"><Pencil className="w-4 h-4" /><span className="text-sm font-bold">글쓰기</span></button>
             <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-white px-2 py-1 rounded-full shadow-sm border border-slate-100">
                 <div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner"><Coins className="w-2.5 h-2.5 text-white fill-white"/></div>
-                게시글 1개당 50P (일 최대 100P)
+                게시글 1개당 +50P (일 최대 +100P 가능)
             </div>
         </div>
 
@@ -602,7 +610,8 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
       )}
 
       <div className="flex flex-col items-end gap-1 mb-1">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => onWriteClickWithCategory(activeFeedFilter === 'all' ? null : activeFeedFilter)}>
+          {/* 하단 탭의 글쓰기 버튼도 홈 화면과 동일하게 모든 카테고리 선택 가능하도록 수정 */}
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => onWriteClickWithCategory(null)}>
             <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center gap-2 active:scale-95 border border-blue-400">
                 <Pencil className="w-3.5 h-3.5" />
                 <span className="text-xs font-bold">게시글 작성</span>
@@ -610,7 +619,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
           </div>
           <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-white px-2 py-1 rounded-full shadow-sm border border-slate-100">
                 <div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner"><Coins className="w-2.5 h-2.5 text-white fill-white"/></div>
-                게시글 1개당 50P (일 최대 100P)
+                게시글 1개당 +50P (일 최대 +100P 가능)
           </div>
       </div>
       
@@ -827,7 +836,23 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
 
 // ... (RankingTab, BottomNav - 기존 유지)
 const RankingTab = ({ feeds, profiles, allPointHistory }) => { const [selectedDate, setSelectedDate] = useState(new Date()); const isSelectedMonth = (dateString) => { if(!dateString) return false; const d = new Date(dateString); return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear(); }; const handlePrevMonth = () => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() - 1))); const handleNextMonth = () => { const nextMonth = new Date(selectedDate); nextMonth.setMonth(selectedDate.getMonth() + 1); if (nextMonth <= new Date()) setSelectedDate(nextMonth); }; const pointRanking = useMemo(() => { const monthlyPoints = {}; allPointHistory.forEach(record => { if (isSelectedMonth(record.created_at) && record.type === 'earn') monthlyPoints[record.user_id] = (monthlyPoints[record.user_id] || 0) + record.amount; }); return Object.entries(monthlyPoints).map(([id, points]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: points, unit: 'P', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); }, [allPointHistory, profiles, selectedDate]); const postCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { postCounts[f.author_id] = (postCounts[f.author_id] || 0) + 1; }); const postRanking = Object.entries(postCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '건', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); const likeCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { const likes = f.likes ? (Array.isArray(f.likes) ? f.likes.length : 0) : 0; if(likes > 0) likeCounts[f.author_id] = (likeCounts[f.author_id] || 0) + likes; }); const likeRanking = Object.entries(likeCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '개', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); const RankItem = ({ rank, name, value, unit, team, color }) => (<div className="flex items-center p-3 bg-white border border-slate-100 rounded-2xl shadow-sm relative overflow-hidden">{rank <= 3 && <div className="absolute right-0 top-0 bg-yellow-100 text-yellow-600 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">🎁 1,000P</div>}<div className={`text-xl font-black mr-4 w-8 text-center ${color}`}>{rank}</div><div className="flex-1"><p className="text-sm font-bold text-slate-800">{name || 'Unknown'}</p><p className="text-[10px] text-slate-400">{team}</p></div><div className="text-base font-black text-slate-700 ml-4">{value}<span className="text-[10px] text-slate-400 ml-0.5 font-normal">{unit}</span></div></div>); return (<div className="p-5 space-y-8 pb-28 animate-fade-in bg-blue-50"><div className="bg-white p-5 rounded-[2rem] shadow-sm border border-blue-100 text-center relative"><div className="flex justify-between items-center mb-4 px-2"><button onClick={handlePrevMonth} className="p-1 hover:bg-slate-100 rounded-full"><ChevronLeft className="w-5 h-5 text-slate-400" /></button><h2 className="text-lg font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2><button onClick={handleNextMonth} className="p-1 hover:bg-slate-100 rounded-full disabled:opacity-30" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-5 h-5 text-slate-400" /></button></div><div className="flex justify-center gap-2 mt-2"><span className="text-[10px] bg-green-50 text-green-600 px-2 py-1 rounded">🏆 소통상/좋아요상: 1~3등 1,000P</span></div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Coins className="w-4 h-4 text-yellow-500"/> 월간 획득 포인트 랭킹</h3><div className="space-y-2">{pointRanking.length > 0 ? pointRanking.map((p, i) => <RankItem key={i} rank={i+1} name={p.name} team={p.team} value={p.value.toLocaleString()} unit="P" color="text-yellow-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Pencil className="w-4 h-4 text-green-500"/> 소통왕 (게시글)</h3><div className="space-y-2">{postRanking.length > 0 ? postRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-green-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Heart className="w-4 h-4 text-red-500"/> 인기왕 (좋아요)</h3><div className="space-y-2">{likeRanking.length > 0 ? likeRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-red-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div></div>); };
-const BottomNav = ({ activeTab, setActiveTab }) => (<div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[380px] bg-[#00008F] backdrop-blur-md border border-blue-900 shadow-[0_8px_30px_rgb(0,0,0,0.3)] p-2 z-30 flex justify-between items-center rounded-3xl">{[{ id: 'home', icon: User, label: '홈' }, { id: 'feed', icon: MessageCircle, label: '소통' }, { id: 'news', icon: Bell, label: '소식' }, { id: 'ranking', icon: Award, label: '랭킹' }].map(item => (<button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex flex-1 flex-row items-center justify-center gap-1.5 py-2 rounded-2xl transition-all duration-300 ${activeTab === item.id ? 'text-white bg-white/20 shadow-lg scale-105' : 'text-blue-300 hover:text-white'}`}><item.icon className={`w-4 h-4 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} /><span className="text-[9px] font-bold">{item.label}</span></button>))}</div>);
+
+// BottomNav - 높이 축소 및 아이콘/텍스트 가로 배치 (수정됨)
+const BottomNav = ({ activeTab, setActiveTab }) => (
+    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[360px] bg-[#00008F] backdrop-blur-md border border-blue-900 shadow-[0_8px_30px_rgb(0,0,0,0.3)] p-1.5 z-30 flex justify-between items-center rounded-full">
+        {[{ id: 'home', icon: User, label: '홈' }, { id: 'feed', icon: MessageCircle, label: '소통' }, { id: 'news', icon: Bell, label: '소식' }, { id: 'ranking', icon: Award, label: '랭킹' }].map(item => (
+            <button 
+                key={item.id} 
+                onClick={() => setActiveTab(item.id)} 
+                className={`flex-1 flex flex-row items-center justify-center gap-1.5 py-2.5 rounded-full transition-all duration-300 ${activeTab === item.id ? 'bg-white/20 text-white shadow-md' : 'text-blue-300 hover:text-white'}`}
+            >
+                <item.icon className={`w-4 h-4 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} />
+                <span className="text-[10px] font-bold">{item.label}</span>
+            </button>
+        ))}
+    </div>
+);
+
 const Comment = ({ comment, currentUser, handleDeleteComment }) => (<div className="flex gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">{comment.parent_id && <CornerDownRight className="w-4 h-4 text-slate-300 mt-1 flex-shrink-0" />}<div className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold shadow-sm ${comment.profiles?.role === 'admin' ? 'bg-red-400' : 'bg-blue-400'}`}>{formatInitial(comment.profiles?.name || 'Unknown')}</div><div className="flex-1 min-w-0"><div className="flex justify-between items-start"><p className="text-xs font-bold text-slate-700 flex items-center gap-1">{comment.profiles?.name || '알 수 없음'}{comment.profiles?.role === 'admin' && <span className="px-1 py-0.5 bg-red-50 text-red-500 text-[9px] rounded-md">관리자</span>}</p><span className="text-[9px] text-slate-400">{new Date(comment.created_at).toLocaleDateString()}</span></div><p className="text-xs text-slate-600 leading-relaxed mt-0.5 break-words">{comment.content}</p><div className="flex gap-2 mt-1 justify-end">{(currentUser?.id === comment.author_id || currentUser?.role === 'admin') && (<button onClick={() => handleDeleteComment(comment.id)} className="text-[10px] text-slate-400 hover:text-red-500 transition-colors flex items-center gap-0.5"><Trash2 className="w-3 h-3"/> 삭제</button>)}</div></div></div>);
 
 export default function App() {
