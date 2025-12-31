@@ -254,10 +254,10 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
     <div className="bg-white/80 backdrop-blur-md p-4 sticky top-0 z-30 border-b border-slate-100 shadow-sm">
       <div className="flex justify-between items-center mb-1">
           <div className="text-[10px] text-blue-400 font-bold pl-1">{todayDate}</div>
-          {/* 우측 상단 소속 표시 */}
-          <div className="text-[10px] text-slate-500 font-bold pr-1 flex items-center gap-2">
-              {currentUser && <span>{currentUser.dept} {currentUser.team} 님</span>}
-              {boosterActive && <div className="text-[9px] text-white bg-gradient-to-r from-purple-500 to-pink-500 px-2 py-0.5 rounded-full font-bold animate-pulse flex items-center gap-1"><Zap className="w-3 h-3 fill-yellow-300 text-yellow-300"/> 부스터 ON</div>}
+          {/* 상단 우측 소속 및 이름 표시 (배경색 변경: 악사 블루) */}
+          <div className="text-[10px] bg-[#00008F] text-white px-2 py-0.5 rounded-lg font-bold flex items-center gap-2 shadow-sm">
+              {currentUser && <span>{currentUser.team} - {currentUser.name} 님</span>}
+              {boosterActive && <div className="text-[9px] bg-yellow-400 text-[#00008F] px-1 rounded font-black animate-pulse flex items-center gap-0.5"><Zap className="w-2.5 h-2.5 fill-[#00008F]"/>UP</div>}
           </div>
       </div>
       <div className="flex justify-between items-center">
@@ -265,31 +265,32 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
             {/* 로고 크기 확대 */}
             <img src={AXA_LOGO_URL} alt="AXA Logo" className="w-10 h-auto mr-1" />
             <div className="relative flex items-center">
-                {/* 텍스트 2줄로 쌓기, 간격 좁히기 */}
-                <div className="flex flex-col leading-[0.8]">
-                    <span className="text-lg font-black text-slate-800 tracking-tighter">AXA</span>
-                    <span className="text-lg font-black text-slate-800 tracking-tighter">Connect</span>
+                {/* 텍스트 줄 간격 최소화 */}
+                <div className="flex flex-col leading-none -space-y-1">
+                    <span className="text-xl font-black text-slate-800 tracking-tighter">AXA</span>
+                    <span className="text-xl font-black text-slate-800 tracking-tighter">Connect</span>
                 </div>
-                {/* S자 모양 전선 (SVG) */}
-                <svg width="30" height="20" className="mx-1" viewBox="0 0 30 20">
-                   <path d="M0 10 C 10 10, 10 2, 15 2 S 20 10, 30 10" stroke="#cbd5e1" strokeWidth="2" fill="none" />
+                {/* S자 모양 전선 (SVG) 수정: t 하단에서 시작 */}
+                <svg width="40" height="20" className="mx-0.5" viewBox="0 0 40 20">
+                   <path d="M0 18 C 10 18, 15 5, 25 5 S 35 10, 40 10" stroke="#94a3b8" strokeWidth="2" fill="none" strokeLinecap="round"/>
                 </svg>
-                <Plug className="w-4 h-4 text-blue-500 fill-blue-500 rotate-90" />
+                <Plug className="w-5 h-5 text-blue-600 fill-blue-600 rotate-90 -ml-1" />
             </div>
         </div>
         
-        <div className="flex items-center gap-3 relative">
-          <button onClick={onOpenGift} className="p-1.5 rounded-full hover:bg-slate-100 active:scale-95 transition-all relative text-2xl">🎁</button>
+        <div className="flex items-center gap-2 relative">
+          {/* 선물 상자 아이콘 변경 및 우측 이동 */}
+          <button onClick={onOpenGift} className="p-1.5 rounded-full hover:bg-slate-100 active:scale-95 transition-all relative text-2xl mr-1">🎁</button>
           
           <div className="flex items-center gap-2 mr-1 cursor-pointer" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-end leading-none">
                  <span className="text-[9px] text-slate-500 font-bold whitespace-nowrap">MY CARE</span>
                  <span className="text-[9px] text-slate-500 font-bold whitespace-nowrap">POINT</span>
              </div>
-             {/* 포인트 폰트 확대 및 동전 위치 변경 */}
-             <div className="bg-yellow-50 px-3 py-1.5 rounded-xl border border-yellow-200 shadow-sm flex items-center gap-1">
-                 <span className="text-2xl font-black text-blue-700 animate-pulse leading-none">{currentUser?.points?.toLocaleString()}</span>
-                 <Coins className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+             {/* 포인트 폰트 더 확대 및 동전 우측 배치 */}
+             <div className="bg-yellow-50 px-3 py-1 rounded-xl border border-yellow-200 shadow-sm flex items-center gap-1">
+                 <span className="text-2xl font-black text-blue-700 animate-pulse leading-none pt-0.5">{currentUser?.points?.toLocaleString()}</span>
+                 <Coins className="w-6 h-6 text-yellow-500 fill-yellow-500" />
              </div>
           </div>
 
@@ -475,7 +476,7 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                <h3 className="text-sm font-bold text-blue-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Sparkles className="w-4 h-4 fill-blue-500 text-blue-500"/> 꿀팁</h3>
                <div className="space-y-2 pointer-events-none">{knowhowFeeds.length > 0 ? knowhowFeeds.map(feed => (<div key={feed.id} className="p-3 bg-blue-50/30 rounded-2xl border border-blue-100 transition-colors"><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>)) : <p className="text-xs text-slate-400 py-2">등록된 글이 없습니다.</p>}</div>
             </div>
-            <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 cursor-pointer hover:border-orange-300 transition-colors" onClick={() => onWriteClickWithCategory('matjib')}>
+            <div className="bg-white p-4 rounded-3xl shadow-sm border border-orange-100 cursor-pointer hover:border-orange-300 transition-colors" onClick={() => onWriteClickWithCategory('matjib')}>
                <h3 className="text-sm font-bold text-orange-600 mb-3 flex items-center gap-1.5 pointer-events-none"><Utensils className="w-4 h-4 fill-orange-500 text-orange-500"/> 맛집 소개</h3>
                <div className="space-y-2 pointer-events-none">{matjibFeeds.length > 0 ? matjibFeeds.map(feed => (<div key={feed.id} className="p-3 bg-orange-50/30 rounded-2xl border border-orange-100 transition-colors"><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>)) : <p className="text-xs text-slate-400 py-2">등록된 글이 없습니다.</p>}</div>
             </div>
@@ -520,8 +521,9 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
         ))}
       </div>
 
+      {/* [수정] 우리들 소식 필터: flex-wrap으로 줄바꿈 허용 */}
       {activeFeedFilter === 'dept_news' && (
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide animate-fade-in">
+          <div className="flex flex-wrap gap-2 animate-fade-in">
               <button onClick={() => setSelectedDeptFilter('all')} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold whitespace-nowrap transition-all border ${selectedDeptFilter === 'all' ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-white text-slate-400 border-slate-100'}`}>전체</button>
               {Object.keys(ORGANIZATION).map(dept => (<button key={dept} onClick={() => setSelectedDeptFilter(dept)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold whitespace-nowrap transition-all border ${selectedDeptFilter === dept ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-white text-slate-400 border-slate-100'}`}>{dept}</button>))}
           </div>
@@ -598,7 +600,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
 };
 
 const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTab, boosterActive, initialCategory }) => {
-  const [writeCategory, setWriteCategory] = useState(initialCategory || ''); // 초기값을 빈 문자열로 설정하여 선택 유도
+  const [writeCategory, setWriteCategory] = useState(initialCategory || ''); 
   const [imagePreview, setImagePreview] = useState(null);
   const [regionMain, setRegionMain] = useState('');
   const [regionSub, setRegionSub] = useState('');
@@ -608,12 +610,11 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
   
   const categories = useMemo(() => {
     const baseCategories = [
-        {id: 'dept_news', label: '우리들 소식'}, // 순서 변경: 우리들 소식이 가장 먼저 나오도록
+        {id: 'dept_news', label: '우리들 소식'},
         {id: 'praise', label: '칭찬하기'},
         {id: 'matjib', label: '맛집소개'},
         {id: 'knowhow', label: '꿀팁'}
     ];
-    // 관리자만 공지사항 카테고리 선택 가능
     if (currentUser?.role === 'admin') {
         baseCategories.push({id: 'news', label: '공지사항 (관리자)'});
     }
@@ -621,7 +622,6 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
   }, [currentUser]);
 
   useEffect(() => {
-      // initialCategory가 있으면 그걸로 설정, 없으면 빈 값 유지 (선택 유도)
       if (initialCategory && categories.some(c => c.id === initialCategory)) {
           setWriteCategory(initialCategory);
       } 
@@ -642,30 +642,33 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
         <div className="p-6">
             <form onSubmit={handlePostSubmit}>
             
-            {/* [NEW] 콤보박스 (Select) 형태의 카테고리 선택 */}
-            <div className="mb-6">
-                <label className="block text-xs font-bold text-slate-500 mb-2 ml-1">게시글 유형을 선택해 주세요</label>
-                <div className="relative">
-                    <select 
-                        name="category" 
-                        value={writeCategory} 
-                        onChange={(e) => setWriteCategory(e.target.value)}
-                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-sm font-bold text-slate-700 appearance-none focus:border-blue-500 transition-colors cursor-pointer"
-                        required
+            {/* [수정] 탭(Tab) 형태의 카테고리 선택 */}
+            <div className="flex flex-wrap gap-2 mb-6">
+                {categories.map((cat) => (
+                    <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => setWriteCategory(cat.id)}
+                        className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all border shadow-sm ${
+                            writeCategory === cat.id 
+                            ? 'bg-slate-800 text-white border-slate-800 scale-105' 
+                            : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
+                        }`}
                     >
-                        <option value="" disabled>선택해주세요...</option>
-                        {categories.map((cat) => (
-                            <option key={cat.id} value={cat.id}>{cat.label}</option>
-                        ))}
-                    </select>
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-slate-400">
-                        <ChevronDownIcon className="w-5 h-5" />
-                    </div>
-                </div>
+                        {cat.label}
+                    </button>
+                ))}
             </div>
             
+            <input type="hidden" name="category" value={writeCategory} />
+
             <div className="space-y-4 mb-8">
-                {/* 카테고리별 분기 처리 */}
+                {!writeCategory && (
+                    <div className="text-center py-10 text-slate-400 text-sm">
+                        👆 위에서 게시글 유형을 선택해주세요.
+                    </div>
+                )}
+
                 {writeCategory === 'praise' && (
                     <div className="bg-green-50 p-4 rounded-2xl border border-green-100 animate-fade-in">
                         <label className="text-xs font-bold text-green-700 block mb-2 ml-1">누구를 칭찬하나요?</label>
@@ -696,7 +699,6 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
                      </div>
                 )}
                 
-                {/* 공통 입력 폼 (내용, 사진) */}
                 {writeCategory && (
                     <div className="animate-fade-in space-y-4">
                         <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
@@ -727,13 +729,6 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
     </div>
   );
 };
-
-// 헬퍼 컴포넌트: Select 아이콘용 (ChevronDown)
-const ChevronDownIcon = ({ className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={className}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-    </svg>
-);
 
 const RankingTab = ({ feeds, profiles, allPointHistory }) => { const [selectedDate, setSelectedDate] = useState(new Date()); const isSelectedMonth = (dateString) => { if(!dateString) return false; const d = new Date(dateString); return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear(); }; const handlePrevMonth = () => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() - 1))); const handleNextMonth = () => { const nextMonth = new Date(selectedDate); nextMonth.setMonth(selectedDate.getMonth() + 1); if (nextMonth <= new Date()) setSelectedDate(nextMonth); }; const pointRanking = useMemo(() => { const monthlyPoints = {}; allPointHistory.forEach(record => { if (isSelectedMonth(record.created_at) && record.type === 'earn') monthlyPoints[record.user_id] = (monthlyPoints[record.user_id] || 0) + record.amount; }); return Object.entries(monthlyPoints).map(([id, points]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: points, unit: 'P', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); }, [allPointHistory, profiles, selectedDate]); const postCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { postCounts[f.author_id] = (postCounts[f.author_id] || 0) + 1; }); const postRanking = Object.entries(postCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '건', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); const likeCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { const likes = f.likes ? (Array.isArray(f.likes) ? f.likes.length : 0) : 0; if(likes > 0) likeCounts[f.author_id] = (likeCounts[f.author_id] || 0) + likes; }); const likeRanking = Object.entries(likeCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '개', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); const RankItem = ({ rank, name, value, unit, team, color }) => (<div className="flex items-center p-3 bg-white border border-slate-100 rounded-2xl shadow-sm relative overflow-hidden">{rank <= 3 && <div className="absolute right-0 top-0 bg-yellow-100 text-yellow-600 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">🎁 1,000P</div>}<div className={`text-xl font-black mr-4 w-8 text-center ${color}`}>{rank}</div><div className="flex-1"><p className="text-sm font-bold text-slate-800">{name || 'Unknown'}</p><p className="text-[10px] text-slate-400">{team}</p></div><div className="text-base font-black text-slate-700 ml-4">{value}<span className="text-[10px] text-slate-400 ml-0.5 font-normal">{unit}</span></div></div>); return (<div className="p-5 space-y-8 pb-28 animate-fade-in bg-blue-50"><div className="bg-white p-5 rounded-[2rem] shadow-sm border border-blue-100 text-center relative"><div className="flex justify-between items-center mb-4 px-2"><button onClick={handlePrevMonth} className="p-1 hover:bg-slate-100 rounded-full"><ChevronLeft className="w-5 h-5 text-slate-400" /></button><h2 className="text-lg font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2><button onClick={handleNextMonth} className="p-1 hover:bg-slate-100 rounded-full disabled:opacity-30" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-5 h-5 text-slate-400" /></button></div><div className="flex justify-center gap-2 mt-2"><span className="text-[10px] bg-green-50 text-green-600 px-2 py-1 rounded">🏆 소통상/좋아요상: 1~3등 1,000P</span></div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Coins className="w-4 h-4 text-yellow-500"/> 월간 획득 포인트 랭킹</h3><div className="space-y-2">{pointRanking.length > 0 ? pointRanking.map((p, i) => <RankItem key={i} rank={i+1} name={p.name} team={p.team} value={p.value.toLocaleString()} unit="P" color="text-yellow-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Pencil className="w-4 h-4 text-green-500"/> 소통왕 (게시글)</h3><div className="space-y-2">{postRanking.length > 0 ? postRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-green-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div><div className="space-y-3"><h3 className="text-sm font-bold text-slate-600 flex items-center gap-2 mb-2 ml-1"><Heart className="w-4 h-4 text-red-500"/> 인기왕 (좋아요)</h3><div className="space-y-2">{likeRanking.length > 0 ? likeRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-red-500"/>) : <div className="text-center text-xs text-slate-400 py-4">데이터가 없습니다.</div>}</div></div></div>); };
 
@@ -1003,6 +998,7 @@ export default function App() {
     e.preventDefault(); 
     if (!currentUser || !checkSupabaseConfig()) return;
 
+    // input hidden으로 받은 category 값
     const category = e.target.category.value;
     
     if (category === 'news' && currentUser.role !== 'admin') {
