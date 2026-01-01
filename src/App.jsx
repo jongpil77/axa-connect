@@ -267,21 +267,18 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
             <div className="relative flex items-center">
                 {/* 텍스트 줄 간격 최소화 */}
                 <div className="flex flex-col leading-none -space-y-1 relative">
-                    <span className="text-xl font-black text-slate-800 tracking-tighter">AXA</span>
+                    {/* [수정] Plug 아이콘을 AXA 텍스트 우측으로 이동 */}
+                    <div className="flex items-center relative">
+                        <span className="text-xl font-black text-slate-800 tracking-tighter">AXA</span>
+                        <Plug className="w-4 h-4 text-blue-500 fill-blue-500 ml-0.5 -mt-1" />
+                    </div>
                     <span className="text-xl font-black text-slate-800 tracking-tighter">Connect</span>
-                    {/* 플러그 위치 수정: Connect 위로 배치, 크기 확대 */}
-                    <Plug className="w-5 h-5 text-blue-500 fill-blue-500 absolute -top-3 left-1/2 -translate-x-1/2 rotate-12" />
                 </div>
             </div>
         </div>
         
         <div className="flex items-center gap-2 relative">
-          
-          {/* 선물하기 텍스트 + 하트 아이콘 (기존 선물 이모지 위치) */}
-          <button onClick={onOpenGift} className="flex flex-col items-center mr-2 group">
-              <Heart className="w-5 h-5 text-pink-500 fill-pink-500 group-active:scale-95 transition-transform"/>
-              <span className="text-[8px] font-bold text-pink-500 mt-0.5">마음 선물</span>
-          </button>
+          {/* [수정] 마음 선물 텍스트 + 하트 아이콘 버튼 삭제됨 */}
           
           <div className="flex items-center gap-2 mr-1 cursor-pointer" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-end leading-none">
@@ -446,13 +443,16 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
             <div className="flex-[2] bg-white rounded-2xl p-3 shadow-sm border border-blue-100 flex flex-col relative overflow-hidden">
                   <div className="flex justify-between items-start mb-2 relative z-10">
                     <div>
-                        <h2 className="text-xs font-bold text-slate-400 mb-0.5 flex items-center gap-1"><span className="text-xl mr-1">⏰</span>출/퇴근 체크</h2>
+                        <h2 className="text-xs font-bold text-slate-400 mb-0.5 flex items-center gap-1">
+                            <span className="text-xl mr-1">⏰</span>출/퇴근 체크
+                            {/* [수정] +20P 텍스트 추가 */}
+                            <span className="text-[10px] text-blue-500 font-bold bg-blue-50 px-1 rounded">+20P</span>
+                        </h2>
                     </div>
                   </div>
                   <div className="flex-1 flex gap-2 relative z-10">
-                     {/* 좌측: 출근 체크 - 텍스트 추가 */}
+                     {/* 좌측: 출근 체크 - [수정] "출근" 텍스트 삭제 */}
                      <div className="flex-1 flex flex-col gap-2 justify-center bg-blue-50/50 rounded-xl p-1 border border-blue-100">
-                         <span className="text-[10px] font-bold text-center text-slate-500">출근</span>
                          {!mood ? (
                              <div className="flex flex-col gap-1 h-full justify-center">
                                  <button onClick={() => handleMoodCheck('good')} className="bg-white hover:bg-blue-100 rounded-lg flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-blue-100 gap-2"><Smile className="w-5 h-5 text-blue-500"/><span className="text-[10px] font-bold text-slate-600">좋음</span></button>
@@ -466,9 +466,8 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                              </div>
                          )}
                      </div>
-                     {/* 우측: 퇴근 체크 */}
+                     {/* 우측: 퇴근 체크 - [수정] "퇴근" 텍스트 삭제 */}
                      <div className="flex-1 flex flex-col gap-2 justify-center bg-orange-50/50 rounded-xl p-1 border border-orange-100">
-                         <span className="text-[10px] font-bold text-center text-slate-500">퇴근</span>
                          <button onClick={handleCheckOut} disabled={!mood || hasCheckedOut} className={`flex-1 ${hasCheckedOut ? 'bg-slate-100 text-slate-300' : !mood ? 'bg-slate-100 text-slate-300' : 'bg-slate-800 text-white hover:bg-slate-900 shadow-md'} rounded-xl flex flex-col items-center justify-center text-xs font-bold transition-all active:scale-95`}>
                              {hasCheckedOut ? <><span className="text-xl mb-1">🏠</span><span>완료</span></> : <><span className="text-xl mb-1">🏃</span><span>퇴근</span></>}
                          </button>
