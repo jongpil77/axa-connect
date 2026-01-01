@@ -110,10 +110,8 @@ const isToday = (timestamp) => {
            date.getFullYear() === today.getFullYear();
 };
 
-// [추가] 전월 랭킹 산출 헬퍼 함수 (시상용)
 const getPrevMonthRankers = (feeds, profiles) => {
     const now = new Date();
-    // 전월 1일 구하기
     const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const pm = prevMonthDate.getMonth();
     const py = prevMonthDate.getFullYear();
@@ -123,7 +121,6 @@ const getPrevMonthRankers = (feeds, profiles) => {
         return d.getMonth() === pm && d.getFullYear() === py;
     };
 
-    // 소통왕 (게시글 수)
     const postCounts = {};
     feeds.filter(f => isPrevMonth(f.created_at)).forEach(f => {
         postCounts[f.author_id] = (postCounts[f.author_id] || 0) + 1;
@@ -131,9 +128,8 @@ const getPrevMonthRankers = (feeds, profiles) => {
     const topPosts = Object.entries(postCounts)
         .sort((a,b) => b[1] - a[1])
         .slice(0, 3)
-        .map(x => x[0]); // ID만 추출
+        .map(x => x[0]);
 
-    // 인기왕 (좋아요 수)
     const likeCounts = {};
     feeds.filter(f => isPrevMonth(f.created_at)).forEach(f => {
         const count = Array.isArray(f.likes) ? f.likes.length : 0;
@@ -317,29 +313,21 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
           </div>
       </div>
       
-      {/* [수정] 전체 레이아웃: 좌우 끝으로 배치를 위해 justify-between 유지, 하단 정렬 items-end 적용 */}
       <div className="flex justify-between items-end">
-        {/* 좌측: 로고 영역 */}
         <div className="flex items-center gap-1 relative mt-1">
             <img src={AXA_LOGO_URL} alt="AXA Logo" className="w-10 h-auto mr-1" />
-            
-            {/* [수정] 텍스트 및 플러그 정렬 로직 */}
             <div className="flex flex-col relative leading-none">
-                {/* 1행: AXA + 플러그 (Connect 텍스트 너비에 맞춰 양끝 정렬) */}
                 <div className="flex justify-between items-center w-full">
                     <span className="text-xl font-black text-slate-800 tracking-tighter">AXA</span>
                     <Plug className="w-4 h-4 text-blue-500 fill-blue-500 mb-0.5" />
                 </div>
-                {/* 2행: Connect */}
                 <span className="text-xl font-black text-slate-800 tracking-tighter -mt-1.5">Connect</span>
             </div>
         </div>
         
-        {/* 우측: 포인트, 선물, 설정 (기존 그룹 유지하며 우측 끝 배치됨) */}
         <div className="flex items-center gap-2 relative">
           <div className="flex items-center gap-2 mr-1 cursor-pointer" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-end leading-none relative">
-                 {/* 포인트 부스터 */}
                  {boosterActive && (
                      <div className="absolute -top-3 right-0 text-[8px] bg-white text-red-500 px-1.5 py-0.5 rounded-full font-black animate-pulse whitespace-nowrap flex items-center gap-0.5 shadow-sm border border-red-200">
                          <Zap className="w-2 h-2 fill-red-500" /> 
@@ -416,24 +404,20 @@ const ChangeDeptModal = ({ onClose, onSave }) => {
 };
 const ChangePasswordModal = ({ onClose, onSave }) => { const [password, setPassword] = useState(''); const isValid = password.length >= 6 && /^\d+$/.test(password); return (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-xs rounded-2xl p-6 shadow-2xl relative"><button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button><h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Key className="w-5 h-5"/> 비밀번호 변경</h3><div className="space-y-3"><input type="password" placeholder="새 비밀번호 (6자리 이상 숫자)" className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" value={password} onChange={(e) => setPassword(e.target.value)}/><button onClick={() => onSave(password)} disabled={!isValid} className="w-full bg-blue-600 text-white p-3 rounded-xl font-bold hover:bg-blue-700 disabled:bg-slate-300 transition-colors">비밀번호 변경</button></div></div></div>); };
 
-// [수정] 관리자 지급 모달: 시상/수동 지급 및 중복 방지 기능 추가
 const AdminGrantModal = ({ onClose, onGrant, profiles, feeds, allPointHistory }) => { 
     const [tab, setTab] = useState('award'); // 'manual' or 'award'
     const [dept, setDept] = useState(''); 
     const [targetUser, setTargetUser] = useState(''); 
     const [amount, setAmount] = useState(''); 
     
-    // 시상용 데이터
     const currentMonth = new Date().getMonth() + 1;
     const { topPosts, topLikes } = useMemo(() => getPrevMonthRankers(feeds, profiles), [feeds, profiles]);
 
-    // 중복 지급 체크 함수
     const isPaid = (userId, reasonPart) => {
         const searchKey = `${currentMonth}월 ${reasonPart}`;
         return allPointHistory.some(h => h.user_id === userId && h.reason.includes(searchKey));
     };
 
-    // 시상 대상자 리스트 생성
     const awardList = useMemo(() => {
         const list = [];
         profiles.forEach(p => {
@@ -498,7 +482,6 @@ const AdminGrantModal = ({ onClose, onGrant, profiles, feeds, allPointHistory })
     ); 
 };
 
-// [추가] 관리자 포인트 환수(회수) 모달
 const AdminClawbackModal = ({ onClose, onClawback, profiles }) => { 
     const [dept, setDept] = useState(''); 
     const [targetUser, setTargetUser] = useState(''); 
@@ -596,8 +579,6 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => 
 };
 
 const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive }) => {
-    // ... (기존 renderFeedList 등 함수 유지)
-    // [중복 코드 생략, 기존 코드와 동일]
     const averageLikes = useMemo(() => {
         if (feeds.length === 0) return 0;
         const totalLikes = feeds.reduce((acc, curr) => acc + (curr.likes?.length || 0), 0);
@@ -613,7 +594,6 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                     
                     return (
                         <div key={feed.id} onClick={() => onNavigateToFeed(feed.type, feed.id)} className="bg-white px-4 py-3 rounded-2xl shadow-sm border border-slate-100 cursor-pointer relative overflow-hidden active:scale-[0.99] transition-transform">
-                            {/* [수정] 태그 위치 변경: 우측 상단 고정 */}
                             <div className="absolute top-3 right-4 flex gap-1.5 items-center z-10">
                                 {isHot && <span className="text-lg animate-bounce drop-shadow-sm" title="HOT">🔥</span>}
                                 {isNew && <span className="px-2 py-0.5 bg-red-600 text-white text-[9px] font-black rounded-md shadow-sm">NEW</span>}
@@ -627,10 +607,15 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                                     </p>
                                 </div>
                                 <div className="text-right mt-1">
-                                    <span className="text-[10px] text-slate-400 font-medium">
-                                        {feed.author} ({feed.team})
-                                    </span>
-                                    <span className="text-[10px] text-slate-300 ml-2">{feed.formattedTime}</span>
+                                    {/* [수정] 공지사항이 아닐 때만 작성자 및 작성일시 표시 */}
+                                    {listType !== 'news' && (
+                                        <>
+                                        <span className="text-[10px] text-slate-400 font-medium">
+                                            {feed.author} ({feed.team})
+                                        </span>
+                                        <span className="text-[10px] text-slate-300 ml-2">{feed.formattedTime}</span>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -642,7 +627,7 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
         );
     };
 
-   const noticeFeeds = feeds.filter(f => f.type === 'news').slice(0, 5); 
+    const noticeFeeds = feeds.filter(f => f.type === 'news').slice(0, 5); 
     const deptFeeds = feeds.filter(f => f.type === 'dept_news').slice(0, 5);
     const praiseFeeds = feeds.filter(f => f.type === 'praise').slice(0, 5); 
     const knowhowFeeds = feeds.filter(f => f.type === 'knowhow').slice(0, 5);
@@ -650,14 +635,12 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
 
     return (
       <div className="p-5 space-y-5 pb-32 animate-fade-in relative bg-blue-50 min-h-full">
-        {/* ... (상단 공지사항, 출퇴근/생일자 섹션은 기존 코드 유지) */}
         <div>
            <div className="flex justify-between items-center mb-3 px-1"><h2 className="text-sm font-bold text-slate-700 flex items-center gap-1.5"><Megaphone className="w-4 h-4 text-red-500"/> 공지사항</h2><button onClick={onNavigateToNews} className="text-xs text-slate-400 font-medium hover:text-blue-600 flex items-center gap-0.5">더보기 <ChevronRight className="w-3 h-3" /></button></div>
            {renderFeedList('news', noticeFeeds)}
         </div>
 
         <div className="flex gap-4 h-44">
-             {/* [기존 출퇴근/생일자 코드 생략 없이 유지] */}
              <div className="flex-[2] bg-white rounded-2xl p-3 shadow-sm border border-blue-100 flex flex-col relative overflow-hidden">
                   <div className="flex justify-between items-start mb-2 relative z-10">
                     <div>
@@ -692,19 +675,18 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
             <div className="flex-1 h-full"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} /></div>
         </div>
         
-        {/* [수정] 글쓰기 버튼 영역 */}
+        {/* [수정] 글쓰기 버튼: 연필 아이콘 적용 */}
         <div className="flex justify-between items-center mb-2 px-1">
              <button 
                 onClick={() => onWriteClickWithCategory(null)} 
                 className="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-lg flex items-center gap-2 hover:shadow-xl hover:scale-[1.02] transition-all active:scale-95 animate-[pulse_2s_infinite]"
              >
-                <span className="text-base">✍️</span> {/* 필기도구 이모지 적용 */}
+                <Pencil className="w-4 h-4" /> {/* 이모지 대신 아이콘 적용 */}
                 <span>글쓰기</span>
              </button>
              <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-white px-2 py-1 rounded-full shadow-sm border border-slate-100"><div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner"><Coins className="w-2.5 h-2.5 text-white fill-white"/></div>게시글 1개당 +50P (일 최대 +100P 가능)</div>
         </div>
 
-        {/* ... (하단 카테고리별 게시글 리스트는 기존 코드 유지) */}
         <div className="bg-white p-4 rounded-3xl shadow-sm border border-purple-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
                <h3 className="text-sm font-bold text-purple-600 flex items-center gap-1.5 pointer-events-none"><Building2 className="w-4 h-4 text-purple-500"/> 우리들 소식</h3>
@@ -810,7 +792,6 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
 
         return (
           <div key={feed.id} className="bg-white rounded-3xl p-5 shadow-sm border border-blue-100 relative group transition-all hover:shadow-md">
-            {/* [수정] 태그 위치 변경: 우측 상단 */}
             <div className="absolute top-4 right-5 flex gap-1.5 items-center z-10">
                 {isHot && <span className="text-lg animate-bounce drop-shadow-sm" title="HOT">🔥</span>}
                 {isNew && <span className="px-2 py-0.5 bg-red-600 text-white text-[9px] font-black rounded-md shadow-sm">NEW</span>}
@@ -886,8 +867,9 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
         {id: 'matjib', label: '맛집소개'},
         {id: 'knowhow', label: '꿀팁'}
     ];
-    if (currentUser?.role === 'admin') {
-        baseCategories.push({id: 'news', label: '공지사항 (관리자)'});
+    // [수정] 관리자 또는 앰버서더인 경우 공지사항 카테고리 추가
+    if (currentUser?.role === 'admin' || currentUser?.is_ambassador) {
+        baseCategories.push({id: 'news', label: '공지사항 (관리자/앰버서더)'});
     }
     return baseCategories;
   }, [currentUser]);
@@ -907,7 +889,7 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
       <div className="bg-white w-full max-w-md rounded-[2.5rem] p-0 shadow-2xl max-h-[90vh] overflow-y-auto relative">
         <div className="bg-slate-800 p-6 rounded-t-[2.5rem] flex justify-between items-center sticky top-0 z-10">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2"><Pencil className="w-5 h-5"/> 글쓰기</h3>
+            <h3 className="text-lg font-bold text-white flex items-center gap-2"><Pencil className="w-5 h-5"/> 게시글 작성</h3>
             <button onClick={() => setShowWriteModal(false)} className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"><X className="w-5 h-5" /></button>
         </div>
         <div className="p-6">
@@ -1011,21 +993,19 @@ const BottomNav = ({ activeTab, onTabChange }) => {
     };
     return (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[360px] bg-[#00008F] backdrop-blur-md border border-blue-900 shadow-[0_8px_30px_rgb(0,0,0,0.3)] p-1.5 z-30 flex justify-between items-center rounded-full h-20">
-            {[{ id: 'home', icon: User, label: '홈' }, { id: 'feed', icon: MessageCircle, label: '소통' }, { id: 'news', icon: Bell, label: '소식' }, { id: 'ranking', icon: Award, label: '랭킹' }].map(item => (
+            {[{ id: 'home', icon: User, label: '홈' }, { id: 'feed', icon: MessageCircle, label: '게시판' }, { id: 'news', icon: Bell, label: '공지' }, { id: 'ranking', icon: Award, label: '랭킹' }].map(item => (
                 <button key={item.id} onClick={() => onTabChange(item.id)} className={`flex-1 flex flex-col items-center justify-center gap-1 h-full rounded-2xl transition-all duration-300 ${getTabColor(item.id, activeTab === item.id)}`}><item.icon className={`w-7 h-7 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} /><span className="text-[10px] font-bold">{item.label}</span></button>
             ))}
         </div>
     );
 };
 
-// [수정] 댓글: L 화살표 아이콘 사용 (이름 앞 동그라미 삭제)
 const Comment = ({ comment, currentUser, handleDeleteComment }) => (
     <div className="flex gap-2 p-3 bg-slate-50 rounded-2xl border border-slate-100">
         <CornerDownRight className="w-4 h-4 text-slate-400 mt-1 flex-shrink-0" />
         <div className="flex-1 min-w-0">
             <div className="flex justify-between items-start">
                 <p className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                    {/* [수정] 작성자 (팀명) 형식 */}
                     {comment.profiles?.name || '알 수 없음'} <span className="text-slate-400 text-[10px] font-normal">({comment.profiles?.team || '소속미정'})</span>
                     {comment.profiles?.role === 'admin' && <span className="px-1 py-0.5 bg-red-50 text-red-500 text-[9px] rounded-md">관리자</span>}
                 </p>
@@ -1062,7 +1042,7 @@ export default function App() {
   const [newGifts, setNewGifts] = useState([]);
   const [showAdminGrantPopup, setShowAdminGrantPopup] = useState(false); 
   const [newAdminGrants, setNewAdminGrants] = useState([]); 
-  const [showAdminClawbackModal, setShowAdminClawbackModal] = useState(false); // [추가] 관리자 환수 모달 상태
+  const [showAdminClawbackModal, setShowAdminClawbackModal] = useState(false);
 
   const [showChangeDeptModal, setShowChangeDeptModal] = useState(false);
   const [showChangePwdModal, setShowChangePwdModal] = useState(false);
@@ -1152,7 +1132,6 @@ export default function App() {
             checkAdminNotifications(data); 
             checkGiftNotifications(userId); 
             checkAdminGrants(userId);
-            // 앰버서더 자동 지급 로직 삭제됨
         }
     } catch (err) { console.error(err); }
   }, [supabase, checkBirthday, checkGiftNotifications, checkAdminGrants]);
@@ -1324,7 +1303,6 @@ export default function App() {
     } catch (err) { console.error(err); alert('선물하기 중 오류가 발생했습니다.'); }
   };
 
-  // [수정] 관리자 포인트 지급 함수: reason 파라미터 추가
   const handleAdminGrantPoints = async (targetUserId, amount, reason = '관리자 특별 지급') => { 
       if (!currentUser || !supabase) return; 
       if (currentUser.role !== 'admin') return; 
@@ -1342,7 +1320,6 @@ export default function App() {
       } catch(err) { console.error(err); } 
   };
 
-  // [추가] 관리자 포인트 환수(회수) 로직
   const handleAdminClawbackPoints = async (targetUserId, amount) => {
       if (!currentUser || !supabase) return;
       if (currentUser.role !== 'admin') return;
@@ -1400,8 +1377,9 @@ export default function App() {
 
     const category = e.target.category.value;
     
-    if (category === 'news' && currentUser.role !== 'admin') {
-        alert('⛔ 권한이 없습니다.\n공지사항은 관리자만 작성할 수 있습니다.');
+    // [수정] 관리자 또는 앰버서더만 공지사항 작성 가능
+    if (category === 'news' && currentUser.role !== 'admin' && !currentUser.is_ambassador) {
+        alert('⛔ 권한이 없습니다.\n공지사항은 관리자와 앰버서더만 작성할 수 있습니다.');
         return; 
     }
 
@@ -1585,7 +1563,6 @@ export default function App() {
               {showChangeDeptModal && <ChangeDeptModal onClose={() => setShowChangeDeptModal(false)} onSave={handleChangeDept} />}
               {showChangePwdModal && <ChangePasswordModal onClose={() => setShowChangePwdModal(false)} onSave={handleChangePassword} />}
               
-              {/* [수정] 관리자 지급 모달 호출 시 필요한 데이터 props 전달 */}
               {showAdminGrantModal && (
                   <AdminGrantModal 
                       onClose={() => setShowAdminGrantModal(false)} 
