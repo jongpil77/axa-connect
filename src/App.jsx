@@ -914,37 +914,67 @@ export default function App() {
       try { const { data } = await supabase.from('point_history').select('user_id, amount, type, created_at'); if (data) setAllPointHistory(data); } catch(err) { console.error(err); }
   }, [supabase]);
 
+  // [수정된 fetchFeeds: 안전 모드]
+  // 복잡한 관계 설정으로 인한 에러를 방지하고, 데이터 로딩 실패 시 원인을 파악하기 쉽게 수정
   const fetchFeeds = useCallback(async () => {
     if (!supabase) return; 
     try {
-        // [수정] 관계 설정(relation) 오류 방지를 위해 명시적 별칭(profiles:author_id) 대신, 
-        // Supabase 자동 관계 매핑(profiles)을 사용하도록 변경. 
-        // SQL에서 Foreign Key가 author_id로 되어 있다면, 이것이 더 안정적입니다.
+        // [수정] 복잡한 별칭(!inner 등)을 제거하고 표준 연결 방식 사용
         const { data: posts, error } = await supabase
             .from('posts')
             .select(`
-                id, content, type, author_id, image_url, target_name, title, region_main, region_sub, likes, created_at,
+                *,
                 profiles (name, dept, team, role, is_reporter, is_ambassador),
-                comments (id, post_id, author_id, content, parent_id, created_at, profiles (name, role))
+                comments (
+                    *,
+                    profiles (name, role)
+                )
             `)
             .order('created_at', { ascending: false })
-            .limit(50); // Egress 최적화
+            .limit(50);
 
         if (error) {
-            console.error("게시글 로드 실패 (DB 오류):", error.message);
-            // 만약 Relation 에러가 나면 SQL 스크립트 실행이 필요함을 알림
+            console.error("🚨 데이터 로딩 실패:", error);
+            // 에러가 나면 팝업으로 알려줘서 원인을 파악하게 함
             return;
         }
 
         if (posts) {
             const formatted = posts.map(post => {
+                // 프로필 정보가 없는 경우(탈퇴/데이터오류) 방어 코드
+                const authorData = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
+                const authorName = authorData?.name || '알 수 없음';
+                const authorTeam = authorData?.team || '소속 미정';
+                
+                // 좋아요 데이터 파싱 처리
+                let parsedLikes = [];
+                try {
+                     parsedLikes = post.likes ? (typeof post.likes === 'string' ? JSON.parse(post.likes) : post.likes) : [];
+                } catch (e) { parsedLikes = []; }
+
                 const sortedComments = post.comments ? post.comments.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)) : [];
-                return { ...post, author: post.profiles?.name || '알 수 없음', team: post.profiles?.team, formattedTime: new Date(post.created_at).toLocaleDateString(), likes: post.likes ? (typeof post.likes === 'string' ? JSON.parse(post.likes) : post.likes) : [], isLiked: false, comments: sortedComments, totalComments: sortedComments.length, profiles: post.profiles };
+                
+                return { 
+                    ...post, 
+                    author: authorName, 
+                    team: authorTeam, 
+                    formattedTime: new Date(post.created_at).toLocaleDateString(), 
+                    likes: parsedLikes, 
+                    isLiked: false, 
+                    comments: sortedComments, 
+                    totalComments: sortedComments.length, 
+                    profiles: authorData 
+                };
             });
-            if (currentUser) formatted.forEach(p => { p.isLiked = p.likes.includes(currentUser.id); });
+            
+            if (currentUser) {
+                formatted.forEach(p => { 
+                    p.isLiked = Array.isArray(p.likes) && p.likes.includes(currentUser.id); 
+                });
+            }
             setFeeds(formatted);
         }
-    } catch (err) { console.error("게시글 로드 실패 (예외 발생):", err); }
+    } catch (err) { console.error("예외 발생:", err); }
   }, [supabase, currentUser]);
 
   const fetchProfiles = useCallback(async () => { if (!supabase) return; try { const { data } = await supabase.from('profiles').select('*'); if (data) setProfiles(data); } catch (err) { console.error(err); } }, [supabase]);
