@@ -368,7 +368,8 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => 
     const [searchTerm, setSearchTerm] = useState('');
     
     const currentMonth = new Date().getMonth();
-    const usedGiftPoints = pointHistory.filter(h => h.type === 'gift_sent' && new Date(h.created_at).getMonth() === currentMonth).reduce((sum, h) => sum + h.amount, 0);
+    const currentYear = new Date().getFullYear(); // [수정] 연도 체크 추가
+    const usedGiftPoints = pointHistory.filter(h => h.type === 'gift_sent' && new Date(h.created_at).getMonth() === currentMonth && new Date(h.created_at).getFullYear() === currentYear).reduce((sum, h) => sum + h.amount, 0);
     const remainingLimit = 1000 - usedGiftPoints;
     
     const filteredUsers = profiles.filter(p => {
@@ -423,6 +424,45 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => 
 };
 
 const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive }) => {
+    // 평균 좋아요 계산 (HOT 배지용)
+    const averageLikes = useMemo(() => {
+        if (feeds.length === 0) return 0;
+        const totalLikes = feeds.reduce((acc, curr) => acc + (curr.likes?.length || 0), 0);
+        return totalLikes / feeds.length;
+    }, [feeds]);
+
+    const renderFeedList = (listType, listData) => {
+        return (
+            <div className="space-y-2">
+                {listData.length > 0 ? listData.map(feed => {
+                    const isNew = isToday(feed.created_at);
+                    const isHot = feed.likes.length >= averageLikes && feed.likes.length > 0;
+                    
+                    return (
+                        <div key={feed.id} onClick={() => onNavigateToFeed(feed.type)} className="bg-white px-4 py-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 transition-transform active:scale-[0.99] hover:border-blue-200 cursor-pointer relative overflow-hidden">
+                            <div className="flex-1 min-w-0">
+                                <div className="flex justify-between items-start mb-0.5">
+                                    <p className="text-xs font-bold text-slate-800 line-clamp-1 pr-12">
+                                        {feed.title || feed.content}
+                                    </p>
+                                    {/* 이모지 배지 (우측 상단) */}
+                                    <div className="absolute top-3 right-4 flex gap-1">
+                                        {isNew && <span className="text-xs">🆕</span>}
+                                        {isHot && <span className="text-xs animate-pulse">🔥</span>}
+                                    </div>
+                                </div>
+                                <span className="text-[10px] text-slate-400">{feed.formattedTime} • {feed.author}</span>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-slate-300 flex-shrink-0" />
+                        </div>
+                    );
+                }) : (
+                    <div className="text-center text-xs text-slate-400 py-6 bg-white rounded-2xl border border-slate-100 border-dashed">등록된 게시글이 없습니다.</div>
+                )}
+            </div>
+        );
+    };
+
     const noticeFeeds = feeds.filter(f => f.type === 'news').slice(0, 5); 
     const deptFeeds = feeds.filter(f => f.type === 'dept_news').slice(0, 5);
     const praiseFeeds = feeds.filter(f => f.type === 'praise').slice(0, 5); 
@@ -434,7 +474,7 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
         {/* 1. 공지사항 (맨 위) */}
         <div>
            <div className="flex justify-between items-center mb-3 px-1"><h2 className="text-sm font-bold text-slate-700 flex items-center gap-1.5"><Megaphone className="w-4 h-4 text-red-500"/> 공지사항</h2><button onClick={onNavigateToNews} className="text-xs text-slate-400 font-medium hover:text-blue-600 flex items-center gap-0.5">더보기 <ChevronRight className="w-3 h-3" /></button></div>
-           <div className="space-y-2">{noticeFeeds.length > 0 ? noticeFeeds.map(feed => (<div key={feed.id} onClick={onNavigateToNews} className="bg-white px-4 py-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 transition-transform active:scale-[0.99] hover:border-blue-200 cursor-pointer"><div className="flex-1 min-w-0"><p className="text-xs font-bold text-slate-800 line-clamp-1 mb-0.5">{feed.title || feed.content}{isToday(feed.created_at) && <span className="ml-1 px-1 py-0.5 bg-red-500 text-white text-[8px] font-bold rounded-sm inline-block">NEW</span>}</p><span className="text-[10px] text-slate-400">{feed.formattedTime} • {feed.author}</span></div><ChevronRight className="w-4 h-4 text-slate-300" /></div>)) : <div className="text-center text-xs text-slate-400 py-6 bg-white rounded-2xl border border-slate-100 border-dashed">등록된 공지가 없습니다.</div>}</div>
+           {renderFeedList('news', noticeFeeds)}
         </div>
 
         {/* 2. 출퇴근/생일 (비율 변경: 출퇴근 영역 flex-[2], 생일 영역 flex-1) */}
@@ -444,13 +484,13 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                     <div>
                         <h2 className="text-xs font-bold text-slate-400 mb-0.5 flex items-center gap-1">
                             <span className="text-xl mr-1">⏰</span>출/퇴근 체크
-                            {/* [수정] +20P 텍스트 추가 */}
-                            <span className="text-[10px] text-blue-500 font-bold bg-blue-50 px-1 rounded">+20P</span>
+                            {/* [수정] +20P -> 각 +20P 텍스트 수정 */}
+                            <span className="text-[10px] text-blue-500 font-bold bg-blue-50 px-1 rounded">각 +20P</span>
                         </h2>
                     </div>
                   </div>
                   <div className="flex-1 flex gap-2 relative z-10">
-                     {/* 좌측: 출근 체크 - [수정] "출근" 텍스트 삭제 */}
+                     {/* 좌측: 출근 체크 */}
                      <div className="flex-1 flex flex-col gap-2 justify-center bg-blue-50/50 rounded-xl p-1 border border-blue-100">
                          {!mood ? (
                              <div className="flex flex-col gap-1 h-full justify-center">
@@ -465,7 +505,7 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                              </div>
                          )}
                      </div>
-                     {/* 우측: 퇴근 체크 - [수정] "퇴근" 텍스트 삭제 */}
+                     {/* 우측: 퇴근 체크 */}
                      <div className="flex-1 flex flex-col gap-2 justify-center bg-orange-50/50 rounded-xl p-1 border border-orange-100">
                          <button onClick={handleCheckOut} disabled={!mood || hasCheckedOut} className={`flex-1 ${hasCheckedOut ? 'bg-slate-100 text-slate-300' : !mood ? 'bg-slate-100 text-slate-300' : 'bg-slate-800 text-white hover:bg-slate-900 shadow-md'} rounded-xl flex flex-col items-center justify-center text-xs font-bold transition-all active:scale-95`}>
                              {hasCheckedOut ? <><span className="text-xl mb-1">🏠</span><span>완료</span></> : <><span className="text-xl mb-1">🏃</span><span>퇴근</span></>}
@@ -477,7 +517,7 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
             <div className="flex-1 h-full"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} /></div>
         </div>
         
-        {/* [NEW] 글쓰기 버튼 & 포인트 안내 */}
+        {/* 글쓰기 버튼 */}
         <div className="flex justify-between items-center mb-2 px-1">
              <button onClick={() => onWriteClickWithCategory(null)} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center gap-1.5 hover:shadow-xl transition-all active:scale-95">
                 <span>➕</span> 글쓰기
@@ -485,46 +525,39 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
              <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-white px-2 py-1 rounded-full shadow-sm border border-slate-100"><div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner"><Coins className="w-2.5 h-2.5 text-white fill-white"/></div>게시글 1개당 +50P (일 최대 +100P 가능)</div>
         </div>
 
-        {/* 3. 우리들 소식 (더보기 추가) */}
+        {/* 3. 우리들 소식 (리스트 형태로 변경) */}
         <div className="bg-white p-4 rounded-3xl shadow-sm border border-purple-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
                <h3 className="text-sm font-bold text-purple-600 flex items-center gap-1.5 pointer-events-none"><Building2 className="w-4 h-4 text-purple-500"/> 우리들 소식</h3>
                <button onClick={() => onNavigateToFeed('dept_news')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-purple-600">더보기 <ChevronRight className="w-3 h-3"/></button>
            </div>
-           <div className="space-y-2 cursor-pointer" onClick={() => onWriteClickWithCategory('dept_news')}>
-                {deptFeeds.length > 0 ? deptFeeds.map(feed => (
-                    <div key={feed.id} className="p-3 bg-purple-50/30 rounded-2xl border border-purple-100 transition-colors hover:bg-purple-50">
-                        <div className="flex items-center justify-between mb-1"><span className="text-[9px] text-purple-700 font-bold bg-white px-1.5 rounded border border-purple-200">{feed.region_main}</span>{isToday(feed.created_at) && <span className="text-[9px]">🆕</span>}</div>
-                        <p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>
-                    </div>
-                )) : <p className="text-xs text-slate-400 py-2">등록된 소식이 없습니다.</p>}
-           </div>
+           {renderFeedList('dept_news', deptFeeds)}
         </div>
 
-        {/* 4. 칭찬합시다 (더보기 추가) */}
+        {/* 4. 칭찬합시다 (리스트 형태로 변경) */}
         <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
                <h3 className="text-sm font-bold text-green-600 flex items-center gap-1.5 pointer-events-none"><Heart className="w-4 h-4 fill-green-500 text-green-500"/> 칭찬합시다</h3>
                <button onClick={() => onNavigateToFeed('praise')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-green-600">더보기 <ChevronRight className="w-3 h-3"/></button>
            </div>
-           <div className="space-y-2 cursor-pointer" onClick={() => onWriteClickWithCategory('praise')}>{praiseFeeds.length > 0 ? praiseFeeds.map(feed => (<div key={feed.id} className="p-3 bg-green-50/30 rounded-2xl border border-green-100 transition-colors hover:bg-green-50"><p className="text-[10px] font-bold text-slate-500 mb-1">To. {feed.target_name || '동료'}</p><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed">{feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>)) : <p className="text-xs text-slate-400 py-2">아직 게시글이 없습니다.</p>}</div>
+           {renderFeedList('praise', praiseFeeds)}
         </div>
         
-        {/* 5. 꿀팁 / 맛집소개 (더보기 추가) */}
+        {/* 5. 꿀팁 / 맛집소개 (리스트 형태로 변경) */}
         <div className="grid grid-cols-2 gap-4">
             <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 transition-colors relative">
                <div className="flex justify-between items-center mb-3">
                    <h3 className="text-sm font-bold text-blue-600 flex items-center gap-1.5 pointer-events-none"><Sparkles className="w-4 h-4 fill-blue-500 text-blue-500"/> 꿀팁</h3>
                    <button onClick={() => onNavigateToFeed('knowhow')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-blue-600"><ChevronRight className="w-3 h-3"/></button>
                </div>
-               <div className="space-y-2 cursor-pointer" onClick={() => onWriteClickWithCategory('knowhow')}>{knowhowFeeds.length > 0 ? knowhowFeeds.map(feed => (<div key={feed.id} className="p-3 bg-blue-50/30 rounded-2xl border border-blue-100 transition-colors hover:bg-blue-50"><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>)) : <p className="text-xs text-slate-400 py-2">등록된 글이 없습니다.</p>}</div>
+               {renderFeedList('knowhow', knowhowFeeds)}
             </div>
             <div className="bg-white p-4 rounded-3xl shadow-sm border border-orange-100 transition-colors relative">
                <div className="flex justify-between items-center mb-3">
                    <h3 className="text-sm font-bold text-orange-600 flex items-center gap-1.5 pointer-events-none"><Utensils className="w-4 h-4 fill-orange-500 text-orange-500"/> 맛집</h3>
                    <button onClick={() => onNavigateToFeed('matjib')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-orange-600"><ChevronRight className="w-3 h-3"/></button>
                </div>
-               <div className="space-y-2 cursor-pointer" onClick={() => onWriteClickWithCategory('matjib')}>{matjibFeeds.length > 0 ? matjibFeeds.map(feed => (<div key={feed.id} className="p-3 bg-orange-50/30 rounded-2xl border border-orange-100 transition-colors hover:bg-orange-50"><p className="text-xs text-slate-700 line-clamp-2 leading-relaxed inline">{feed.title || feed.content}</p>{isToday(feed.created_at) && <span className="inline-block ml-1">🆕</span>}</div>)) : <p className="text-xs text-slate-400 py-2">등록된 글이 없습니다.</p>}</div>
+               {renderFeedList('matjib', matjibFeeds)}
             </div>
         </div>
       </div>
@@ -535,6 +568,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDeptFilter, setSelectedDeptFilter] = useState('all');
 
+  // activeFeedFilter 변경 시 부서 필터 초기화
   useEffect(() => { setSelectedDeptFilter('all'); }, [activeFeedFilter]);
   
   const averageLikes = useMemo(() => {
@@ -544,6 +578,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
   }, [feeds]);
 
   const filteredFeeds = feeds.filter(f => {
+      // activeFeedFilter가 'news'인 경우 (네비게이션 탭에서 공지사항 클릭 시) 처리 추가
       const matchesFilter = activeFeedFilter === 'all' || f.type === activeFeedFilter || (activeFeedFilter === 'dept_news' && f.type === 'dept_news');
       const matchesSearch = searchTerm === "" || 
           (f.title && f.title.toLowerCase().includes(searchTerm.toLowerCase())) || 
@@ -561,6 +596,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
           <Search className="w-4 h-4 text-slate-400 ml-2" /><input type="text" placeholder="검색 (제목, 내용, 작성자, 지역명)" className="flex-1 bg-transparent text-xs p-2 outline-none" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
       </div>
 
+      {/* 필터 탭 (공지사항 탭에서는 숨길 수도 있으나, 요청사항에 명시되지 않아 유지) */}
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {[{ id: 'all', label: '전체' }, { id: 'praise', label: '칭찬해요' }, { id: 'dept_news', label: '우리들 소식' }, { id: 'knowhow', label: '꿀팁' }, { id: 'matjib', label: '맛집 소개' }].map(tab => (
           <button key={tab.id} onClick={() => setActiveFeedFilter(tab.id)} className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${activeFeedFilter === tab.id ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white text-slate-500 border-slate-200'}`}>{tab.label}</button>
@@ -589,7 +625,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
         return (
           <div key={feed.id} className="bg-white rounded-3xl p-5 shadow-sm border border-blue-100 relative group transition-all hover:shadow-md">
             <div className="flex items-center gap-3 mb-3">
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-white text-sm bg-gradient-to-br from-blue-500 to-blue-400 shadow-sm`}>{formatInitial(feed.author)}</div>
+              {/* [수정] 작성자 이름 앞 파란 동그라미(이니셜) 삭제 */}
               <div>
                   <p className="text-sm font-bold text-slate-800 flex items-center gap-1">
                       {feed.author} 
@@ -628,6 +664,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
               <button onClick={() => handleLikePost(feed.id, feed.likes, feed.isLiked)} className={`flex items-center gap-1 text-xs font-bold transition-colors ${feed.isLiked ? 'text-red-500' : 'text-slate-400 hover:text-slate-600'}`}><Heart className={`w-4 h-4 ${feed.isLiked ? 'fill-red-500' : ''}`} /> {feed.likes?.length || 0}</button>
               <div className="flex items-center gap-1 text-xs font-bold text-slate-400"><MessageCircle className="w-4 h-4" /> {comments.length}</div>
               <div className="ml-auto text-[10px] text-slate-300">{feed.formattedTime}</div>
+              {/* [확인] 삭제 권한: 작성자 또는 관리자만 가능 */}
               {(currentUser?.id === feed.author_id || currentUser?.role === 'admin') && (
                   <button onClick={() => handleDeletePost(feed.id)} className="text-[10px] text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1 px-2 py-1">삭제</button>
               )}
@@ -800,7 +837,7 @@ const BottomNav = ({ activeTab, onTabChange }) => {
         switch (id) {
             case 'home': return 'text-white bg-blue-500 shadow-md';
             case 'feed': return 'text-white bg-green-500 shadow-md';
-            case 'news': return 'text-white bg-red-500 shadow-md';
+            case 'news': return 'text-white bg-red-500 shadow-md'; // [수정] 네비게이션바 - 소식 - 공지사항 연결
             case 'ranking': return 'text-white bg-yellow-500 shadow-md';
             default: return 'text-white bg-white/20 shadow-md';
         }
@@ -914,39 +951,39 @@ export default function App() {
       try { const { data } = await supabase.from('point_history').select('user_id, amount, type, created_at'); if (data) setAllPointHistory(data); } catch(err) { console.error(err); }
   }, [supabase]);
 
-  // [수정된 fetchFeeds: 안전 모드]
-  // 복잡한 관계 설정으로 인한 에러를 방지하고, 데이터 로딩 실패 시 원인을 파악하기 쉽게 수정
+  // [안전 모드] 모든 컬럼을 가져오도록 수정하여 DB 컬럼 불일치 에러 방지
   const fetchFeeds = useCallback(async () => {
     if (!supabase) return; 
     try {
-        // [수정] 복잡한 별칭(!inner 등)을 제거하고 표준 연결 방식 사용
+        console.log("📥 게시글 불러오기 시도...");
+
+        // profiles (*) 로 변경하여, 특정 컬럼이 없어서 나는 에러를 방지합니다.
         const { data: posts, error } = await supabase
             .from('posts')
             .select(`
                 *,
-                profiles (name, dept, team, role, is_reporter, is_ambassador),
+                profiles (*),
                 comments (
                     *,
-                    profiles (name, role)
+                    profiles (*)
                 )
             `)
             .order('created_at', { ascending: false })
             .limit(50);
 
         if (error) {
-            console.error("🚨 데이터 로딩 실패:", error);
-            // 에러가 나면 팝업으로 알려줘서 원인을 파악하게 함
+            console.error("🚨 DB 에러 발생:", error.message);
             return;
         }
 
+        console.log(`✅ 게시글 ${posts?.length || 0}개 로드됨`);
+
         if (posts) {
             const formatted = posts.map(post => {
-                // 프로필 정보가 없는 경우(탈퇴/데이터오류) 방어 코드
                 const authorData = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
-                const authorName = authorData?.name || '알 수 없음';
+                const authorName = authorData?.name || authorData?.email?.split('@')[0] || '알 수 없음';
                 const authorTeam = authorData?.team || '소속 미정';
                 
-                // 좋아요 데이터 파싱 처리
                 let parsedLikes = [];
                 try {
                      parsedLikes = post.likes ? (typeof post.likes === 'string' ? JSON.parse(post.likes) : post.likes) : [];
@@ -1220,9 +1257,12 @@ export default function App() {
   const handleChangePassword = async (newPassword) => { if (!currentUser || !supabase) return; try { const { error } = await supabase.auth.updateUser({ password: newPassword }); if (error) throw error; setShowChangePwdModal(false); alert('비밀번호가 변경되었습니다. 다시 로그인해주세요.'); handleLogout(); } catch(err) { console.error(err); } };
   const handleAdminGrantPoints = async (targetUserId, amount) => { if (!currentUser || !supabase) return; if (currentUser.role !== 'admin') return; try { const { data: targetUser } = await supabase.from('profiles').select('points').eq('id', targetUserId).single(); if (!targetUser) return; const newPoints = (targetUser.points || 0) + parseInt(amount); await supabase.from('profiles').update({ points: newPoints }).eq('id', targetUserId); await supabase.from('point_history').insert({ user_id: targetUserId, reason: '관리자 특별 지급', amount: parseInt(amount), type: 'earn' }); setShowAdminGrantModal(false); alert('포인트 지급이 완료되었습니다.'); fetchProfiles(); fetchAllPointHistory(); } catch(err) { console.error(err); } };
 
+  // [수정] 네비게이션 '소식' 탭 클릭 시 activeTab만 변경
   const handleTabChange = (tabId) => {
       setActiveTab(tabId);
+      // 소통 탭을 누르면 필터를 전체로 초기화 (다른 탭은 상관 없음)
       if (tabId === 'feed') { setActiveFeedFilter('all'); }
+      // 소식(News) 탭을 누르면 FeedTab에서 news 필터가 자동 적용되도록 렌더링 로직에서 처리
   };
 
   return (
@@ -1235,8 +1275,23 @@ export default function App() {
             <>
               <Header currentUser={currentUser} onOpenUserInfo={() => setShowUserInfoModal(true)} handleLogout={handleLogout} onOpenChangeDept={() => setShowChangeDeptModal(true)} onOpenChangePwd={() => setShowChangePwdModal(true)} onOpenAdminGrant={() => setShowAdminGrantModal(true)} onOpenRedemptionList={() => { fetchRedemptionList(); setShowRedemptionListModal(true); }} onOpenGift={() => setShowGiftModal(true)} onOpenAdminManage={() => setShowAdminManageModal(true)} boosterActive={boosterActive} />
               <main className="flex-1 overflow-y-auto scrollbar-hide">
-                {activeTab === 'home' && <HomeTab mood={mood} handleMoodCheck={handleMoodCheck} handleCheckOut={handleCheckOut} hasCheckedOut={hasCheckedOut} feeds={feeds} weeklyBirthdays={weeklyBirthdays} onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }} onNavigateToNews={() => setActiveTab('news')} onNavigateToFeed={(type) => { setActiveTab('feed'); setActiveFeedFilter(type); }} boosterActive={boosterActive} />}
-                {activeTab === 'feed' && <FeedTab feeds={feeds} activeFeedFilter={activeFeedFilter} setActiveFeedFilter={setActiveFeedFilter} onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }} currentUser={currentUser} handleDeletePost={handleDeletePost} handleLikePost={handleLikePost} handleAddComment={handleAddComment} handleDeleteComment={handleDeleteComment} boosterActive={boosterActive} />}
+                {activeTab === 'home' && <HomeTab mood={mood} handleMoodCheck={handleMoodCheck} handleCheckOut={handleCheckOut} hasCheckedOut={hasCheckedOut} feeds={feeds} weeklyBirthdays={weeklyBirthdays} onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }} onNavigateToNews={() => { setActiveTab('feed'); setActiveFeedFilter('news'); }} onNavigateToFeed={(type) => { setActiveTab('feed'); setActiveFeedFilter(type); }} boosterActive={boosterActive} />}
+                {/* [수정] activeTab이 'feed'일 때와 'news'일 때 모두 FeedTab을 사용하되, 'news'일 때는 필터를 'news'로 고정하거나 초기화 */}
+                {(activeTab === 'feed' || activeTab === 'news') && (
+                    <FeedTab 
+                        feeds={feeds} 
+                        // news 탭이면 강제로 'news' 필터 적용, 아니면 상태값 사용
+                        activeFeedFilter={activeTab === 'news' ? 'news' : activeFeedFilter} 
+                        setActiveFeedFilter={setActiveFeedFilter} 
+                        onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }} 
+                        currentUser={currentUser} 
+                        handleDeletePost={handleDeletePost} 
+                        handleLikePost={handleLikePost} 
+                        handleAddComment={handleAddComment} 
+                        handleDeleteComment={handleDeleteComment} 
+                        boosterActive={boosterActive} 
+                    />
+                )}
                 {activeTab === 'ranking' && <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} />}
               </main>
               <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
