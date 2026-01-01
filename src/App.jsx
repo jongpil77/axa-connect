@@ -640,13 +640,19 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                                     </div>
                                 </div>
                                 <div className="text-right mt-1">
-                                    {listType !== 'news' && (
+                                    {/* 우리들 소식, 칭찬합시다: 작성자 + 날짜 (우측 하단) */}
+                                    {(listType === 'dept_news' || listType === 'praise') && (
                                         <>
                                         <span className="text-[10px] text-slate-400 font-medium">
                                             {feed.author} ({feed.team})
                                         </span>
                                         <span className="text-[10px] text-slate-300 ml-2">{feed.formattedTime}</span>
                                         </>
+                                    )}
+
+                                    {/* 꿀팁, 맛집: 작성자 삭제, 날짜만 표시 */}
+                                    {(listType === 'knowhow' || listType === 'matjib') && (
+                                        <span className="text-[10px] text-slate-300 ml-2">{feed.formattedTime}</span>
                                     )}
                                 </div>
                             </div>
