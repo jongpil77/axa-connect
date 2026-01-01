@@ -267,9 +267,9 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
             <div className="relative flex items-center">
                 {/* 텍스트 줄 간격 최소화 */}
                 <div className="flex flex-col leading-none -space-y-1 relative">
-                    {/* [수정] Plug 아이콘을 AXA 텍스트 우측으로 이동 */}
                     <div className="flex items-center relative">
                         <span className="text-xl font-black text-slate-800 tracking-tighter">AXA</span>
+                        {/* 플러그 아이콘 */}
                         <Plug className="w-4 h-4 text-blue-500 fill-blue-500 ml-0.5 -mt-1" />
                     </div>
                     <span className="text-xl font-black text-slate-800 tracking-tighter">Connect</span>
@@ -278,7 +278,6 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
         </div>
         
         <div className="flex items-center gap-2 relative">
-          {/* [수정] 마음 선물 텍스트 + 하트 아이콘 버튼 삭제됨 */}
           
           <div className="flex items-center gap-2 mr-1 cursor-pointer" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-end leading-none">
@@ -554,7 +553,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
           (f.region_sub && f.region_sub.includes(searchTerm));
       const matchesDept = activeFeedFilter !== 'dept_news' || selectedDeptFilter === 'all' || (f.profiles && f.profiles.dept === selectedDeptFilter);
       return matchesFilter && matchesSearch && matchesDept;
-  }); // Remove slice here to allow infinite scroll later, or keep slice(0, 20) for optimization in this view if needed. Assuming user wants all loaded feeds filtered.
+  });
 
   return (
     <div className="p-5 space-y-5 pb-28 animate-fade-in bg-blue-50">
@@ -918,16 +917,24 @@ export default function App() {
   const fetchFeeds = useCallback(async () => {
     if (!supabase) return; 
     try {
-        // [Supabase Egress 최적화] 필요한 컬럼만 선택하고, limit을 적용
-        const { data: posts } = await supabase
+        // [수정] 관계 설정(relation) 오류 방지를 위해 명시적 별칭(profiles:author_id) 대신, 
+        // Supabase 자동 관계 매핑(profiles)을 사용하도록 변경. 
+        // SQL에서 Foreign Key가 author_id로 되어 있다면, 이것이 더 안정적입니다.
+        const { data: posts, error } = await supabase
             .from('posts')
             .select(`
                 id, content, type, author_id, image_url, target_name, title, region_main, region_sub, likes, created_at,
-                profiles:author_id (name, dept, team, role, is_reporter, is_ambassador),
-                comments (id, post_id, author_id, content, parent_id, created_at, profiles:author_id (name, role))
+                profiles (name, dept, team, role, is_reporter, is_ambassador),
+                comments (id, post_id, author_id, content, parent_id, created_at, profiles (name, role))
             `)
             .order('created_at', { ascending: false })
-            .limit(50); // Egress 최적화를 위해 최신 50개만 호출
+            .limit(50); // Egress 최적화
+
+        if (error) {
+            console.error("게시글 로드 실패 (DB 오류):", error.message);
+            // 만약 Relation 에러가 나면 SQL 스크립트 실행이 필요함을 알림
+            return;
+        }
 
         if (posts) {
             const formatted = posts.map(post => {
@@ -937,7 +944,7 @@ export default function App() {
             if (currentUser) formatted.forEach(p => { p.isLiked = p.likes.includes(currentUser.id); });
             setFeeds(formatted);
         }
-    } catch (err) { console.error(err); }
+    } catch (err) { console.error("게시글 로드 실패 (예외 발생):", err); }
   }, [supabase, currentUser]);
 
   const fetchProfiles = useCallback(async () => { if (!supabase) return; try { const { data } = await supabase.from('profiles').select('*'); if (data) setProfiles(data); } catch (err) { console.error(err); } }, [supabase]);
