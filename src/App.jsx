@@ -125,6 +125,7 @@ const MoodToast = ({ message, emoji, visible }) => {
     );
 };
 
+// [팝업] 관리자 포인트 지급 알림
 const AdminGrantPopup = ({ grants, onClose }) => {
     const total = grants.reduce((acc, curr) => acc + curr.amount, 0);
     return (
@@ -296,7 +297,7 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
         <div className="flex items-center gap-2 relative">
           <div className="flex items-center gap-2 mr-1 cursor-pointer" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-end leading-none relative">
-                 {/* [수정] 포인트 2배 (빨간색 텍스트) */}
+                 {/* [수정] 포인트 부스터 디자인: 빨간색 번개, '포인트 2배' */}
                  {boosterActive && (
                      <div className="absolute -top-4 right-0 text-[8px] bg-yellow-400 text-red-600 px-1.5 py-0.5 rounded-full font-black animate-pulse whitespace-nowrap flex items-center gap-0.5 shadow-sm border border-yellow-300">
                          <Zap className="w-2.5 h-2.5 fill-red-600 text-red-600" /> 
@@ -328,9 +329,10 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
                 {currentUser?.role === 'admin' && (
                     <>
                     <button onClick={() => { setShowSettings(false); onOpenAdminManage(); }} className="flex items-center gap-2 w-full p-3 text-xs text-slate-800 font-bold hover:bg-slate-50 border-b border-slate-50 transition-colors"><Users className="w-3.5 h-3.5 text-slate-600"/> 사용자/이벤트 관리</button>
-                    {/* [수정] 메뉴 분리: 앰버서더 지급 / 랭킹 보상 지급 */}
+                    {/* [수정] 관리자 지급 메뉴 분리 */}
                     <button onClick={() => { setShowSettings(false); onOpenAdminGrant('ambassador'); }} className="flex items-center gap-2 w-full p-3 text-xs text-blue-600 font-bold hover:bg-blue-50 border-b border-slate-50 transition-colors"><AwardIcon className="w-3.5 h-3.5 text-blue-500"/> 앰버서더 지급</button>
                     <button onClick={() => { setShowSettings(false); onOpenAdminGrant('ranking'); }} className="flex items-center gap-2 w-full p-3 text-xs text-green-600 font-bold hover:bg-green-50 border-b border-slate-50 transition-colors"><Gift className="w-3.5 h-3.5 text-green-500"/> 랭킹 보상 지급</button>
+                    <button onClick={() => { setShowSettings(false); onOpenAdminGrant('single'); }} className="flex items-center gap-2 w-full p-3 text-xs text-slate-600 font-bold hover:bg-slate-50 border-b border-slate-50 transition-colors"><Coins className="w-3.5 h-3.5 text-slate-500"/> 개별 포인트 지급</button>
                     <button onClick={() => { setShowSettings(false); onOpenAdminClawback(); }} className="flex items-center gap-2 w-full p-3 text-xs text-red-600 font-bold hover:bg-red-50 border-b border-slate-50 transition-colors"><MinusCircle className="w-3.5 h-3.5 text-red-500"/> 포인트 환수 (관리자)</button>
                     <button onClick={() => { setShowSettings(false); onOpenRedemptionList(); }} className="flex items-center gap-2 w-full p-3 text-xs text-purple-600 font-bold hover:bg-purple-50 border-b border-slate-50 transition-colors"><ClipboardList className="w-3.5 h-3.5 text-purple-500"/> 포인트 차감 신청 관리</button>
                     </>
@@ -377,8 +379,7 @@ const ChangePasswordModal = ({ onClose, onSave }) => { const [password, setPassw
 
 // [수정] 관리자 포인트 지급 모달 (기능 분리 및 로직 강화)
 const AdminGrantModal = ({ onClose, onGrant, onBulkGrant, profiles, supabase, initialMode }) => { 
-    // mode: 'ambassador' (앰버서더) | 'ranking' (랭킹) | 'single' (개별/일반)
-    const [mode, setMode] = useState(initialMode || 'ambassador');
+    const [mode, setMode] = useState(initialMode || 'single'); // ambassador, ranking, single
     
     // Single Grant State
     const [dept, setDept] = useState(''); 
@@ -386,9 +387,9 @@ const AdminGrantModal = ({ onClose, onGrant, onBulkGrant, profiles, supabase, in
     const [singleAmount, setSingleAmount] = useState(''); 
     
     // Bulk Grant State
-    const [candidates, setCandidates] = useState([]); // { user, isPaid, reason }
+    const [candidates, setCandidates] = useState([]); 
     const [selectedIds, setSelectedIds] = useState(new Set());
-    const [bulkAmount, setBulkAmount] = useState(mode === 'ambassador' ? 3000 : 1000);
+    const [bulkAmount, setBulkAmount] = useState(1000);
     const [bulkReason, setBulkReason] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -397,7 +398,7 @@ const AdminGrantModal = ({ onClose, onGrant, onBulkGrant, profiles, supabase, in
     useEffect(() => {
         if (mode !== 'single') {
             loadCandidates();
-            // 모드별 기본 금액 설정
+            // [수정] 앰버서더 3000P, 랭킹 1000P 기본값 설정
             setBulkAmount(mode === 'ambassador' ? 3000 : 1000);
         }
     }, [mode]);
@@ -417,14 +418,15 @@ const AdminGrantModal = ({ onClose, onGrant, onBulkGrant, profiles, supabase, in
                 targetReason = `${now.getFullYear()}년 ${now.getMonth() + 1}월 앰버서더 활동비`;
                 setBulkReason(targetReason);
             } else if (mode === 'ranking') {
-                // 지난달 랭킹 산정
+                // 지난달 랭킹 산정 (로컬 계산 - 실제론 Edge Function 권장)
                 const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
                 const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59).toISOString();
-                targetReason = `${now.getFullYear()}년 ${now.getMonth()}월 랭킹 보상`; // 지난달이므로 month 그대로 사용(0~11 이므로 +1 안함 -> 실제 지난달)
-                 // 실제 표기는 1월에 12월 랭킹 보상이므로, now.getMonth() (1월이면 1) -> 12월
-                 const lastMonthNum = now.getMonth() === 0 ? 12 : now.getMonth();
-                 targetReason = `${now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear()}년 ${lastMonthNum}월 랭킹 보상`;
-                 setBulkReason(targetReason);
+                
+                // 보상 사유: "YYYY년 M월 랭킹 보상" (M은 지난달)
+                const lastMonthNum = now.getMonth() === 0 ? 12 : now.getMonth();
+                const lastYearNum = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+                targetReason = `${lastYearNum}년 ${lastMonthNum}월 랭킹 보상`;
+                setBulkReason(targetReason);
 
                 const { data: posts } = await supabase.from('posts')
                     .select('author_id, likes')
@@ -448,12 +450,12 @@ const AdminGrantModal = ({ onClose, onGrant, onBulkGrant, profiles, supabase, in
                 }
             }
 
-            // 지급 여부 확인
+            // 중복 지급 방지 체크
             const candidatesWithStatus = await Promise.all(targetUsers.map(async (u) => {
                 const { data: history } = await supabase.from('point_history')
                     .select('id')
                     .eq('user_id', u.id)
-                    .eq('reason', targetReason) // 정확한 사유 매칭 (중복 지급 방지 핵심)
+                    .eq('reason', targetReason) 
                     .limit(1);
                 
                 return {
@@ -520,7 +522,7 @@ const AdminGrantModal = ({ onClose, onGrant, onBulkGrant, profiles, supabase, in
                             ) : candidates.length > 0 ? (
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2 p-2 border-b border-slate-200 pb-2 mb-2">
-                                        <input type="checkbox" onChange={toggleAll} className="w-4 h-4 accent-blue-500"/>
+                                        <input type="checkbox" onChange={toggleAll} checked={selectedIds.size > 0 && selectedIds.size === candidates.filter(c=>!c.isPaid).length} className="w-4 h-4 accent-blue-500"/>
                                         <span className="text-xs font-bold text-slate-600">지급 가능 대상 전체 선택</span>
                                     </div>
                                     {candidates.map(u => (
@@ -965,7 +967,6 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
   }, [categories, initialCategory, currentUser]);
 
   const showPointReward = ['praise', 'knowhow', 'matjib', 'dept_news'].includes(writeCategory);
-  // [수정] 게시글 등록 버튼 텍스트 변경: (+50P, 일 최대 100P 한도)
   const rewardAmount = 50; 
   const pointRewardText = showPointReward ? ` (+${rewardAmount}P, 일 최대 ${rewardAmount * 2}P 한도)` : '';
 
@@ -1429,6 +1430,7 @@ export default function App() {
       if (isNaN(grantAmount) || grantAmount <= 0) return;
 
       try {
+          // 1. 포인트 업데이트 (일괄 처리는 어려우므로 루프 사용 - Supabase 무료 플랜 고려)
           for (const uid of userIds) {
              const { data: user } = await supabase.from('profiles').select('points').eq('id', uid).single();
              if (user) {
@@ -1452,16 +1454,19 @@ export default function App() {
       }
   };
 
+  // [추가] 관리자 포인트 환수(회수) 로직
   const handleAdminClawbackPoints = async (targetUserId, amount) => {
       if (!currentUser || !supabase) return;
       if (currentUser.role !== 'admin') return;
       try {
           const { data: targetUser } = await supabase.from('profiles').select('points').eq('id', targetUserId).single();
           if (!targetUser) return;
+          // 환수는 차감이지만 음수가 되지 않도록 할지, 그대로 뺄지 결정. 여기선 단순 차감(음수 가능) 혹은 0 방어. 0 방어 적용.
           const clawbackAmount = parseInt(amount);
           const newPoints = Math.max(0, (targetUser.points || 0) - clawbackAmount); 
           
           await supabase.from('profiles').update({ points: newPoints }).eq('id', targetUserId);
+          // 이력에는 'use' 타입으로 기록하여 차감 표시
           await supabase.from('point_history').insert({ 
               user_id: targetUserId, 
               reason: '관리자 포인트 환수', 
