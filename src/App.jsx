@@ -296,7 +296,7 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
         <div className="flex items-center gap-2 relative">
           <div className="flex items-center gap-2 mr-1 cursor-pointer" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-end leading-none relative">
-                 {/* [수정] 포인트 부스터: 번개모양(빨강) + 포인트 2배 (빨간색 텍스트) */}
+                 {/* [수정] 포인트 2배 (빨간색 텍스트) */}
                  {boosterActive && (
                      <div className="absolute -top-4 right-0 text-[8px] bg-yellow-400 text-red-600 px-1.5 py-0.5 rounded-full font-black animate-pulse whitespace-nowrap flex items-center gap-0.5 shadow-sm border border-yellow-300">
                          <Zap className="w-2.5 h-2.5 fill-red-600 text-red-600" /> 
@@ -394,14 +394,7 @@ const AdminGrantModal = ({ onClose, onGrant, onBulkGrant, profiles, supabase, in
 
     const filteredUsers = profiles.filter(p => p.dept === dept);
 
-    useEffect(() => {
-        if (mode !== 'single') {
-            loadCandidates();
-            // [수정] 앰버서더 3000P, 랭킹 1000P 기본값 설정
-            setBulkAmount(mode === 'ambassador' ? 3000 : 1000);
-        }
-    }, [mode]);
-
+    // [중요] ReferenceError 방지를 위해 함수를 먼저 정의
     const loadCandidates = async () => {
         setIsLoading(true);
         setCandidates([]);
@@ -417,7 +410,7 @@ const AdminGrantModal = ({ onClose, onGrant, onBulkGrant, profiles, supabase, in
                 targetReason = `${now.getFullYear()}년 ${now.getMonth() + 1}월 앰버서더 활동비`;
                 setBulkReason(targetReason);
             } else if (mode === 'ranking') {
-                // 지난달 랭킹 산정 (로컬 계산 - 실제론 Edge Function 권장)
+                // 지난달 랭킹 산정 (로컬 계산)
                 const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
                 const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59).toISOString();
                 
@@ -471,6 +464,14 @@ const AdminGrantModal = ({ onClose, onGrant, onBulkGrant, profiles, supabase, in
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (mode !== 'single') {
+            loadCandidates();
+            // [수정] 앰버서더 3000P, 랭킹 1000P 기본값 설정
+            setBulkAmount(mode === 'ambassador' ? 3000 : 1000);
+        }
+    }, [mode]);
 
     const toggleSelection = (id) => {
         const newSet = new Set(selectedIds);
@@ -966,6 +967,7 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
   }, [categories, initialCategory, currentUser]);
 
   const showPointReward = ['praise', 'knowhow', 'matjib', 'dept_news'].includes(writeCategory);
+  // [수정] 게시글 등록 버튼 텍스트 변경: (+50P, 일 최대 100P 한도)
   const rewardAmount = 50; 
   const pointRewardText = showPointReward ? ` (+${rewardAmount}P, 일 최대 ${rewardAmount * 2}P 한도)` : '';
 
