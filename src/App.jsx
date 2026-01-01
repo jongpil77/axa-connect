@@ -5,7 +5,7 @@ import {
   Coins, Pencil, Trash2, Loader2, Lock, Clock, Award, Wallet, Building2, 
   CornerDownRight, Link as LinkIcon, MapPin, Search, Key, Edit3, 
   ClipboardList, CheckSquare, ChevronLeft, Zap, Users, Briefcase, Utensils,
-  ThumbsUp, Coffee, Sun, Moon, PlusCircle, CheckCircle, Plug 
+  ThumbsUp, Coffee, Sun, Moon, PlusCircle, CheckCircle, Plug, MinusCircle 
 } from 'lucide-react';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -119,6 +119,29 @@ const MoodToast = ({ message, emoji, visible }) => {
             <div className="bg-slate-800/90 backdrop-blur-sm text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-slate-700">
                 <span className="text-3xl">{emoji}</span>
                 <span className="text-sm font-bold leading-relaxed whitespace-pre-line">{message}</span>
+            </div>
+        </div>
+    );
+};
+
+// [추가] 앰버서더 시상 팝업
+const AmbassadorRewardPopup = ({ month, onClose }) => {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+            <div className="bg-white w-full max-w-sm rounded-[2rem] p-8 shadow-2xl relative text-center overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-400 to-purple-600"></div>
+                <button onClick={onClose} className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 rounded-full"><X className="w-5 h-5" /></button>
+                <div className="text-6xl mb-4 animate-bounce">🎖️</div>
+                <h3 className="text-xl font-black text-slate-800 mb-2">앰버서더 활동 시상</h3>
+                <p className="text-sm text-slate-600 mb-6 whitespace-pre-line">
+                    {month}월 AXA Connect 앰버서더로<br/>활동해주셔서 감사합니다!
+                </p>
+                <div className="bg-purple-50 p-4 rounded-2xl border border-purple-200 mb-6">
+                    <span className="text-3xl font-black text-purple-600 flex items-center justify-center gap-2">
+                        <Coins className="w-8 h-8 fill-purple-500 text-purple-600"/> +1,000 P
+                    </span>
+                </div>
+                <button onClick={onClose} className="w-full bg-purple-500 text-white p-4 rounded-2xl font-bold hover:bg-purple-600 shadow-lg transition-all">감사합니다!</button>
             </div>
         </div>
     );
@@ -266,7 +289,7 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
   );
 };
 
-const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, onOpenChangePwd, onOpenAdminGrant, onOpenRedemptionList, onOpenGift, onOpenAdminManage, boosterActive }) => {
+const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, onOpenChangePwd, onOpenAdminGrant, onOpenRedemptionList, onOpenGift, onOpenAdminManage, onOpenAdminClawback, boosterActive }) => {
   const todayDate = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
   const [showSettings, setShowSettings] = useState(false);
   
@@ -295,8 +318,13 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
         <div className="flex items-center gap-2 relative">
           <div className="flex items-center gap-2 mr-1 cursor-pointer" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-end leading-none relative">
-                 {/* [수정] 포인트 부스터 표식 위치 변경 (MY CARE POINT 위) */}
-                 {boosterActive && <span className="absolute -top-3 right-0 text-[8px] bg-yellow-400 text-[#00008F] px-1 rounded font-black animate-pulse whitespace-nowrap">BOOST UP</span>}
+                 {/* [수정] 포인트 부스터: 번개모양 + X2배 텍스트 */}
+                 {boosterActive && (
+                     <div className="absolute -top-3 right-0 text-[8px] bg-yellow-400 text-[#00008F] px-1.5 py-0.5 rounded-full font-black animate-pulse whitespace-nowrap flex items-center gap-0.5 shadow-sm border border-yellow-300">
+                         <Zap className="w-2 h-2 fill-[#00008F]" /> 
+                         <span>X2배</span>
+                     </div>
+                 )}
                  <span className="text-[9px] text-slate-500 font-bold whitespace-nowrap">MY CARE</span>
                  <span className="text-[9px] text-slate-500 font-bold whitespace-nowrap">POINT</span>
              </div>
@@ -323,6 +351,8 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
                     <>
                     <button onClick={() => { setShowSettings(false); onOpenAdminManage(); }} className="flex items-center gap-2 w-full p-3 text-xs text-slate-800 font-bold hover:bg-slate-50 border-b border-slate-50 transition-colors"><Users className="w-3.5 h-3.5 text-slate-600"/> 사용자/이벤트 관리</button>
                     <button onClick={() => { setShowSettings(false); onOpenAdminGrant(); }} className="flex items-center gap-2 w-full p-3 text-xs text-blue-600 font-bold hover:bg-blue-50 border-b border-slate-50 transition-colors"><Gift className="w-3.5 h-3.5 text-blue-500"/> 포인트 지급 (관리자)</button>
+                    {/* [추가] 관리자 포인트 환수 메뉴 */}
+                    <button onClick={() => { setShowSettings(false); onOpenAdminClawback(); }} className="flex items-center gap-2 w-full p-3 text-xs text-red-600 font-bold hover:bg-red-50 border-b border-slate-50 transition-colors"><MinusCircle className="w-3.5 h-3.5 text-red-500"/> 포인트 환수 (관리자)</button>
                     <button onClick={() => { setShowSettings(false); onOpenRedemptionList(); }} className="flex items-center gap-2 w-full p-3 text-xs text-purple-600 font-bold hover:bg-purple-50 border-b border-slate-50 transition-colors"><ClipboardList className="w-3.5 h-3.5 text-purple-500"/> 포인트 차감 신청 관리</button>
                     </>
                 )}
@@ -366,6 +396,34 @@ const ChangeDeptModal = ({ onClose, onSave }) => {
 };
 const ChangePasswordModal = ({ onClose, onSave }) => { const [password, setPassword] = useState(''); const isValid = password.length >= 6 && /^\d+$/.test(password); return (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-xs rounded-2xl p-6 shadow-2xl relative"><button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button><h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Key className="w-5 h-5"/> 비밀번호 변경</h3><div className="space-y-3"><input type="password" placeholder="새 비밀번호 (6자리 이상 숫자)" className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" value={password} onChange={(e) => setPassword(e.target.value)}/><button onClick={() => onSave(password)} disabled={!isValid} className="w-full bg-blue-600 text-white p-3 rounded-xl font-bold hover:bg-blue-700 disabled:bg-slate-300 transition-colors">비밀번호 변경</button></div></div></div>); };
 const AdminGrantModal = ({ onClose, onGrant, profiles }) => { const [dept, setDept] = useState(''); const [targetUser, setTargetUser] = useState(''); const [amount, setAmount] = useState(''); const filteredUsers = profiles.filter(p => p.dept === dept); return (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl relative"><button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button><h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-blue-600"><Gift className="w-5 h-5"/> 특별 포인트 지급</h3><div className="space-y-3"><select className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" onChange={(e) => { setDept(e.target.value); setTargetUser(''); }}><option value="">소속 선택</option>{Object.keys(ORGANIZATION).map(d => <option key={d} value={d}>{d}</option>)}</select><select className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" disabled={!dept} onChange={(e) => setTargetUser(e.target.value)}><option value="">직원 선택</option>{filteredUsers.map(u => <option key={u.id} value={u.id}>{u.name} ({u.team})</option>)}</select><input type="number" placeholder="지급 포인트 (숫자만 입력)" className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none font-bold" value={amount} onChange={(e) => setAmount(e.target.value)}/><button onClick={() => onGrant(targetUser, amount)} disabled={!targetUser || !amount} className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 rounded-xl font-bold hover:shadow-lg disabled:opacity-50 transition-all">포인트 지급하기</button></div></div></div>); };
+
+// [추가] 관리자 포인트 환수(회수) 모달
+const AdminClawbackModal = ({ onClose, onClawback, profiles }) => { 
+    const [dept, setDept] = useState(''); 
+    const [targetUser, setTargetUser] = useState(''); 
+    const [amount, setAmount] = useState(''); 
+    const filteredUsers = profiles.filter(p => p.dept === dept); 
+    
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+            <div className="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl relative">
+                <button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button>
+                <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-red-600"><MinusCircle className="w-5 h-5"/> 포인트 환수 (관리자)</h3>
+                <div className="space-y-3">
+                    <select className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" onChange={(e) => { setDept(e.target.value); setTargetUser(''); }}>
+                        <option value="">소속 선택</option>{Object.keys(ORGANIZATION).map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                    <select className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none" disabled={!dept} onChange={(e) => setTargetUser(e.target.value)}>
+                        <option value="">직원 선택</option>{filteredUsers.map(u => <option key={u.id} value={u.id}>{u.name} ({u.team})</option>)}
+                    </select>
+                    <input type="number" placeholder="회수할 포인트 (숫자만)" className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none font-bold" value={amount} onChange={(e) => setAmount(e.target.value)}/>
+                    <button onClick={() => onClawback(targetUser, amount)} disabled={!targetUser || !amount} className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white p-3 rounded-xl font-bold hover:shadow-lg disabled:opacity-50 transition-all">포인트 회수하기</button>
+                </div>
+            </div>
+        </div>
+    ); 
+};
+
 const RedemptionListModal = ({ onClose, redemptionList, onComplete }) => (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-lg rounded-2xl p-6 shadow-2xl relative max-h-[80vh] flex flex-col"><button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button><h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-purple-600"><ClipboardList className="w-5 h-5"/> 포인트 차감 신청 내역</h3><div className="flex-1 overflow-y-auto">{redemptionList && redemptionList.length > 0 ? (<div className="space-y-2">{redemptionList.map((item, index) => (<div key={index} className="flex justify-between items-center p-3 bg-slate-50 border border-slate-100 rounded-xl"><div><p className="text-sm font-bold text-slate-700">{item.user_name}</p><p className="text-[10px] text-slate-400">{new Date(item.created_at).toLocaleDateString()} 신청</p></div><div className="flex items-center gap-3"><div className="text-red-500 font-bold text-sm">-{item.amount?.toLocaleString()}</div>{item.status !== 'completed' ? (<button onClick={() => onComplete(item.id)} className="bg-blue-100 text-blue-600 text-xs font-bold px-2 py-1 rounded hover:bg-blue-200 transition-colors">완료 처리</button>) : (<span className="text-green-600 text-xs font-bold bg-green-100 px-2 py-1 rounded">처리 완료</span>)}</div></div>))}</div>) : (<p className="text-center text-slate-400 py-10 text-sm">신청 내역이 없습니다.</p>)}</div></div></div>);
 const AdminManageModal = ({ onClose, profiles, onUpdateUser, onDeleteUser, boosterActive, setBoosterActive }) => { const [searchTerm, setSearchTerm] = useState(''); const filtered = profiles.filter(p => p.name.includes(searchTerm) || p.email.includes(searchTerm)); return (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-4xl rounded-2xl p-6 shadow-2xl relative h-[80vh] flex flex-col"><button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button><h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Users className="w-5 h-5"/> 사용자 및 이벤트 관리</h3><div className="flex gap-4 mb-4"><div className="flex-1 bg-purple-50 p-4 rounded-xl border border-purple-100 flex items-center justify-between"><div><h4 className="font-bold text-purple-700 flex items-center gap-1"><Zap className="w-4 h-4"/> 포인트 부스터 이벤트</h4><p className="text-xs text-slate-500">활성화 시 모든 획득 포인트 2배</p></div><label className="relative inline-flex items-center cursor-pointer"><input type="checkbox" className="sr-only peer" checked={boosterActive} onChange={() => setBoosterActive(!boosterActive)} /><div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div></label></div></div><div className="mb-2 flex gap-2"><input className="flex-1 p-2 border border-slate-200 rounded-lg text-sm" placeholder="이름/이메일 검색" value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} /></div><div className="flex-1 overflow-y-auto border border-slate-200 rounded-xl"><table className="w-full text-sm text-left"><thead className="bg-slate-50 text-slate-600 font-bold sticky top-0"><tr><th className="p-3">이름</th><th className="p-3">부서/팀</th><th className="p-3">권한</th><th className="p-3">앰버서더</th><th className="p-3">관리</th></tr></thead><tbody>{filtered.map(user => (<tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50"><td className="p-3">{user.name}</td><td className="p-3 text-xs">{user.dept}<br/>{user.team}</td><td className="p-3"><select value={user.role} onChange={(e) => onUpdateUser(user.id, { role: e.target.value })} className="border rounded p-1 text-xs"><option value="member">일반</option><option value="admin">관리자</option></select></td><td className="p-3"><input type="checkbox" checked={user.is_ambassador || false} onChange={(e) => onUpdateUser(user.id, { is_ambassador: e.target.checked })} /></td><td className="p-3"><button onClick={() => onDeleteUser(user.id)} className="text-red-500 hover:bg-red-50 p-1.5 rounded"><Trash2 className="w-4 h-4"/></button></td></tr>))}</tbody></table></div></div></div>); };
 const UserInfoModal = ({ currentUser, pointHistory, setShowUserInfoModal, handleRedeemPoints }) => (<div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-md rounded-[2rem] p-0 shadow-2xl max-h-[90vh] overflow-y-auto relative"><div className="bg-gradient-to-r from-blue-600 to-blue-500 p-6 rounded-t-[2rem] flex justify-between items-center sticky top-0 z-10"><div className="flex flex-col text-white"><h3 className="text-lg font-bold flex items-center gap-2"><User className="w-5 h-5"/> {currentUser.name}</h3><p className="text-xs opacity-90 ml-7 mt-0.5 flex items-center gap-1 font-medium"><Building2 className="w-3 h-3"/> {currentUser.dept} / {currentUser.team}{currentUser.is_ambassador && <span className="bg-purple-400 text-white text-[9px] px-2 py-0.5 rounded ml-2 font-bold shadow-sm">앰버서더</span>}</p></div><button onClick={() => setShowUserInfoModal(false)} className="p-2 bg-white/20 hover:bg-white/30 rounded-full text-white transition-colors"><X className="w-5 h-5" /></button></div><div className="p-6 space-y-5">{currentUser.points >= 10000 ? (<div className="bg-blue-50 p-4 rounded-2xl border border-blue-100 text-center"><p className="text-sm text-blue-800 font-bold mb-2">🎉 보유 포인트가 10,000P 이상입니다!</p><button onClick={handleRedeemPoints} className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors shadow-md"><Wallet className="w-4 h-4" /> 10,000P 상품권 교환 신청</button></div>) : (<div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center"><p className="text-xs text-slate-500">10,000P 부터 상품권 교환 신청이 가능해요 🎁</p><div className="mt-2 w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div className="bg-blue-400 h-full transition-all duration-500" style={{ width: `${Math.min((currentUser.points / 10000) * 100, 100)}%` }}></div></div><p className="text-[10px] text-slate-400 mt-1 text-right">{Math.floor((currentUser.points / 10000) * 100)}% 달성</p></div>)}<div><h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1"><Clock className="w-4 h-4 text-slate-400"/> 포인트 히스토리</h4><div className="space-y-2 max-h-60 overflow-y-auto pr-1 scrollbar-hide">{pointHistory.length > 0 ? pointHistory.map((history) => (<div key={history.id} className="flex justify-between items-center p-3 bg-white border border-slate-100 rounded-xl shadow-sm"><div className="flex-1 min-w-0"><p className="text-xs font-bold text-slate-700 line-clamp-1">{history.reason}</p><span className="text-[10px] text-slate-400">{new Date(history.created_at).toLocaleDateString()}</span></div><div className="text-sm font-black ml-4 flex items-center gap-1" style={{ color: history.type.includes('use') || history.type === 'gift_sent' ? '#ef4444' : '#10b981' }}>{history.type.includes('use') || history.type === 'gift_sent' ? '-' : '+'}{history.amount.toLocaleString()}</div></div>)) : (<div className="text-center text-xs text-slate-400 py-6">아직 활동 내역이 없습니다.</div>)}</div></div></div></div></div>);
@@ -437,7 +495,6 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => 
 };
 
 const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive }) => {
-    // [수정] HOT 배지 조건: 공지사항이 아닐 때만 적용
     const averageLikes = useMemo(() => {
         if (feeds.length === 0) return 0;
         const totalLikes = feeds.reduce((acc, curr) => acc + (curr.likes?.length || 0), 0);
@@ -447,14 +504,13 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
     const renderFeedList = (listType, listData) => {
         return (
             <div className="space-y-2">
-                {listData.length > 0 ? listData.map((feed) => {
+                {listData.length > 0 ? listData.map((feed) => { 
                     const isNew = isToday(feed.created_at);
-                    // [수정] 공지사항은 HOT 배지 제외
                     const isHot = listType !== 'news' && feed.likes.length >= averageLikes && feed.likes.length > 0;
                     
                     return (
                         <div key={feed.id} onClick={() => onNavigateToFeed(feed.type, feed.id)} className="bg-white px-4 py-3 rounded-2xl shadow-sm border border-slate-100 cursor-pointer relative overflow-hidden active:scale-[0.99] transition-transform">
-                            {/* [수정] 레이아웃 변경: 제목(상단) / 메타정보(하단 우측) */}
+                            {/* [수정] 레이아웃: 제목 상단 / 정보 하단 우측 */}
                             <div className="flex flex-col gap-1">
                                 <div className="flex justify-between items-start">
                                     <p className="text-xs font-bold text-slate-800 line-clamp-1 pr-2">
@@ -467,8 +523,9 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                                     </div>
                                 </div>
                                 <div className="text-right">
+                                    {/* [수정] 작성자 (팀명) 형식 */}
                                     <span className="text-[10px] text-slate-400 font-medium">
-                                        {feed.author} <span className="text-slate-300">|</span> {feed.team}
+                                        {feed.author} ({feed.team})
                                     </span>
                                     <span className="text-[10px] text-slate-300 ml-2">{feed.formattedTime}</span>
                                 </div>
@@ -490,13 +547,11 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
 
     return (
       <div className="p-5 space-y-5 pb-32 animate-fade-in relative bg-blue-50 min-h-full">
-        {/* 1. 공지사항 */}
         <div>
            <div className="flex justify-between items-center mb-3 px-1"><h2 className="text-sm font-bold text-slate-700 flex items-center gap-1.5"><Megaphone className="w-4 h-4 text-red-500"/> 공지사항</h2><button onClick={onNavigateToNews} className="text-xs text-slate-400 font-medium hover:text-blue-600 flex items-center gap-0.5">더보기 <ChevronRight className="w-3 h-3" /></button></div>
            {renderFeedList('news', noticeFeeds)}
         </div>
 
-        {/* 2. 출퇴근/생일 */}
         <div className="flex gap-4 h-44">
             <div className="flex-[2] bg-white rounded-2xl p-3 shadow-sm border border-blue-100 flex flex-col relative overflow-hidden">
                   <div className="flex justify-between items-start mb-2 relative z-10">
@@ -532,7 +587,6 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
             <div className="flex-1 h-full"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} /></div>
         </div>
         
-        {/* 글쓰기 버튼 */}
         <div className="flex justify-between items-center mb-2 px-1">
              <button onClick={() => onWriteClickWithCategory(null)} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center gap-1.5 hover:shadow-xl transition-all active:scale-95">
                 <span>➕</span> 글쓰기
@@ -540,7 +594,6 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
              <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-white px-2 py-1 rounded-full shadow-sm border border-slate-100"><div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner"><Coins className="w-2.5 h-2.5 text-white fill-white"/></div>게시글 1개당 +50P (일 최대 +100P 가능)</div>
         </div>
 
-        {/* 3. 우리들 소식 */}
         <div className="bg-white p-4 rounded-3xl shadow-sm border border-purple-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
                <h3 className="text-sm font-bold text-purple-600 flex items-center gap-1.5 pointer-events-none"><Building2 className="w-4 h-4 text-purple-500"/> 우리들 소식</h3>
@@ -549,7 +602,6 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
            {renderFeedList('dept_news', deptFeeds)}
         </div>
 
-        {/* 4. 칭찬합시다 */}
         <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
                <h3 className="text-sm font-bold text-green-600 flex items-center gap-1.5 pointer-events-none"><Heart className="w-4 h-4 fill-green-500 text-green-500"/> 칭찬합시다</h3>
@@ -558,7 +610,6 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
            {renderFeedList('praise', praiseFeeds)}
         </div>
         
-        {/* 5. 꿀팁 / 맛집소개 */}
         <div className="grid grid-cols-2 gap-4">
             <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 transition-colors relative">
                <div className="flex justify-between items-center mb-3">
@@ -649,10 +700,10 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
         return (
           <div key={feed.id} className="bg-white rounded-3xl p-5 shadow-sm border border-blue-100 relative group transition-all hover:shadow-md">
             <div className="flex items-center gap-3 mb-3">
-              {/* [수정] 작성자 동그라미 삭제 및 이름+팀 표시 */}
+              {/* [수정] 작성자 (팀명) 형식으로 변경 */}
               <div className="flex items-center gap-1">
                   <p className="text-sm font-bold text-slate-800 flex items-center gap-1">
-                      {feed.author} <span className="text-slate-300 font-normal">|</span> <span className="text-slate-500 text-xs">{feed.team}</span>
+                      {feed.author} <span className="text-slate-400">({feed.team})</span>
                       {feed.profiles?.role === 'admin' && <span className="bg-red-50 text-red-500 text-[9px] px-1.5 py-0.5 rounded-md border border-red-100">관리자</span>}
                       {feed.profiles?.is_reporter && <span className="bg-yellow-100 text-yellow-700 text-[9px] px-1.5 py-0.5 rounded-md border border-yellow-200">리포터</span>}
                       {feed.profiles?.is_ambassador && <span className="bg-purple-100 text-purple-700 text-[9px] px-1.5 py-0.5 rounded-md border border-purple-200">앰버서더</span>}
@@ -687,12 +738,11 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
               <div className="flex items-center gap-4">
                   <button onClick={() => handleLikePost(feed.id, feed.likes, feed.isLiked)} className={`flex items-center gap-1 text-xs font-bold transition-colors ${feed.isLiked ? 'text-red-500' : 'text-slate-400 hover:text-slate-600'}`}><Heart className={`w-4 h-4 ${feed.isLiked ? 'fill-red-500' : ''}`} /> {feed.likes?.length || 0}</button>
                   <div className="flex items-center gap-1 text-xs font-bold text-slate-400"><MessageCircle className="w-4 h-4" /> {comments.length}</div>
-                  {/* [수정] 삭제 권한 */}
                   {(currentUser?.id === feed.author_id || currentUser?.role === 'admin') && (
                       <button onClick={() => handleDeletePost(feed.id)} className="text-[10px] text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1 px-2 py-1">삭제</button>
                   )}
               </div>
-              {/* [수정] 작성일자 우측 하단 배치 */}
+              {/* [수정] 작성일 우측 하단 배치 */}
               <div className="text-[10px] text-slate-300">{feed.formattedTime}</div>
             </div>
             {comments.length > 0 && (<div className="mt-3 pt-3 border-t border-slate-50 space-y-2">{comments.map(comment => (<Comment key={comment.id} comment={comment} currentUser={currentUser} handleDeleteComment={handleDeleteComment} />))}</div>)}
@@ -707,7 +757,6 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
   );
 };
 
-// ... (WriteModal, ChevronDownIcon, RankingTab, BottomNav는 동일)
 const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTab, boosterActive, initialCategory }) => {
   const [writeCategory, setWriteCategory] = useState(initialCategory || ''); 
   const [imagePreview, setImagePreview] = useState(null);
@@ -856,14 +905,15 @@ const BottomNav = ({ activeTab, onTabChange }) => {
     );
 };
 
-// [수정] 댓글: 이름 앞 동그라미 삭제 -> L 화살표 아이콘으로 대체
+// [수정] 댓글: L 화살표 아이콘 사용 (이름 앞 동그라미 삭제)
 const Comment = ({ comment, currentUser, handleDeleteComment }) => (
     <div className="flex gap-2 p-3 bg-slate-50 rounded-2xl border border-slate-100">
         <CornerDownRight className="w-4 h-4 text-slate-400 mt-1 flex-shrink-0" />
         <div className="flex-1 min-w-0">
             <div className="flex justify-between items-start">
                 <p className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                    {comment.profiles?.name || '알 수 없음'}
+                    {/* [수정] 작성자 (팀명) 형식 */}
+                    {comment.profiles?.name || '알 수 없음'} <span className="text-slate-400 text-[10px] font-normal">({comment.profiles?.team || '소속미정'})</span>
                     {comment.profiles?.role === 'admin' && <span className="px-1 py-0.5 bg-red-50 text-red-500 text-[9px] rounded-md">관리자</span>}
                 </p>
                 <span className="text-[9px] text-slate-400">{new Date(comment.created_at).toLocaleDateString()}</span>
@@ -899,7 +949,10 @@ export default function App() {
   const [newGifts, setNewGifts] = useState([]);
   const [showAdminGrantPopup, setShowAdminGrantPopup] = useState(false); 
   const [newAdminGrants, setNewAdminGrants] = useState([]); 
-  
+  const [showAmbassadorPopup, setShowAmbassadorPopup] = useState(false); // [추가] 앰버서더 팝업 상태
+  const [ambassadorMonth, setAmbassadorMonth] = useState(0); // [추가] 앰버서더 시상 월
+  const [showAdminClawbackModal, setShowAdminClawbackModal] = useState(false); // [추가] 관리자 환수 모달 상태
+
   const [showChangeDeptModal, setShowChangeDeptModal] = useState(false);
   const [showChangePwdModal, setShowChangePwdModal] = useState(false);
   const [showAdminGrantModal, setShowAdminGrantModal] = useState(false);
@@ -945,7 +998,41 @@ export default function App() {
       } catch (err) { console.error(err); }
   }, [supabase]);
 
-  // [수정] 랭킹 자동 보상 로직 삭제, 관리자 특별 지급 체크만 유지
+  // [추가] 앰버서더 보상 자동 지급 체크 (매월 1일)
+  const checkAmbassadorRewards = useCallback(async (user) => {
+      if (!supabase || !user.is_ambassador) return;
+      
+      const now = new Date();
+      // 매월 1일에만 실행
+      if (now.getDate() !== 1) return;
+
+      const currentMonth = now.getMonth() + 1;
+      const currentYear = now.getFullYear();
+      const rewardReasonKey = `${currentYear}년 ${currentMonth}월 앰버서더 활동비`;
+
+      // 이미 받았는지 확인
+      const { data: existingReward } = await supabase.from('point_history')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('reason', rewardReasonKey);
+      
+      if (existingReward && existingReward.length > 0) return;
+
+      // 보상 지급
+      const newPoints = (user.points || 0) + 1000;
+      await supabase.from('profiles').update({ points: newPoints }).eq('id', user.id);
+      await supabase.from('point_history').insert({
+          user_id: user.id,
+          reason: rewardReasonKey,
+          amount: 1000,
+          type: 'earn'
+      });
+      
+      setAmbassadorMonth(currentMonth);
+      setShowAmbassadorPopup(true);
+      fetchUserData(user.id);
+  }, [supabase]);
+
   const checkAdminGrants = useCallback(async (userId) => {
       if (!supabase) return;
       try {
@@ -985,10 +1072,14 @@ export default function App() {
             if (data.last_attendance === todayStr) setMood('checked');
             const lastCheckout = localStorage.getItem(`checkout_${userId}_${todayStr}`);
             if (lastCheckout) setHasCheckedOut(true); else setHasCheckedOut(false);
-            checkBirthday(data); checkAdminNotifications(data); checkGiftNotifications(userId); checkAdminGrants(userId);
+            checkBirthday(data); 
+            checkAdminNotifications(data); 
+            checkGiftNotifications(userId); 
+            checkAdminGrants(userId);
+            checkAmbassadorRewards(data); // [추가] 앰버서더 체크 호출
         }
     } catch (err) { console.error(err); }
-  }, [supabase, checkBirthday, checkGiftNotifications, checkAdminGrants]);
+  }, [supabase, checkBirthday, checkGiftNotifications, checkAdminGrants, checkAmbassadorRewards]);
 
   const fetchPointHistory = useCallback(async (userId) => {
     if (!supabase) return; 
@@ -1003,9 +1094,6 @@ export default function App() {
   const fetchFeeds = useCallback(async () => {
     if (!supabase) return; 
     try {
-        console.log("📥 게시글 불러오기 시도...");
-
-        // profiles (*) 로 변경하여, 특정 컬럼이 없어서 나는 에러를 방지합니다.
         const { data: posts, error } = await supabase
             .from('posts')
             .select(`
@@ -1023,8 +1111,6 @@ export default function App() {
             console.error("🚨 DB 에러 발생:", error.message);
             return;
         }
-
-        console.log(`✅ 게시글 ${posts?.length || 0}개 로드됨`);
 
         if (posts) {
             const formatted = posts.map(post => {
@@ -1160,6 +1246,35 @@ export default function App() {
         await supabase.from('point_history').insert({ user_id: targetUserId, reason: `선물 받음 (${currentUser.name})`, amount: giftAmount, type: 'earn' });
         setShowGiftModal(false); alert(`${targetUser.name}님에게 선물이 완료되었습니다! 🎁`); fetchUserData(currentUser.id); fetchPointHistory(currentUser.id); fetchAllPointHistory();
     } catch (err) { console.error(err); alert('선물하기 중 오류가 발생했습니다.'); }
+  };
+
+  const handleAdminGrantPoints = async (targetUserId, amount) => { if (!currentUser || !supabase) return; if (currentUser.role !== 'admin') return; try { const { data: targetUser } = await supabase.from('profiles').select('points').eq('id', targetUserId).single(); if (!targetUser) return; const newPoints = (targetUser.points || 0) + parseInt(amount); await supabase.from('profiles').update({ points: newPoints }).eq('id', targetUserId); await supabase.from('point_history').insert({ user_id: targetUserId, reason: '관리자 특별 지급', amount: parseInt(amount), type: 'earn' }); setShowAdminGrantModal(false); alert('포인트 지급이 완료되었습니다.'); fetchProfiles(); fetchAllPointHistory(); } catch(err) { console.error(err); } };
+
+  // [추가] 관리자 포인트 환수(회수) 로직
+  const handleAdminClawbackPoints = async (targetUserId, amount) => {
+      if (!currentUser || !supabase) return;
+      if (currentUser.role !== 'admin') return;
+      try {
+          const { data: targetUser } = await supabase.from('profiles').select('points').eq('id', targetUserId).single();
+          if (!targetUser) return;
+          // 환수는 차감이지만 음수가 되지 않도록 할지, 그대로 뺄지 결정. 여기선 단순 차감(음수 가능) 혹은 0 방어. 0 방어 적용.
+          const clawbackAmount = parseInt(amount);
+          const newPoints = Math.max(0, (targetUser.points || 0) - clawbackAmount); 
+          
+          await supabase.from('profiles').update({ points: newPoints }).eq('id', targetUserId);
+          // 이력에는 'use' 타입으로 기록하여 차감 표시
+          await supabase.from('point_history').insert({ 
+              user_id: targetUserId, 
+              reason: '관리자 포인트 환수', 
+              amount: clawbackAmount, 
+              type: 'use' 
+          });
+          
+          setShowAdminClawbackModal(false);
+          alert('포인트 환수가 완료되었습니다.');
+          fetchProfiles(); 
+          fetchAllPointHistory();
+      } catch(err) { console.error(err); }
   };
 
   const handleAdminUpdateUser = async (userId, updates) => { try { await supabase.from('profiles').update(updates).eq('id', userId); fetchProfiles(); } catch (err) { console.error(err); } };
@@ -1303,8 +1418,7 @@ export default function App() {
   const handleLogout = async () => { if (!supabase) return; try { await supabase.auth.signOut(); setCurrentUser(null); setSession(null); setMood(null); setHasCheckedOut(false); setPointHistory([]); } catch (err) { console.error('로그아웃 실패: ', err.message); } };
   const handleChangeDept = async (newDept, newTeam) => { if (!currentUser || !supabase) return; try { await supabase.from('profiles').update({ dept: newDept, team: newTeam }).eq('id', currentUser.id); fetchUserData(currentUser.id); setShowChangeDeptModal(false); alert('소속이 변경되었습니다.'); } catch(err) { console.error(err); } };
   const handleChangePassword = async (newPassword) => { if (!currentUser || !supabase) return; try { const { error } = await supabase.auth.updateUser({ password: newPassword }); if (error) throw error; setShowChangePwdModal(false); alert('비밀번호가 변경되었습니다. 다시 로그인해주세요.'); handleLogout(); } catch(err) { console.error(err); } };
-  const handleAdminGrantPoints = async (targetUserId, amount) => { if (!currentUser || !supabase) return; if (currentUser.role !== 'admin') return; try { const { data: targetUser } = await supabase.from('profiles').select('points').eq('id', targetUserId).single(); if (!targetUser) return; const newPoints = (targetUser.points || 0) + parseInt(amount); await supabase.from('profiles').update({ points: newPoints }).eq('id', targetUserId); await supabase.from('point_history').insert({ user_id: targetUserId, reason: '관리자 특별 지급', amount: parseInt(amount), type: 'earn' }); setShowAdminGrantModal(false); alert('포인트 지급이 완료되었습니다.'); fetchProfiles(); fetchAllPointHistory(); } catch(err) { console.error(err); } };
-
+  
   const handleTabChange = (tabId) => {
       setActiveTab(tabId);
       if (tabId === 'feed') { setActiveFeedFilter('all'); }
@@ -1318,7 +1432,19 @@ export default function App() {
             <AuthForm isSignupMode={isSignupMode} setIsSignupMode={setIsSignupMode} handleLogin={handleLogin} handleSignup={handleSignup} loading={loading} />
           ) : (
             <>
-              <Header currentUser={currentUser} onOpenUserInfo={() => setShowUserInfoModal(true)} handleLogout={handleLogout} onOpenChangeDept={() => setShowChangeDeptModal(true)} onOpenChangePwd={() => setShowChangePwdModal(true)} onOpenAdminGrant={() => setShowAdminGrantModal(true)} onOpenRedemptionList={() => { fetchRedemptionList(); setShowRedemptionListModal(true); }} onOpenGift={() => setShowGiftModal(true)} onOpenAdminManage={() => setShowAdminManageModal(true)} boosterActive={boosterActive} />
+              <Header 
+                currentUser={currentUser} 
+                onOpenUserInfo={() => setShowUserInfoModal(true)} 
+                handleLogout={handleLogout} 
+                onOpenChangeDept={() => setShowChangeDeptModal(true)} 
+                onOpenChangePwd={() => setShowChangePwdModal(true)} 
+                onOpenAdminGrant={() => setShowAdminGrantModal(true)} 
+                onOpenRedemptionList={() => { fetchRedemptionList(); setShowRedemptionListModal(true); }} 
+                onOpenGift={() => setShowGiftModal(true)} 
+                onOpenAdminManage={() => setShowAdminManageModal(true)} 
+                onOpenAdminClawback={() => setShowAdminClawbackModal(true)}
+                boosterActive={boosterActive} 
+              />
               <main className="flex-1 overflow-y-auto scrollbar-hide">
                 {activeTab === 'home' && (
                     <HomeTab 
@@ -1365,11 +1491,13 @@ export default function App() {
               {showGiftModal && <GiftModal onClose={() => setShowGiftModal(false)} onGift={handleGiftPoints} profiles={profiles} currentUser={currentUser} pointHistory={pointHistory} />}
               {showGiftNotificationModal && <GiftNotificationModal onClose={() => setShowGiftNotificationModal(false)} gifts={newGifts} />}
               {showAdminGrantPopup && newAdminGrants.length > 0 && <AdminGrantPopup grants={newAdminGrants} onClose={() => setShowAdminGrantPopup(false)} />}
+              {showAmbassadorPopup && <AmbassadorRewardPopup month={ambassadorMonth} onClose={() => setShowAmbassadorPopup(false)} />}
               
               {showAdminManageModal && <AdminManageModal onClose={() => setShowAdminManageModal(false)} profiles={profiles} onUpdateUser={handleAdminUpdateUser} onDeleteUser={handleAdminDeleteUser} boosterActive={boosterActive} setBoosterActive={setBoosterActive} />}
               {showChangeDeptModal && <ChangeDeptModal onClose={() => setShowChangeDeptModal(false)} onSave={handleChangeDept} />}
               {showChangePwdModal && <ChangePasswordModal onClose={() => setShowChangePwdModal(false)} onSave={handleChangePassword} />}
               {showAdminGrantModal && <AdminGrantModal onClose={() => setShowAdminGrantModal(false)} onGrant={handleAdminGrantPoints} profiles={profiles} />}
+              {showAdminClawbackModal && <AdminClawbackModal onClose={() => setShowAdminClawbackModal(false)} onClawback={handleAdminClawbackPoints} profiles={profiles} />}
               {showRedemptionListModal && <RedemptionListModal onClose={() => setShowRedemptionListModal(false)} redemptionList={redemptionList} onComplete={handleCompleteRedemption} />}
               {showAdminAlertModal && <AdminAlertModal onClose={handleCloseAdminAlert} />}
               
