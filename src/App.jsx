@@ -6,7 +6,7 @@ import {
   CornerDownRight, Link as LinkIcon, MapPin, Search, Key, Edit3, 
   ClipboardList, CheckSquare, ChevronLeft, Zap, Users, Briefcase, Utensils,
   ThumbsUp, Coffee, Sun, Moon, PlusCircle, CheckCircle, Plug, MinusCircle,
-  Home // [수정] 집 모양 아이콘 추가
+  Home // 집 모양 아이콘
 } from 'lucide-react';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -511,7 +511,7 @@ const AdminClawbackModal = ({ onClose, onClawback, profiles }) => {
 
 const RedemptionListModal = ({ onClose, redemptionList, onComplete }) => (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-lg rounded-2xl p-6 shadow-2xl relative max-h-[80vh] flex flex-col"><button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button><h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-purple-600"><ClipboardList className="w-5 h-5"/> 포인트 차감 신청 내역</h3><div className="flex-1 overflow-y-auto">{redemptionList && redemptionList.length > 0 ? (<div className="space-y-2">{redemptionList.map((item, index) => (<div key={index} className="flex justify-between items-center p-3 bg-slate-50 border border-slate-100 rounded-xl"><div><p className="text-sm font-bold text-slate-700">{item.user_name}</p><p className="text-[10px] text-slate-400">{new Date(item.created_at).toLocaleDateString()} 신청</p></div><div className="flex items-center gap-3"><div className="text-red-500 font-bold text-sm">-{item.amount?.toLocaleString()}</div>{item.status !== 'completed' ? (<button onClick={() => onComplete(item.id)} className="bg-blue-100 text-blue-600 text-xs font-bold px-2 py-1 rounded hover:bg-blue-200 transition-colors">완료 처리</button>) : (<span className="text-green-600 text-xs font-bold bg-green-100 px-2 py-1 rounded">처리 완료</span>)}</div></div>))}</div>) : (<p className="text-center text-slate-400 py-10 text-sm">신청 내역이 없습니다.</p>)}</div></div></div>);
 
-// [수정] 관리자 - 사용자 및 이벤트 관리 화면 (총 가입자 수 표시 추가)
+// 관리자 - 사용자 및 이벤트 관리 화면
 const AdminManageModal = ({ onClose, profiles, onUpdateUser, onDeleteUser, boosterActive, setBoosterActive }) => { 
     const [searchTerm, setSearchTerm] = useState(''); 
     const filtered = profiles.filter(p => p.name.includes(searchTerm) || p.email.includes(searchTerm)); 
@@ -521,7 +521,6 @@ const AdminManageModal = ({ onClose, profiles, onUpdateUser, onDeleteUser, boost
                 <button onClick={onClose} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5"/></button>
                 <div className="flex justify-between items-center mb-4 mr-8">
                     <h3 className="text-lg font-bold flex items-center gap-2"><Users className="w-5 h-5"/> 사용자 및 이벤트 관리</h3>
-                    {/* [추가] 총 가입자 인원수 표시 */}
                     <span className="text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">총 가입자: {profiles.length}명</span>
                 </div>
                 <div className="flex gap-4 mb-4">
@@ -629,13 +628,18 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                             
                             <div className="flex flex-col gap-1 pr-14">
                                 <div className="flex justify-between items-start">
-                                    <p className="text-xs font-bold text-slate-800 line-clamp-1 pr-2">
+                                    <div className="text-xs font-bold text-slate-800 line-clamp-1 pr-2">
+                                        {/* [수정] 우리들 소식(dept_news)인 경우 조직명(region_main) 배지 추가 */}
+                                        {feed.type === 'dept_news' && feed.region_main && (
+                                            <span className="inline-block px-1.5 py-0.5 rounded bg-purple-100 text-purple-600 text-[9px] font-black mr-1 align-middle border border-purple-200">
+                                                {feed.region_main}
+                                            </span>
+                                        )}
                                         {feed.type === 'praise' && feed.target_name ? `To. ${feed.target_name} - ` : ''}
                                         {feed.title || feed.content}
-                                    </p>
+                                    </div>
                                 </div>
                                 <div className="text-right mt-1">
-                                    {/* [수정] 공지사항이 아닐 때만 작성자 및 작성일시 표시 */}
                                     {listType !== 'news' && (
                                         <>
                                         <span className="text-[10px] text-slate-400 font-medium">
@@ -703,14 +707,13 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
             <div className="flex-1 h-full"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} /></div>
         </div>
         
-        {/* [수정] 글쓰기 버튼: 텍스트 및 아이콘 변경 */}
         <div className="flex justify-between items-center mb-2 px-1">
              <button 
                 onClick={() => onWriteClickWithCategory(null)} 
                 className="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-lg flex items-center gap-2 hover:shadow-xl hover:scale-[1.02] transition-all active:scale-95 animate-[pulse_2s_infinite]"
              >
-                <PlusCircle className="w-4 h-4" /> {/* 연필 아이콘에서 더하기 아이콘으로 변경 */}
-                <span>게시글 작성</span> {/* 글쓰기에서 게시글 작성으로 변경 */}
+                <PlusCircle className="w-4 h-4" />
+                <span>게시글 작성</span>
              </button>
              <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-white px-2 py-1 rounded-full shadow-sm border border-slate-100"><div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner"><Coins className="w-2.5 h-2.5 text-white fill-white"/></div>게시글 1개당 +50P (일 최대 +100P 가능)</div>
         </div>
@@ -841,7 +844,12 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
                     <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-bold border ${feed.type === 'praise' ? 'bg-green-50 text-green-600 border-green-100' : feed.type === 'news' ? 'bg-red-50 text-red-600 border-red-100' : feed.type === 'dept_news' ? 'bg-purple-50 text-purple-600 border-purple-100' : feed.type === 'matjib' ? 'bg-orange-50 text-orange-600 border-orange-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
                         {feed.type === 'praise' ? '칭찬해요' : feed.type === 'news' ? '📢 공지사항' : feed.type === 'dept_news' ? '🏢 우리들 소식' : feed.type === 'matjib' ? '맛집 소개' : '꿀팁'}
                     </span>
-                    {feed.type === 'dept_news' && feed.region_main && <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-50 text-slate-500 border border-slate-200">{feed.region_main}</span>}
+                    {/* [수정] 우리들 소식(dept_news) 배지 시인성 개선: 보라색 배경으로 변경 */}
+                    {feed.type === 'dept_news' && feed.region_main && (
+                        <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-200 shadow-sm">
+                            {feed.region_main}
+                        </span>
+                    )}
                     {feed.type === 'matjib' && feed.region_main && <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-50 text-slate-500 border border-slate-200"><MapPin className="w-2.5 h-2.5 inline mr-0.5"/>{feed.region_main} {feed.region_sub}</span>}
                 </div>
                 
@@ -1021,7 +1029,6 @@ const BottomNav = ({ activeTab, onTabChange }) => {
     };
     return (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[360px] bg-[#00008F] backdrop-blur-md border border-blue-900 shadow-[0_8px_30px_rgb(0,0,0,0.3)] p-1.5 z-30 flex justify-between items-center rounded-full h-20">
-            {/* [수정] 홈 아이콘을 User에서 Home(집모양)으로 변경 */}
             {[{ id: 'home', icon: Home, label: '홈' }, { id: 'feed', icon: MessageCircle, label: '게시판' }, { id: 'news', icon: Bell, label: '공지' }, { id: 'ranking', icon: Award, label: '랭킹' }].map(item => (
                 <button key={item.id} onClick={() => onTabChange(item.id)} className={`flex-1 flex flex-col items-center justify-center gap-1 h-full rounded-2xl transition-all duration-300 ${getTabColor(item.id, activeTab === item.id)}`}><item.icon className={`w-7 h-7 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} /><span className="text-[10px] font-bold">{item.label}</span></button>
             ))}
