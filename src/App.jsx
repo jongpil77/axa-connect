@@ -124,21 +124,22 @@ const MoodToast = ({ message, emoji, visible }) => {
     );
 };
 
-const RewardPopup = ({ title, message, points, onClose }) => {
+// [추가] 관리자 포인트 지급 알림 팝업
+const AdminGrantPopup = ({ grants, onClose }) => {
+    const total = grants.reduce((acc, curr) => acc + curr.amount, 0);
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-            <div className="bg-white w-full max-w-sm rounded-[2rem] p-8 shadow-2xl relative text-center overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yellow-400 to-yellow-600"></div>
+            <div className="bg-white w-full max-w-sm rounded-[2rem] p-8 shadow-2xl relative text-center">
                 <button onClick={onClose} className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 rounded-full"><X className="w-5 h-5" /></button>
-                <div className="text-6xl mb-4 animate-bounce">🏆</div>
-                <h3 className="text-xl font-black text-slate-800 mb-2">{title}</h3>
-                <p className="text-sm text-slate-600 mb-6 whitespace-pre-line">{message}</p>
-                <div className="bg-yellow-50 p-4 rounded-2xl border border-yellow-200 mb-6">
-                    <span className="text-3xl font-black text-yellow-600 flex items-center justify-center gap-2">
-                        <Coins className="w-8 h-8 fill-yellow-500 text-yellow-600"/> +{points.toLocaleString()} P
+                <div className="text-5xl mb-4 animate-bounce">🎉</div>
+                <h3 className="text-lg font-black text-slate-800 mb-2">관리자 포인트 지급 알림</h3>
+                <p className="text-sm text-slate-500 mb-6">관리자로부터 특별 포인트가 도착했습니다!</p>
+                <div className="bg-blue-50 p-4 rounded-2xl border border-blue-200 mb-6">
+                    <span className="text-2xl font-black text-blue-600 flex items-center justify-center gap-2">
+                        <Coins className="w-6 h-6 fill-blue-500 text-blue-600"/> +{total.toLocaleString()} P
                     </span>
                 </div>
-                <button onClick={onClose} className="w-full bg-yellow-500 text-white p-4 rounded-2xl font-bold hover:bg-yellow-600 shadow-lg transition-all">감사합니다!</button>
+                <button onClick={onClose} className="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold hover:bg-blue-700 shadow-lg transition-all">감사합니다!</button>
             </div>
         </div>
     );
@@ -445,7 +446,7 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
     const renderFeedList = (listType, listData) => {
         return (
             <div className="space-y-2">
-                {listData.length > 0 ? listData.map((feed, index) => {
+                {listData.length > 0 ? listData.map((feed) => { // [수정] 연번(index) 삭제
                     const isNew = isToday(feed.created_at);
                     const isHot = feed.likes.length >= averageLikes && feed.likes.length > 0;
                     
@@ -454,7 +455,7 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                             <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-start mb-0.5">
                                     <p className="text-xs font-bold text-slate-800 line-clamp-1 pr-12">
-                                        <span className="text-slate-400 mr-1.5">{index + 1}.</span>
+                                        {/* [수정] 연번 삭제 */}
                                         {feed.type === 'praise' && feed.target_name ? `To. ${feed.target_name} - ` : ''}
                                         {feed.title || feed.content}
                                     </p>
@@ -585,7 +586,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
   }, [feeds]);
 
   const filteredFeeds = feeds.filter(f => {
-      if (selectedPostId) return f.id === selectedPostId; // 특정 게시글 선택 시 필터링
+      if (selectedPostId) return f.id === selectedPostId; 
 
       const matchesFilter = activeFeedFilter === 'all' || f.type === activeFeedFilter || (activeFeedFilter === 'dept_news' && f.type === 'dept_news');
       const matchesSearch = searchTerm === "" || 
@@ -642,7 +643,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
         return (
           <div key={feed.id} className="bg-white rounded-3xl p-5 shadow-sm border border-blue-100 relative group transition-all hover:shadow-md">
             <div className="flex items-center gap-3 mb-3">
-              {/* [수정] 작성자 이름 앞 파란 동그라미(이니셜) 삭제 */}
+              {/* [수정] 작성자 이름 앞 파란 동그라미 삭제 */}
               <div>
                   <p className="text-sm font-bold text-slate-800 flex items-center gap-1">
                       {feed.author} 
@@ -668,7 +669,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
                 {feed.type !== 'praise' && feed.title && (
                     <h3 className="text-base font-bold text-slate-800 mb-1.5 flex items-center gap-1">
                         {feed.title}
-                        {/* [수정] NEW, HOT 배지 스타일 적용 */}
+                        {/* [수정] NEW, HOT 스타일 */}
                         {isNew && <span className="px-1 py-0.5 bg-red-600 text-white text-[9px] font-bold rounded-sm">NEW</span>}
                         {isHot && <span className="text-red-600 text-[10px] font-black animate-pulse">HOT</span>}
                     </h3>
@@ -682,7 +683,6 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
               <button onClick={() => handleLikePost(feed.id, feed.likes, feed.isLiked)} className={`flex items-center gap-1 text-xs font-bold transition-colors ${feed.isLiked ? 'text-red-500' : 'text-slate-400 hover:text-slate-600'}`}><Heart className={`w-4 h-4 ${feed.isLiked ? 'fill-red-500' : ''}`} /> {feed.likes?.length || 0}</button>
               <div className="flex items-center gap-1 text-xs font-bold text-slate-400"><MessageCircle className="w-4 h-4" /> {comments.length}</div>
               <div className="ml-auto text-[10px] text-slate-300">{feed.formattedTime}</div>
-              {/* [확인] 삭제 권한: 작성자 또는 관리자만 가능 */}
               {(currentUser?.id === feed.author_id || currentUser?.role === 'admin') && (
                   <button onClick={() => handleDeletePost(feed.id)} className="text-[10px] text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1 px-2 py-1">삭제</button>
               )}
@@ -699,7 +699,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
   );
 };
 
-// ... (WriteModal, ChevronDownIcon, RankingTab, BottomNav, Comment 컴포넌트는 기존과 동일)
+// ... (WriteModal, ChevronDownIcon, RankingTab, BottomNav, Comment 등은 기존과 동일)
 const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTab, boosterActive, initialCategory }) => {
   const [writeCategory, setWriteCategory] = useState(initialCategory || ''); // 초기값을 빈 문자열로 설정하여 선택 유도
   const [imagePreview, setImagePreview] = useState(null);
@@ -870,7 +870,7 @@ const BottomNav = ({ activeTab, onTabChange }) => {
     );
 };
 
-// ... (Comment 컴포넌트는 기존과 동일)
+const Comment = ({ comment, currentUser, handleDeleteComment }) => (<div className="flex gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">{comment.parent_id && <CornerDownRight className="w-4 h-4 text-slate-300 mt-1 flex-shrink-0" />}<div className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold shadow-sm ${comment.profiles?.role === 'admin' ? 'bg-red-400' : 'bg-blue-400'}`}>{formatInitial(comment.profiles?.name || 'Unknown')}</div><div className="flex-1 min-w-0"><div className="flex justify-between items-start"><p className="text-xs font-bold text-slate-700 flex items-center gap-1">{comment.profiles?.name || '알 수 없음'}{comment.profiles?.role === 'admin' && <span className="px-1 py-0.5 bg-red-50 text-red-500 text-[9px] rounded-md">관리자</span>}</p><span className="text-[9px] text-slate-400">{new Date(comment.created_at).toLocaleDateString()}</span></div><p className="text-xs text-slate-600 leading-relaxed mt-0.5 break-words">{comment.content}</p><div className="flex gap-2 mt-1 justify-end">{(currentUser?.id === comment.author_id || currentUser?.role === 'admin') && (<button onClick={() => handleDeleteComment(comment.id)} className="text-[10px] text-slate-400 hover:text-red-500 transition-colors flex items-center gap-0.5"><Trash2 className="w-3 h-3"/> 삭제</button>)}</div></div></div>);
 
 export default function App() {
   const [supabase, setSupabase] = useState(supabaseClient);
@@ -891,8 +891,8 @@ export default function App() {
   const [writeCategory, setWriteCategory] = useState(null); 
   const [showGiftNotificationModal, setShowGiftNotificationModal] = useState(false);
   const [newGifts, setNewGifts] = useState([]);
-  const [showRewardPopup, setShowRewardPopup] = useState(false); // [추가] 랭킹 보상 팝업 상태
-  const [rewardData, setRewardData] = useState(null); // [추가] 랭킹 보상 데이터
+  const [showAdminGrantPopup, setShowAdminGrantPopup] = useState(false); // [추가] 관리자 포인트 지급 알림 팝업
+  const [newAdminGrants, setNewAdminGrants] = useState([]); // [추가] 관리자 포인트 지급 데이터
   
   const [showChangeDeptModal, setShowChangeDeptModal] = useState(false);
   const [showChangePwdModal, setShowChangePwdModal] = useState(false);
@@ -906,7 +906,7 @@ export default function App() {
   const [mood, setMood] = useState(null);
   const [hasCheckedOut, setHasCheckedOut] = useState(false);
   const [boosterActive, setBoosterActive] = useState(false);
-  const [selectedPostId, setSelectedPostId] = useState(null); // [추가] 선택된 게시글 ID
+  const [selectedPostId, setSelectedPostId] = useState(null);
 
   const weeklyBirthdays = React.useMemo(() => getWeeklyBirthdays(profiles), [profiles]);
 
@@ -939,77 +939,26 @@ export default function App() {
       } catch (err) { console.error(err); }
   }, [supabase]);
 
-  // [추가] 랭킹 보상 자동 지급 체크 (매월 1일 오전 9시 이후 실행)
-  const checkRankingRewards = useCallback(async (userId) => {
+  // [추가] 관리자 특별 지급 알림 체크 (로그인 시 1회)
+  const checkAdminGrants = useCallback(async (userId) => {
       if (!supabase) return;
-      const now = new Date();
-      // 매월 1일 오전 9시 이전이면 실행 안함
-      if (now.getDate() !== 1 || now.getHours() < 9) return;
-
-      const lastMonth = new Date();
-      lastMonth.setMonth(now.getMonth() - 1);
-      const lastMonthStr = `${lastMonth.getFullYear()}년 ${lastMonth.getMonth() + 1}월`;
-      const rewardReasonKey = `${lastMonthStr} 랭킹 보상`;
-
-      // 이미 받았는지 확인
-      const { data: existingReward } = await supabase.from('point_history')
-          .select('*')
-          .eq('user_id', userId)
-          .eq('reason', rewardReasonKey);
-      
-      if (existingReward && existingReward.length > 0) return;
-
-      // 랭킹 계산 (전월 데이터 기준)
-      // 주의: 클라이언트 사이드 계산이므로 데이터 양이 많으면 정확도가 떨어질 수 있음 (fetchFeeds limit 50 때문)
-      // 정확한 처리를 위해선 Edge Function이 필요하나, 현재 환경상 로컬 데이터로 근사치 계산
-      // 여기서는 '지난달' 데이터를 다시 불러와서 계산
-      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
-      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0).toISOString();
-
-      const { data: lastMonthPosts } = await supabase.from('posts')
-          .select('author_id, likes')
-          .gte('created_at', startOfLastMonth)
-          .lte('created_at', endOfLastMonth);
-
-      if (!lastMonthPosts) return;
-
-      const postCounts = {};
-      const likeCounts = {};
-
-      lastMonthPosts.forEach(post => {
-          postCounts[post.author_id] = (postCounts[post.author_id] || 0) + 1;
-          const likes = post.likes ? (typeof post.likes === 'string' ? JSON.parse(post.likes) : post.likes) : [];
-          likeCounts[post.author_id] = (likeCounts[post.author_id] || 0) + likes.length;
-      });
-
-      // 소통왕 (게시글 수) Top 3 확인
-      const sortedPosters = Object.entries(postCounts).sort((a, b) => b[1] - a[1]).slice(0, 3).map(entry => entry[0]);
-      // 인기왕 (좋아요 수) Top 3 확인
-      const sortedLikers = Object.entries(likeCounts).sort((a, b) => b[1] - a[1]).slice(0, 3).map(entry => entry[0]);
-
-      let rewardType = '';
-      if (sortedPosters.includes(userId)) rewardType = '소통왕';
-      if (sortedLikers.includes(userId)) rewardType = rewardType ? '소통왕 & 인기왕' : '인기왕';
-
-      if (rewardType) {
-          // 보상 지급
-          const { data: userProfile } = await supabase.from('profiles').select('points').eq('id', userId).single();
-          const newPoints = (userProfile?.points || 0) + 1000;
+      try {
+          const lastChecked = localStorage.getItem(`last_admin_grant_check_${userId}`) || new Date(0).toISOString();
           
-          await supabase.from('profiles').update({ points: newPoints }).eq('id', userId);
-          await supabase.from('point_history').insert({
-              user_id: userId,
-              reason: rewardReasonKey,
-              amount: 1000,
-              type: 'earn'
-          });
-          
-          setRewardData({ title: `${lastMonthStr} ${rewardType} 선정!`, message: `축하합니다!\n${rewardType}으로 선정되어 상금을 드립니다.`, points: 1000 });
-          setShowRewardPopup(true);
-          fetchUserData(userId); // 포인트 갱신
-      }
+          const { data } = await supabase.from('point_history')
+              .select('*')
+              .eq('user_id', userId)
+              .eq('reason', '관리자 특별 지급') 
+              .gt('created_at', lastChecked)
+              .order('created_at', { ascending: false });
+
+          if (data && data.length > 0) {
+              setNewAdminGrants(data);
+              setShowAdminGrantPopup(true);
+              localStorage.setItem(`last_admin_grant_check_${userId}`, new Date().toISOString());
+          }
+      } catch (err) { console.error(err); }
   }, [supabase]);
-
 
   const checkAdminNotifications = async (user) => {
       if (user.role !== 'admin' || !supabase) return;
@@ -1030,10 +979,10 @@ export default function App() {
             if (data.last_attendance === todayStr) setMood('checked');
             const lastCheckout = localStorage.getItem(`checkout_${userId}_${todayStr}`);
             if (lastCheckout) setHasCheckedOut(true); else setHasCheckedOut(false);
-            checkBirthday(data); checkAdminNotifications(data); checkGiftNotifications(userId); checkRankingRewards(userId); // [추가] 랭킹 보상 체크
+            checkBirthday(data); checkAdminNotifications(data); checkGiftNotifications(userId); checkAdminGrants(userId);
         }
     } catch (err) { console.error(err); }
-  }, [supabase, checkBirthday, checkGiftNotifications, checkRankingRewards]);
+  }, [supabase, checkBirthday, checkGiftNotifications, checkAdminGrants]);
 
   const fetchPointHistory = useCallback(async (userId) => {
     if (!supabase) return; 
@@ -1353,7 +1302,6 @@ export default function App() {
   const handleTabChange = (tabId) => {
       setActiveTab(tabId);
       if (tabId === 'feed') { setActiveFeedFilter('all'); }
-      // 소식 탭 클릭 시 공지사항으로 자동 이동 (상태값 제어는 렌더링에서)
   };
 
   return (
@@ -1375,19 +1323,16 @@ export default function App() {
                         feeds={feeds} 
                         weeklyBirthdays={weeklyBirthdays} 
                         onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }} 
-                        // [수정] 네비게이션 News 클릭 시 로직 처리
                         onNavigateToNews={() => { setActiveTab('feed'); setActiveFeedFilter('news'); }} 
-                        // [수정] 피드 클릭 시 해당 섹션으로 이동 및 해당 ID 필터링을 위해 ID 전달 (현재는 섹션 이동만 구현, ID 필터링은 FeedTab에 추가 필요)
                         onNavigateToFeed={(type, id) => { 
                             setActiveTab('feed'); 
                             setActiveFeedFilter(type); 
-                            setSelectedPostId(id); // 선택된 포스트 ID 저장
+                            setSelectedPostId(id);
                         }} 
                         boosterActive={boosterActive} 
                     />
                 )}
                 
-                {/* [수정] activeTab이 'feed' 또는 'news'일 때 FeedTab 표시 */}
                 {(activeTab === 'feed' || activeTab === 'news') && (
                     <FeedTab 
                         feeds={feeds} 
@@ -1400,8 +1345,8 @@ export default function App() {
                         handleAddComment={handleAddComment} 
                         handleDeleteComment={handleDeleteComment} 
                         boosterActive={boosterActive}
-                        selectedPostId={selectedPostId} // [추가] 선택된 포스트 ID 전달
-                        onClearSelection={() => setSelectedPostId(null)} // [추가] 선택 해제 핸들러
+                        selectedPostId={selectedPostId}
+                        onClearSelection={() => setSelectedPostId(null)}
                     />
                 )}
                 {activeTab === 'ranking' && <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} />}
@@ -1413,7 +1358,7 @@ export default function App() {
               {showBirthdayPopup && currentUser && <BirthdayPopup currentUser={currentUser} handleBirthdayGrant={handleBirthdayGrant} setShowBirthdayPopup={setShowBirthdayPopup} />}
               {showGiftModal && <GiftModal onClose={() => setShowGiftModal(false)} onGift={handleGiftPoints} profiles={profiles} currentUser={currentUser} pointHistory={pointHistory} />}
               {showGiftNotificationModal && <GiftNotificationModal onClose={() => setShowGiftNotificationModal(false)} gifts={newGifts} />}
-              {showRewardPopup && rewardData && <RewardPopup title={rewardData.title} message={rewardData.message} points={rewardData.points} onClose={() => setShowRewardPopup(false)} />}
+              {showAdminGrantPopup && newAdminGrants.length > 0 && <AdminGrantPopup grants={newAdminGrants} onClose={() => setShowAdminGrantPopup(false)} />}
               
               {showAdminManageModal && <AdminManageModal onClose={() => setShowAdminManageModal(false)} profiles={profiles} onUpdateUser={handleAdminUpdateUser} onDeleteUser={handleAdminDeleteUser} boosterActive={boosterActive} setBoosterActive={setBoosterActive} />}
               {showChangeDeptModal && <ChangeDeptModal onClose={() => setShowChangeDeptModal(false)} onSave={handleChangeDept} />}
