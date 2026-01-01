@@ -6,16 +6,15 @@ import {
   CornerDownRight, Link as LinkIcon, MapPin, Search, Key, Edit3, 
   ClipboardList, CheckSquare, ChevronLeft, Zap, Users, Briefcase, Utensils,
   ThumbsUp, Coffee, Sun, Moon, PlusCircle, CheckCircle, Plug, MinusCircle,
-  Home // 집 모양 아이콘
+  Home 
 } from 'lucide-react';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+// [수정] import 구문 제거 (스크립트 로드 방식으로 변경)
+// import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 // --- [필수] Supabase 설정 ---
 const SUPABASE_URL = 'https://clsvsqiikgnreqqvcrxj.supabase.co'; 
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsc3ZzcWlpa2ducmVxcXZjcnhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzcyNjAsImV4cCI6MjA4MDk1MzI2MH0.lsaycyp6tXjLwb-qB5PIQ0OqKweTWO3WaxZG5GYOUqk';
-
-// --- Supabase 클라이언트 전역 초기화 ---
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- 상수 데이터 ---
 const ORGANIZATION = {
@@ -31,15 +30,25 @@ const ORGANIZATION = {
   '대구CS부': ['대구CS']
 };
 
+// [수정] REGIONS 데이터: 대분류 및 소분류(가나다순 정렬) 반영
 const REGIONS = {
-    '서울': ['강남구', '서초구', '송파구', '종로구', '마포구', '용산구', '성동구'],
-    '경기': ['성남시', '수원시', '용인시', '고양시', '화성시', '안양시'],
-    '인천': ['연수구', '남동구', '부평구'],
-    '부산': ['해운대구', '수영구', '부산진구'],
-    '대구': ['수성구', '중구'],
-    '대전': ['유성구', '서구'],
-    '광주': ['광산구', '서구'],
-    '제주': ['제주시', '서귀포시']  
+    '서울': ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'],
+    '경기': ['가평군', '고양시', '과천시', '광명시', '광주시', '구리시', '군포시', '김포시', '남양주시', '동두천시', '부천시', '성남시', '수원시', '시흥시', '안산시', '안성시', '안양시', '양주시', '양평군', '여주시', '연천군', '오산시', '용인시', '의왕시', '의정부시', '이천시', '파주시', '평택시', '포천시', '하남시', '화성시'],
+    '인천': ['강화군', '계양구', '남동구', '동구', '미추홀구', '부평구', '서구', '연수구', '옹진군', '중구'],
+    '강원': ['강릉시', '고성군', '동해시', '삼척시', '속초시', '양구군', '양양군', '영월군', '원주시', '인제군', '정선군', '철원군', '춘천시', '태백시', '평창군', '홍천군', '화천군', '횡성군'],
+    '충북': ['괴산군', '단양군', '보은군', '영동군', '옥천군', '음성군', '제천시', '증평군', '진천군', '청주시', '충주시'],
+    '충남': ['계룡시', '공주시', '금산군', '논산시', '당진시', '보령시', '부여군', '서산시', '서천군', '아산시', '연기군', '예산군', '천안시', '청양군', '태안군', '홍성군'],
+    '대전': ['대덕구', '동구', '서구', '유성구', '중구'],
+    '경북': ['경산시', '경주시', '고령군', '구미시', '군위군', '김천시', '문경시', '봉화군', '상주시', '성주군', '안동시', '영덕군', '영양군', '영주시', '영천시', '예천군', '울릉군', '울진군', '의성군', '청도군', '청송군', '칠곡군', '포항시'],
+    '경남': ['거제시', '거창군', '고성군', '김해시', '남해군', '밀양시', '사천시', '산청군', '양산시', '의령군', '진주시', '창녕군', '창원시', '통영시', '하동군', '함안군', '함양군', '합천군'],
+    '대구': ['군위군', '남구', '달서구', '달성군', '동구', '북구', '서구', '수성구', '중구'],
+    '울산': ['남구', '동구', '북구', '울주군', '중구'],
+    '부산': ['강서구', '금정구', '기장군', '남구', '동구', '동래구', '부산진구', '북구', '사상구', '사하구', '서구', '수영구', '연제구', '영도구', '중구', '해운대구'],
+    '전북': ['고창군', '군산시', '김제시', '남원시', '무주군', '부안군', '순창군', '완주군', '익산시', '임실군', '장수군', '전주시', '정읍시', '진안군'],
+    '전남': ['강진군', '고흥군', '곡성군', '광양시', '구례군', '나주시', '담양군', '목포시', '무안군', '보성군', '순천시', '신안군', '여수시', '영광군', '영암군', '완도군', '장성군', '장흥군', '진도군', '함평군', '해남군', '화순군'],
+    '광주': ['광산구', '남구', '동구', '북구', '서구'],
+    '제주': ['서귀포시', '제주시'],
+    '세종': ['세종시']
 };
 
 const INITIAL_POINTS = 1000;
@@ -301,56 +310,56 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
   );
 };
 
+// [수정] 헤더 패딩 및 크기 축소, 고정 위치(sticky)는 기존 유지 (Flex 구조상 고정됨)
 const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, onOpenChangePwd, onOpenAdminGrant, onOpenRedemptionList, onOpenGift, onOpenAdminManage, onOpenAdminClawback, boosterActive }) => {
   const todayDate = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
   const [showSettings, setShowSettings] = useState(false);
   
   return (
-    <div className="bg-white/80 backdrop-blur-md p-4 sticky top-0 z-30 border-b border-slate-100 shadow-sm">
-      <div className="flex justify-between items-center mb-1">
-          <div className="text-[10px] text-blue-400 font-bold pl-1">{todayDate}</div>
-          <div className="text-[10px] bg-[#00008F] text-white px-2 py-0.5 rounded-lg font-bold flex items-center gap-2 shadow-sm">
+    <div className="bg-white/80 backdrop-blur-md p-3 sticky top-0 z-30 border-b border-slate-100 shadow-sm">
+      <div className="flex justify-between items-center mb-0.5">
+          <div className="text-[9px] text-blue-400 font-bold pl-1">{todayDate}</div>
+          <div className="text-[9px] bg-[#00008F] text-white px-1.5 py-0.5 rounded-lg font-bold flex items-center gap-2 shadow-sm">
               {currentUser && <span>{currentUser.team} - {currentUser.name} 님</span>}
           </div>
       </div>
       
       <div className="flex justify-between items-end">
-        <div className="flex items-center gap-1 relative mt-1">
-            <img src={AXA_LOGO_URL} alt="AXA Logo" className="w-10 h-auto mr-1" />
+        <div className="flex items-center gap-1 relative mt-0.5">
+            <img src={AXA_LOGO_URL} alt="AXA Logo" className="w-8 h-auto mr-0.5" />
             <div className="flex flex-col relative leading-none">
                 <div className="flex justify-between items-center w-full">
-                    <span className="text-xl font-black text-slate-800 tracking-tighter">AXA</span>
-                    <Plug className="w-4 h-4 text-blue-500 fill-blue-500 mb-0.5" />
+                    <span className="text-lg font-black text-slate-800 tracking-tighter">AXA</span>
+                    <Plug className="w-3 h-3 text-blue-500 fill-blue-500 mb-0.5" />
                 </div>
-                <span className="text-xl font-black text-slate-800 tracking-tighter -mt-1.5">Connect</span>
+                <span className="text-lg font-black text-slate-800 tracking-tighter -mt-1.5">Connect</span>
             </div>
         </div>
         
-        <div className="flex items-center gap-2 relative">
-          <div className="flex items-center gap-2 mr-1 cursor-pointer" onClick={onOpenUserInfo}>
+        <div className="flex items-center gap-1.5 relative">
+          <div className="flex items-center gap-1.5 mr-0.5 cursor-pointer" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-end leading-none relative">
                  {boosterActive && (
-                     <div className="absolute -top-3 right-0 text-[8px] bg-white text-red-500 px-1.5 py-0.5 rounded-full font-black animate-pulse whitespace-nowrap flex items-center gap-0.5 shadow-sm border border-red-200">
-                         <Zap className="w-2 h-2 fill-red-500" /> 
-                         <span>포인트 2배</span>
+                     <div className="absolute -top-3 right-0 text-[8px] bg-white text-red-500 px-1 py-0 rounded-full font-black animate-pulse whitespace-nowrap flex items-center gap-0.5 shadow-sm border border-red-200">
+                         <Zap className="w-1.5 h-1.5 fill-red-500" /> 
+                         <span>2배</span>
                      </div>
                  )}
-                 <span className="text-[11px] text-slate-500 font-black whitespace-nowrap">MY CARE</span>
-                 <span className="text-[11px] text-slate-500 font-black whitespace-nowrap">POINT</span>
+                 <span className="text-[9px] text-slate-500 font-black whitespace-nowrap">MY CARE</span>
+                 <span className="text-[9px] text-slate-500 font-black whitespace-nowrap">POINT</span>
              </div>
-             <div className="bg-yellow-50 px-3 py-1 rounded-xl border border-yellow-200 shadow-sm flex items-center gap-1">
-                 <span className="text-2xl font-black text-blue-700 animate-pulse leading-none pt-0.5">{currentUser?.points?.toLocaleString()}</span>
-                 <div className="w-6 h-6 rounded-full bg-yellow-400 border border-yellow-500 flex items-center justify-center shadow-sm relative">
-                    <span className="text-[10px] font-black text-yellow-600 drop-shadow-[0_1px_0_rgba(255,255,255,0.5)]">P</span>
+             <div className="bg-yellow-50 px-2 py-0.5 rounded-xl border border-yellow-200 shadow-sm flex items-center gap-1">
+                 <span className="text-xl font-black text-blue-700 animate-pulse leading-none pt-0.5">{currentUser?.points?.toLocaleString()}</span>
+                 <div className="w-5 h-5 rounded-full bg-yellow-400 border border-yellow-500 flex items-center justify-center shadow-sm relative">
+                    <span className="text-[9px] font-black text-yellow-600 drop-shadow-[0_1px_0_rgba(255,255,255,0.5)]">P</span>
                  </div>
              </div>
           </div>
           
-          <button onClick={onOpenGift} className="p-1.5 rounded-full hover:bg-slate-100 active:scale-95 transition-all relative text-2xl">🎁</button>
+          <button onClick={onOpenGift} className="p-1 rounded-full hover:bg-slate-100 active:scale-95 transition-all relative text-lg">🎁</button>
 
           <div className="flex flex-col items-center">
-              <button onClick={() => setShowSettings(!showSettings)} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors relative z-40"><Settings className="w-6 h-6 text-slate-400" /></button>
-              <span className="text-[8px] text-slate-400 font-bold -mt-0.5">설정</span>
+              <button onClick={() => setShowSettings(!showSettings)} className="p-1 hover:bg-slate-100 rounded-full transition-colors relative z-40"><Settings className="w-5 h-5 text-slate-400" /></button>
           </div>
           
           {showSettings && (
@@ -650,10 +659,7 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                                         </>
                                     )}
 
-                                    {/* 꿀팁, 맛집: 작성자 삭제, 날짜만 표시 */}
-                                    {(listType === 'knowhow' || listType === 'matjib') && (
-                                        <span className="text-[10px] text-slate-300 ml-2">{feed.formattedTime}</span>
-                                    )}
+                                    {/* [수정] 꿀팁, 맛집: 작성자 및 날짜 삭제 요청 반영 (아무것도 표시 안 함) */}
                                 </div>
                             </div>
                         </div>
@@ -740,21 +746,21 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
            {renderFeedList('praise', praiseFeeds)}
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 transition-colors relative">
-               <div className="flex justify-between items-center mb-3">
-                   <h3 className="text-sm font-bold text-blue-600 flex items-center gap-1.5 pointer-events-none"><Sparkles className="w-4 h-4 fill-blue-500 text-blue-500"/> 꿀팁</h3>
-                   <button onClick={() => onNavigateToFeed('knowhow')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-blue-600"><ChevronRight className="w-3 h-3"/></button>
-               </div>
-               {renderFeedList('knowhow', knowhowFeeds)}
-            </div>
-            <div className="bg-white p-4 rounded-3xl shadow-sm border border-orange-100 transition-colors relative">
-               <div className="flex justify-between items-center mb-3">
-                   <h3 className="text-sm font-bold text-orange-600 flex items-center gap-1.5 pointer-events-none"><Utensils className="w-4 h-4 fill-orange-500 text-orange-500"/> 맛집</h3>
-                   <button onClick={() => onNavigateToFeed('matjib')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-orange-600"><ChevronRight className="w-3 h-3"/></button>
-               </div>
-               {renderFeedList('matjib', matjibFeeds)}
-            </div>
+        {/* [수정] 꿀팁, 맛집 섹션 세로 배치 및 이름 변경 */}
+        <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-100 transition-colors relative">
+           <div className="flex justify-between items-center mb-3">
+               <h3 className="text-sm font-bold text-blue-600 flex items-center gap-1.5 pointer-events-none"><Sparkles className="w-4 h-4 fill-blue-500 text-blue-500"/> 꿀팁 & 정보</h3>
+               <button onClick={() => onNavigateToFeed('knowhow')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-blue-600"><ChevronRight className="w-3 h-3"/></button>
+           </div>
+           {renderFeedList('knowhow', knowhowFeeds)}
+        </div>
+
+        <div className="bg-white p-4 rounded-3xl shadow-sm border border-orange-100 transition-colors relative">
+           <div className="flex justify-between items-center mb-3">
+               <h3 className="text-sm font-bold text-orange-600 flex items-center gap-1.5 pointer-events-none"><Utensils className="w-4 h-4 fill-orange-500 text-orange-500"/> 맛집 소개</h3>
+               <button onClick={() => onNavigateToFeed('matjib')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-orange-600"><ChevronRight className="w-3 h-3"/></button>
+           </div>
+           {renderFeedList('matjib', matjibFeeds)}
         </div>
       </div>
     );
@@ -762,6 +768,7 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
 
 const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWithCategory, currentUser, handleDeletePost, handleLikePost, handleAddComment, handleDeleteComment, boosterActive, selectedPostId, onClearSelection }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchCategory, setSearchCategory] = useState('all'); // [추가] 검색 카테고리 상태
   const [selectedDeptFilter, setSelectedDeptFilter] = useState('all');
 
   useEffect(() => { setSelectedDeptFilter('all'); }, [activeFeedFilter]);
@@ -776,12 +783,38 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
       if (selectedPostId) return f.id === selectedPostId; 
 
       const matchesFilter = activeFeedFilter === 'all' || f.type === activeFeedFilter || (activeFeedFilter === 'dept_news' && f.type === 'dept_news');
-      const matchesSearch = searchTerm === "" || 
-          (f.title && f.title.toLowerCase().includes(searchTerm.toLowerCase())) || 
-          (f.content && f.content.toLowerCase().includes(searchTerm.toLowerCase())) || 
-          (f.author && f.author.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (f.region_main && f.region_main.includes(searchTerm)) ||
-          (f.region_sub && f.region_sub.includes(searchTerm));
+      
+      // [수정] 검색 로직 개선: 카테고리별 검색
+      let matchesSearch = false;
+      if (searchTerm === "") {
+          matchesSearch = true;
+      } else {
+          const lowerTerm = searchTerm.toLowerCase();
+          switch (searchCategory) {
+              case 'title':
+                  matchesSearch = f.title && f.title.toLowerCase().includes(lowerTerm);
+                  break;
+              case 'content':
+                  matchesSearch = f.content && f.content.toLowerCase().includes(lowerTerm);
+                  break;
+              case 'author':
+                  matchesSearch = f.author && f.author.toLowerCase().includes(lowerTerm);
+                  break;
+              case 'region':
+                  matchesSearch = (f.region_main && f.region_main.includes(searchTerm)) || (f.region_sub && f.region_sub.includes(searchTerm));
+                  break;
+              case 'all':
+              default:
+                  matchesSearch = 
+                      (f.title && f.title.toLowerCase().includes(lowerTerm)) || 
+                      (f.content && f.content.toLowerCase().includes(lowerTerm)) || 
+                      (f.author && f.author.toLowerCase().includes(lowerTerm)) ||
+                      (f.region_main && f.region_main.includes(searchTerm)) ||
+                      (f.region_sub && f.region_sub.includes(searchTerm));
+                  break;
+          }
+      }
+
       const matchesDept = activeFeedFilter !== 'dept_news' || selectedDeptFilter === 'all' || (f.profiles && f.profiles.dept === selectedDeptFilter);
       return matchesFilter && matchesSearch && matchesDept;
   });
@@ -797,11 +830,31 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
       {!selectedPostId && (
       <>
       <div className="bg-white p-2 rounded-2xl shadow-sm border border-blue-100 flex items-center gap-2">
-          <Search className="w-4 h-4 text-slate-400 ml-2" /><input type="text" placeholder="검색 (제목, 내용, 작성자, 지역명)" className="flex-1 bg-transparent text-xs p-2 outline-none" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
+          {/* [추가] 검색 카테고리 콤보박스 */}
+          <select 
+            className="bg-slate-50 border border-slate-200 text-xs rounded-lg p-2 outline-none font-bold text-slate-600"
+            value={searchCategory}
+            onChange={(e) => setSearchCategory(e.target.value)}
+          >
+              <option value="all">전체</option>
+              <option value="title">제목</option>
+              <option value="content">내용</option>
+              <option value="author">작성자</option>
+              <option value="region">지역</option>
+          </select>
+          <div className="h-4 w-[1px] bg-slate-200"></div>
+          <Search className="w-4 h-4 text-slate-400" />
+          <input 
+            type="text" 
+            placeholder="검색어를 입력하세요" 
+            className="flex-1 bg-transparent text-xs p-2 outline-none" 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-        {[{ id: 'all', label: '전체' }, { id: 'praise', label: '칭찬해요' }, { id: 'dept_news', label: '우리들 소식' }, { id: 'knowhow', label: '꿀팁' }, { id: 'matjib', label: '맛집 소개' }].map(tab => (
+        {[{ id: 'all', label: '전체' }, { id: 'praise', label: '칭찬해요' }, { id: 'dept_news', label: '우리들 소식' }, { id: 'knowhow', label: '꿀팁 & 정보' }, { id: 'matjib', label: '맛집 소개' }].map(tab => (
           <button key={tab.id} onClick={() => setActiveFeedFilter(tab.id)} className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${activeFeedFilter === tab.id ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white text-slate-500 border-slate-200'}`}>{tab.label}</button>
         ))}
       </div>
@@ -907,7 +960,7 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
         {id: 'dept_news', label: '우리들 소식'}, 
         {id: 'praise', label: '칭찬하기'},
         {id: 'matjib', label: '맛집소개'},
-        {id: 'knowhow', label: '꿀팁'}
+        {id: 'knowhow', label: '꿀팁 & 정보'}
     ];
     // [수정] 관리자 또는 앰버서더인 경우 공지사항 카테고리 추가
     if (currentUser?.role === 'admin' || currentUser?.is_ambassador) {
@@ -1064,7 +1117,8 @@ const Comment = ({ comment, currentUser, handleDeleteComment }) => (
 );
 
 export default function App() {
-  const [supabase, setSupabase] = useState(supabaseClient);
+  const [supabase, setSupabase] = useState(null);
+  const [isSupabaseReady, setIsSupabaseReady] = useState(false);
   const [session, setSession] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [profiles, setProfiles] = useState([]);
@@ -1101,6 +1155,33 @@ export default function App() {
   const [selectedPostId, setSelectedPostId] = useState(null);
 
   const weeklyBirthdays = React.useMemo(() => getWeeklyBirthdays(profiles), [profiles]);
+
+  useEffect(() => {
+    // 이미 로드된 경우
+    if (window.supabase) {
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        setSupabase(client);
+        setIsSupabaseReady(true);
+        return;
+    }
+
+    // 스크립트 로드
+    const script = document.createElement('script');
+    script.src = "https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js";
+    script.async = true;
+    script.onload = () => {
+        if (window.supabase) {
+            const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            setSupabase(client);
+            setIsSupabaseReady(true);
+        }
+    };
+    document.body.appendChild(script);
+
+    return () => {
+        // 컴포넌트 언마운트 시 스크립트 제거하지 않음 (재사용 위해)
+    };
+  }, []);
 
   useEffect(() => {
     const savedBooster = localStorage.getItem('axa_booster_active') === 'true';
@@ -1532,6 +1613,16 @@ export default function App() {
       setActiveTab(tabId);
       if (tabId === 'feed') { setActiveFeedFilter('all'); }
   };
+
+  // [추가] Supabase 로딩 중일 때 로더 표시
+  if (!isSupabaseReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-blue-50 flex-col gap-4">
+        <Loader2 className="w-12 h-12 animate-spin text-blue-500" />
+        <p className="text-sm font-bold text-slate-500">앱을 불러오는 중입니다...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 flex justify-center font-sans">
