@@ -296,7 +296,7 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
         <div className="flex items-center gap-2 relative">
           <div className="flex items-center gap-2 mr-1 cursor-pointer" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-end leading-none relative">
-                 {/* [수정] 빨간색 텍스트와 아이콘 적용 */}
+                 {/* [수정] 포인트 부스터: 빨간색 번개, '포인트 2배' (빨간색 텍스트) */}
                  {boosterActive && (
                      <div className="absolute -top-4 right-0 text-[8px] bg-yellow-400 text-red-600 px-1.5 py-0.5 rounded-full font-black animate-pulse whitespace-nowrap flex items-center gap-0.5 shadow-sm border border-yellow-300">
                          <Zap className="w-2.5 h-2.5 fill-red-600 text-red-600" /> 
@@ -392,16 +392,8 @@ const AdminGrantModal = ({ onClose, onGrant, onBulkGrant, profiles, supabase, in
 
     const filteredUsers = profiles ? profiles.filter(p => p.dept === dept) : [];
 
-    useEffect(() => {
-        if (mode !== 'single') {
-            loadCandidates();
-            // [수정] 앰버서더 3000P, 랭킹 1000P 기본값
-            setBulkAmount(mode === 'ambassador' ? 3000 : 1000);
-        }
-    }, [mode]);
-
     // [중요] 함수 정의를 useEffect 내부로 이동하여 실행 순서 오류 방지
-    const loadCandidates = async () => {
+    const loadCandidates = useCallback(async () => {
         setIsLoading(true);
         setCandidates([]);
         setSelectedIds(new Set());
@@ -466,7 +458,15 @@ const AdminGrantModal = ({ onClose, onGrant, onBulkGrant, profiles, supabase, in
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [mode, profiles, supabase]);
+
+    useEffect(() => {
+        if (mode !== 'single') {
+            loadCandidates();
+            // [수정] 앰버서더 3000P, 랭킹 1000P 기본값 설정
+            setBulkAmount(mode === 'ambassador' ? 3000 : 1000);
+        }
+    }, [mode, loadCandidates]);
 
     const toggleSelection = (id) => {
         const newSet = new Set(selectedIds);
@@ -813,7 +813,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
   useEffect(() => { setSelectedDeptFilter('all'); }, [activeFeedFilter]);
   
   const averageLikes = useMemo(() => {
-      if (!feeds || feeds.length === 0) return 0;
+      if (feeds.length === 0) return 0;
       const totalLikes = feeds.reduce((acc, curr) => acc + (curr.likes?.length || 0), 0);
       return totalLikes / feeds.length;
   }, [feeds]);
@@ -1129,7 +1129,6 @@ export default function App() {
   const [showChangeDeptModal, setShowChangeDeptModal] = useState(false);
   const [showChangePwdModal, setShowChangePwdModal] = useState(false);
   const [showAdminGrantModal, setShowAdminGrantModal] = useState(false);
-  // [추가] 관리자 지급 모달 초기 탭 상태
   const [grantModalMode, setGrantModalMode] = useState('ambassador');
 
   const [showRedemptionListModal, setShowRedemptionListModal] = useState(false); 
@@ -1174,7 +1173,7 @@ export default function App() {
       } catch (err) { console.error(err); }
   }, [supabase]);
 
-  // [수정] 랭킹/앰버서더 자동 보상 로직 삭제, 관리자 특별 지급 체크만 유지
+  // [수정] 무한루프 방지를 위해 useCallback으로 감싸기
   const checkAdminGrants = useCallback(async (userId) => {
       if (!supabase) return;
       try {
@@ -1183,15 +1182,10 @@ export default function App() {
           const { data } = await supabase.from('point_history')
               .select('*')
               .eq('user_id', userId)
-              .ilike('reason', '%활동비%') // 앰버서더 등 관리자가 준 포인트 체크 (사유에 따라 조정 필요)
-              // 여기서는 단순히 '관리자 특별 지급' 외에도 앰버서더/랭킹 지급도 팝업을 띄우기 위해 포괄적으로 체크하거나,
-              // 지급 시점에 reason을 통일하거나, 별도 로직을 둬야 함. 
-              // 요청사항: "관리자가 포인트를 별도 산정하여 지급하게 되면... 팝업"
-              // 앰버서더/랭킹 수동 지급도 이에 포함됨.
+              .ilike('reason', '%활동비%') 
               .gt('created_at', lastChecked)
               .order('created_at', { ascending: false });
 
-          // 일반적인 '관리자 특별 지급' 외에 앰버서더/랭킹 지급 건도 체크
            const { data: rankingGrants } = await supabase.from('point_history')
               .select('*')
               .eq('user_id', userId)
@@ -1205,7 +1199,6 @@ export default function App() {
               .gt('created_at', lastChecked);
 
            const allNewGrants = [...(data || []), ...(rankingGrants || []), ...(manualGrants || [])];
-           // 중복 제거
            const uniqueGrants = Array.from(new Set(allNewGrants.map(a => a.id)))
             .map(id => {
               return allNewGrants.find(a => a.id === id)
@@ -1219,13 +1212,15 @@ export default function App() {
       } catch (err) { console.error(err); }
   }, [supabase]);
 
-  const checkAdminNotifications = async (user) => {
+  // [수정] 무한루프 방지를 위해 useCallback으로 감싸기
+  const checkAdminNotifications = useCallback(async (user) => {
       if (user.role !== 'admin' || !supabase) return;
       const todayStr = new Date().toISOString().split('T')[0];
       const hideDate = localStorage.getItem('hide_admin_alert');
       if (hideDate === todayStr) return;
       try { const { count, error } = await supabase.from('redemption_requests').select('*', { count: 'exact', head: true }).neq('status', 'completed'); if (!error && count > 0) setShowAdminAlertModal(true); } catch (err) { console.error(err); }
-  };
+  }, [supabase]);
+
   const handleCloseAdminAlert = (doNotShowToday) => { if (doNotShowToday) { const todayStr = new Date().toISOString().split('T')[0]; localStorage.setItem('hide_admin_alert', todayStr); } setShowAdminAlertModal(false); };
 
   const fetchUserData = useCallback(async (userId) => {
@@ -1244,7 +1239,7 @@ export default function App() {
             checkAdminGrants(userId);
         }
     } catch (err) { console.error(err); }
-  }, [supabase, checkBirthday, checkGiftNotifications, checkAdminGrants]);
+  }, [supabase, checkBirthday, checkAdminNotifications, checkGiftNotifications, checkAdminGrants]);
 
   const fetchPointHistory = useCallback(async (userId) => {
     if (!supabase) return; 
@@ -1415,7 +1410,6 @@ export default function App() {
 
   const handleAdminGrantPoints = async (targetUserId, amount) => { if (!currentUser || !supabase) return; if (currentUser.role !== 'admin') return; try { const { data: targetUser } = await supabase.from('profiles').select('points').eq('id', targetUserId).single(); if (!targetUser) return; const newPoints = (targetUser.points || 0) + parseInt(amount); await supabase.from('profiles').update({ points: newPoints }).eq('id', targetUserId); await supabase.from('point_history').insert({ user_id: targetUserId, reason: '관리자 특별 지급', amount: parseInt(amount), type: 'earn' }); setShowAdminGrantModal(false); alert('포인트 지급이 완료되었습니다.'); fetchProfiles(); fetchAllPointHistory(); } catch(err) { console.error(err); } };
 
-  // [수정] 관리자 일괄 포인트 지급 로직 (모달 내부에서 호출)
   const handleAdminBulkGrantPoints = async (userIds, amount, reason) => {
       if (!currentUser || !supabase) return;
       if (currentUser.role !== 'admin') return;
@@ -1425,7 +1419,6 @@ export default function App() {
       if (isNaN(grantAmount) || grantAmount <= 0) return;
 
       try {
-          // 1. 포인트 업데이트 (일괄 처리는 어려우므로 루프 사용 - Supabase 무료 플랜 고려)
           for (const uid of userIds) {
              const { data: user } = await supabase.from('profiles').select('points').eq('id', uid).single();
              if (user) {
@@ -1449,19 +1442,16 @@ export default function App() {
       }
   };
 
-  // [추가] 관리자 포인트 환수(회수) 로직
   const handleAdminClawbackPoints = async (targetUserId, amount) => {
       if (!currentUser || !supabase) return;
       if (currentUser.role !== 'admin') return;
       try {
           const { data: targetUser } = await supabase.from('profiles').select('points').eq('id', targetUserId).single();
           if (!targetUser) return;
-          // 환수는 차감이지만 음수가 되지 않도록 할지, 그대로 뺄지 결정. 여기선 단순 차감(음수 가능) 혹은 0 방어. 0 방어 적용.
           const clawbackAmount = parseInt(amount);
           const newPoints = Math.max(0, (targetUser.points || 0) - clawbackAmount); 
           
           await supabase.from('profiles').update({ points: newPoints }).eq('id', targetUserId);
-          // 이력에는 'use' 타입으로 기록하여 차감 표시
           await supabase.from('point_history').insert({ 
               user_id: targetUserId, 
               reason: '관리자 포인트 환수', 
@@ -1478,8 +1468,6 @@ export default function App() {
 
   const handleAdminUpdateUser = async (userId, updates) => { try { await supabase.from('profiles').update(updates).eq('id', userId); fetchProfiles(); } catch (err) { console.error(err); } };
   const handleAdminDeleteUser = async (userId) => { if(!window.confirm('정말 삭제하시겠습니까?')) return; try { await supabase.from('profiles').delete().eq('id', userId); fetchProfiles(); } catch(err) { console.error(err); } };
-
-  // ... (handleLogin, handleSignup, handlePostSubmit, handleMoodCheck, handleCheckOut, handleLogout 등 기존 함수 유지)
 
   const handleTabChange = (tabId) => {
       setActiveTab(tabId);
@@ -1500,7 +1488,6 @@ export default function App() {
                 handleLogout={handleLogout} 
                 onOpenChangeDept={() => setShowChangeDeptModal(true)} 
                 onOpenChangePwd={() => setShowChangePwdModal(true)} 
-                // [수정] 관리자 메뉴에서 모드별로 팝업 열기
                 onOpenAdminGrant={(mode) => { setGrantModalMode(mode); setShowAdminGrantModal(true); }} 
                 onOpenRedemptionList={() => { fetchRedemptionList(); setShowRedemptionListModal(true); }} 
                 onOpenGift={() => setShowGiftModal(true)} 
