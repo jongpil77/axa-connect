@@ -283,7 +283,8 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
     <div className="bg-white/95 backdrop-blur-xl p-4 sticky top-0 z-40 border-b border-slate-100 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
       <div className="flex justify-between items-center mb-1">
           <div className="text-[11px] text-blue-500 font-bold pl-1 tracking-tight">{todayDate}</div>
-          <div className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full font-bold flex items-center gap-1.5 shadow-sm border border-indigo-100">
+          {/* 악사 레드 배경에 흰색 텍스트로 변경 */}
+          <div className="text-[10px] bg-[#C60C30] text-white px-3 py-1.5 rounded-full font-bold flex items-center gap-1.5 shadow-md">
              <User className="w-3 h-3" />
              {currentUser && <span>{currentUser.team} - {currentUser.name} 님</span>}
           </div>
@@ -311,11 +312,12 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
                          <span>2배</span>
                      </div>
                  )}
-                 <span className="text-[10px] text-slate-500 font-bold whitespace-nowrap mb-0.5">My CARE Point</span>
+                 {/* My CARE Point를 굵게 변경 (font-bold -> font-black) */}
+                 <span className="text-[10px] text-slate-500 font-black whitespace-nowrap mb-0.5">My CARE Point</span>
                  <div className="flex items-center gap-1 bg-gradient-to-r from-amber-100 to-yellow-100 px-2.5 py-1 rounded-lg shadow-sm border border-yellow-200">
-                    {/* [수정] 포인트 숫자 크기 확대 (text-sm -> text-lg) */}
-                    <span className="text-lg font-black text-amber-900 group-hover:text-amber-700 transition-colors">{currentUser?.points?.toLocaleString()}</span>
-                    <span className="text-[10px] font-bold text-amber-700">P</span>
+                    {/* 포인트 숫자 크기 더 확대 (text-lg -> text-xl) */}
+                    <span className="text-xl font-black text-amber-900 group-hover:text-amber-700 transition-colors">{currentUser?.points?.toLocaleString()}</span>
+                    <span className="text-[11px] font-bold text-amber-700">P</span>
                  </div>
              </div>
           </div>
@@ -710,7 +712,8 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
         {/* [수정] 홈화면 섹션 바깥 색상 구분 (파스텔톤) */}
         <div className="bg-purple-50/60 p-5 rounded-[2rem] shadow-sm border border-purple-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
-               <h3 className="text-sm font-bold text-purple-600 flex items-center gap-2 pointer-events-none"><Building2 className="w-4 h-4 text-purple-500"/> 우리들 소식</h3>
+               {/* 진한 보라색 배경에 흰색 텍스트 */}
+               <h3 className="text-sm font-bold text-white bg-purple-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Building2 className="w-4 h-4 text-white"/> 우리들 소식</h3>
                <button onClick={() => onNavigateToFeed('dept_news')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-purple-600 bg-white px-2 py-1 rounded-lg shadow-sm">더보기 <ChevronRight className="w-3 h-3"/></button>
            </div>
            {renderFeedList('dept_news', deptFeeds)}
@@ -718,7 +721,8 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
 
         <div className="bg-green-50/60 p-5 rounded-[2rem] shadow-sm border border-green-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
-               <h3 className="text-sm font-bold text-green-600 flex items-center gap-2 pointer-events-none"><Heart className="w-4 h-4 fill-green-500 text-green-500"/> 칭찬합시다</h3>
+               {/* 진한 초록색 배경에 흰색 텍스트 */}
+               <h3 className="text-sm font-bold text-white bg-green-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Heart className="w-4 h-4 fill-white text-white"/> 칭찬합시다</h3>
                <button onClick={() => onNavigateToFeed('praise')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-green-600 bg-white px-2 py-1 rounded-lg shadow-sm">더보기 <ChevronRight className="w-3 h-3"/></button>
            </div>
            {renderFeedList('praise', praiseFeeds)}
@@ -726,7 +730,8 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
         
         <div className="bg-blue-50/60 p-5 rounded-[2rem] shadow-sm border border-blue-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
-               <h3 className="text-sm font-bold text-blue-600 flex items-center gap-2 pointer-events-none"><Sparkles className="w-4 h-4 fill-blue-500 text-blue-500"/> 꿀팁 & 정보</h3>
+               {/* 진한 파란색 배경에 흰색 텍스트 */}
+               <h3 className="text-sm font-bold text-white bg-blue-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Sparkles className="w-4 h-4 fill-white text-white"/> 꿀팁 & 정보</h3>
                <button onClick={() => onNavigateToFeed('knowhow')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-blue-600 bg-white px-2 py-1 rounded-lg shadow-sm"><ChevronRight className="w-3 h-3"/></button>
            </div>
            {renderFeedList('knowhow', knowhowFeeds)}
@@ -734,7 +739,8 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
 
         <div className="bg-orange-50/60 p-5 rounded-[2rem] shadow-sm border border-orange-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
-               <h3 className="text-sm font-bold text-orange-600 flex items-center gap-2 pointer-events-none"><Utensils className="w-4 h-4 fill-orange-500 text-orange-500"/> 맛집 소개</h3>
+               {/* 진한 오렌지색 배경에 흰색 텍스트 */}
+               <h3 className="text-sm font-bold text-white bg-orange-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Utensils className="w-4 h-4 fill-white text-white"/> 맛집 소개</h3>
                <button onClick={() => onNavigateToFeed('matjib')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-orange-600 bg-white px-2 py-1 rounded-lg shadow-sm"><ChevronRight className="w-3 h-3"/></button>
            </div>
            {renderFeedList('matjib', matjibFeeds)}
