@@ -64,28 +64,25 @@ const getWeeklyBirthdays = (profiles) => {
 
     const today = new Date();
     const currentYear = today.getFullYear();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay()); 
-    const endOfCurrentWeek = new Date(startOfWeek);
-    endOfCurrentWeek.setDate(startOfWeek.getDate() + 7);
-
-    const endOfNextWeek = new Date(endOfCurrentWeek);
-    endOfNextWeek.setDate(endOfCurrentWeek.getDate() + 7);
-
+    
     const normalizeDate = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const normalizedToday = normalizeDate(new Date());
+    const normalizedToday = normalizeDate(today);
+    
+    // 내일 날짜
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    const normalizedTomorrow = normalizeDate(tomorrow);
 
-    const currentBirthdays = [];
-    const nextBirthdays = [];
+    const todayBirthdays = []; // 오늘 생일자
+    const tomorrowBirthdays = []; // 내일 생일자
 
     profiles.forEach(p => {
         if (!p.birthdate) return;
         const [_, m, d] = p.birthdate.split('-').map(Number);
         const birthDate = new Date(currentYear, m - 1, d); 
         let normalizedBirthDate = normalizeDate(birthDate);
-
-        if (normalizedBirthDate.getTime() === normalizedToday.getTime()) return; 
         
+        // 생일이 이미 지났으면 내년 생일로 설정
         if (normalizedBirthDate < normalizedToday) {
              const nextYearBirthDate = new Date(currentYear + 1, m - 1, d);
              normalizedBirthDate = normalizeDate(nextYearBirthDate);
@@ -93,15 +90,17 @@ const getWeeklyBirthdays = (profiles) => {
         
         const typeLabel = '(양력)'; 
 
-        if (normalizedBirthDate >= normalizedToday && normalizedBirthDate < normalizeDate(endOfCurrentWeek)) {
-             currentBirthdays.push({ name: p.name, date: `${m}/${d}`, typeLabel });
+        // 오늘 생일
+        if (normalizedBirthDate.getTime() === normalizedToday.getTime()) {
+             todayBirthdays.push({ name: p.name, date: `${m}/${d}`, typeLabel });
         } 
-        else if (normalizedBirthDate >= normalizeDate(endOfCurrentWeek) && normalizedBirthDate < normalizeDate(endOfNextWeek)) {
-             nextBirthdays.push({ name: p.name, date: `${m}/${d}`, typeLabel });
+        // 내일 생일
+        else if (normalizedBirthDate.getTime() === normalizedTomorrow.getTime()) {
+             tomorrowBirthdays.push({ name: p.name, date: `${m}/${d}`, typeLabel });
         }
     });
 
-    return { current: currentBirthdays, next: nextBirthdays };
+    return { current: todayBirthdays, next: tomorrowBirthdays };
 };
 
 const isToday = (timestamp) => {
@@ -224,23 +223,6 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
   const [birthdate, setBirthdate] = useState('1999-01-01'); 
   const [selectedDept, setSelectedDept] = useState('');
   const [email, setEmail] = useState('');
-  const [emailCodeSent, setEmailCodeSent] = useState(false);
-  const [emailVerified, setEmailVerified] = useState(false);
-  const [verificationCode, setVerificationCode] = useState('');
-
-  const handleSendVerification = () => {
-      alert(`[인증번호 발송]\n${email}로 인증코드가 발송되었습니다.\n(테스트 코드: 1234)`);
-      setEmailCodeSent(true);
-  };
-
-  const handleVerifyCode = () => {
-      if (verificationCode === '1234') {
-          setEmailVerified(true);
-          alert('이메일 인증이 완료되었습니다.');
-      } else {
-          alert('인증 코드가 올바르지 않습니다.');
-      }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex justify-center items-center p-6">
@@ -257,21 +239,9 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
             <div><label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">이름</label><input name="name" type="text" placeholder="홍길동" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" required /></div>
             <div>
                 <label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">이메일</label>
-                <div className="flex gap-2">
-                    <input name="email" type="email" placeholder="회사/개인 이메일 입력" className="flex-1 p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" value={email} onChange={(e) => setEmail(e.target.value)} readOnly={emailVerified} required />
-                    <button type="button" onClick={handleSendVerification} disabled={emailVerified || !email} className="bg-blue-100 text-blue-600 text-sm font-bold px-4 rounded-2xl hover:bg-blue-200 disabled:opacity-50 whitespace-nowrap shadow-sm transition-colors">{emailVerified ? '인증완료' : '인증요청'}</button>
-                </div>
-                <p className="text-xs text-slate-400 mt-1 ml-1">* 개인 이메일(Gmail, Naver 등)도 사용 가능합니다.</p>
+                <input name="email" type="email" placeholder="회사 이메일 또는 개인 이메일 입력" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <p className="text-xs text-slate-400 mt-1 ml-1">* 개인 이메일은 사당CS부/대구CS부 직원만 사용 가능합니다.</p>
             </div>
-            {emailCodeSent && !emailVerified && (
-                <div className="animate-fade-in">
-                    <label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">인증 코드</label>
-                    <div className="flex gap-2">
-                        <input type="text" placeholder="코드 입력" className="flex-1 p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} />
-                        <button type="button" onClick={handleVerifyCode} className="bg-slate-800 text-white text-sm font-bold px-4 rounded-2xl hover:bg-slate-700 whitespace-nowrap shadow-lg">확인</button>
-                    </div>
-                </div>
-            )}
             <div>
                 <label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">생년월일 (양력)</label>
                 <div className="flex gap-2"><input name="birthdate" type="date" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base text-slate-600 focus:border-blue-500 focus:bg-white transition-all shadow-sm" required /></div>
@@ -286,7 +256,7 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
                 <select name="team" className="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none text-sm text-slate-700 shadow-sm" disabled={!selectedDept} required><option value="">팀/센터</option>{selectedDept && ORGANIZATION[selectedDept].map(team => <option key={team} value={team}>{team}</option>)}</select>
               </div>
             </div>
-            <button type="submit" disabled={loading || !emailVerified} className="w-full bg-blue-600 text-white p-4 rounded-2xl text-base font-bold hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all mt-4 disabled:bg-slate-300 flex justify-center">{loading ? <Loader2 className="animate-spin w-5 h-5" /> : '가입 완료 (1,000P 지급)'}</button>
+            <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white p-4 rounded-2xl text-base font-bold hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all mt-4 disabled:bg-slate-300 flex justify-center">{loading ? <Loader2 className="animate-spin w-5 h-5" /> : '가입 완료 (1,000P 지급)'}</button>
             <button type="button" onClick={() => setIsSignupMode(false)} className="w-full text-slate-400 text-sm py-3 hover:text-blue-600 transition-colors font-medium">로그인으로 돌아가기</button>
           </form>
         ) : (
@@ -551,7 +521,7 @@ const AdminManageModal = ({ onClose, profiles, onUpdateUser, onDeleteUser, boost
 };
 const UserInfoModal = ({ currentUser, pointHistory, setShowUserInfoModal, handleRedeemPoints }) => (<div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-md p-4 animate-fade-in"><div className="bg-white w-full max-w-md rounded-[2.5rem] p-0 shadow-2xl max-h-[90vh] overflow-y-auto relative"><div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 rounded-t-[2.5rem] flex justify-between items-center sticky top-0 z-10"><div className="flex flex-col text-white"><h3 className="text-xl font-bold flex items-center gap-2"><User className="w-5 h-5"/> {currentUser.name}</h3><p className="text-sm opacity-90 ml-7 mt-1 flex items-center gap-1 font-medium"><Building2 className="w-3.5 h-3.5"/> {currentUser.dept} / {currentUser.team}{currentUser.is_ambassador && <span className="bg-white/20 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full ml-2 font-bold border border-white/30">앰버서더</span>}</p></div><button onClick={() => setShowUserInfoModal(false)} className="p-2 bg-white/20 hover:bg-white/30 rounded-full text-white transition-colors"><X className="w-6 h-6" /></button></div><div className="p-6 space-y-6">{currentUser.points >= 10000 ? (<div className="bg-blue-50 p-6 rounded-3xl border border-blue-100 text-center shadow-sm"><p className="text-base text-blue-800 font-bold mb-3">🎉 보유 포인트가 10,000P 이상입니다!</p><button onClick={handleRedeemPoints} className="w-full bg-blue-600 text-white py-4 rounded-2xl text-base font-bold hover:bg-blue-700 flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg"><Wallet className="w-5 h-5" /> 10,000P 상품권 교환 신청</button></div>) : (<div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 text-center shadow-inner"><p className="text-sm text-slate-500 font-bold mb-3">10,000P 부터 상품권 교환 신청이 가능해요 🎁</p><div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden shadow-inner"><div className="bg-gradient-to-r from-blue-400 to-blue-500 h-full transition-all duration-1000 ease-out" style={{ width: `${Math.min((currentUser.points / 10000) * 100, 100)}%` }}></div></div><p className="text-xs text-slate-400 mt-2 text-right font-bold">{Math.floor((currentUser.points / 10000) * 100)}% 달성</p></div>)}<div><h4 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2 ml-1"><Clock className="w-5 h-5 text-slate-400"/> 포인트 히스토리</h4><div className="space-y-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">{pointHistory.length > 0 ? pointHistory.map((history) => (<div key={history.id} className="flex justify-between items-center p-4 bg-white border border-slate-50 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.03)] hover:shadow-md transition-shadow"><div className="flex-1 min-w-0"><p className="text-sm font-bold text-slate-700 line-clamp-1">{history.reason}</p><span className="text-xs text-slate-400 mt-0.5 block">{new Date(history.created_at).toLocaleDateString()}</span></div><div className="text-base font-black ml-4 flex items-center gap-1" style={{ color: history.type.includes('use') || history.type === 'gift_sent' ? '#ef4444' : '#10b981' }}>{history.type.includes('use') || history.type === 'gift_sent' ? '-' : '+'}{history.amount.toLocaleString()}</div></div>)) : (<div className="text-center text-sm text-slate-400 py-12 bg-slate-50 rounded-3xl border border-dashed border-slate-200">아직 활동 내역이 없습니다.</div>)}</div></div></div></div></div>);
 const BirthdayPopup = ({ currentUser, handleBirthdayGrant, setShowBirthdayPopup }) => { const [doNotShow, setDoNotShow] = useState(false); const handleClose = () => { if (doNotShow) { localStorage.setItem('birthday_popup_closed_' + new Date().getFullYear(), 'true'); } setShowBirthdayPopup(false); }; return (<div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative text-center"><button onClick={handleClose} className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 rounded-full bg-slate-50"><X className="w-5 h-5" /></button><div className="text-6xl mb-6"><span className="animate-bounce inline-block">🎂</span></div><h3 className="text-2xl font-black text-slate-800 mb-3">생일 축하 드립니다!</h3><p className="text-base text-slate-500 mb-8 leading-relaxed">소중한 {currentUser.name} 님의 생일을 맞아<br/>특별한 선물을 준비했어요.</p><div className="bg-yellow-50 p-6 rounded-3xl border border-yellow-200 mb-8 shadow-sm"><span className="text-3xl font-black text-yellow-600 flex items-center justify-center gap-2"><Coins className="w-8 h-8 fill-yellow-500 text-yellow-600"/> +1,000 P</span></div><button onClick={handleBirthdayGrant} className="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all flex justify-center items-center gap-2 mb-4 text-base"><Gift className="w-5 h-5"/> 포인트 받기</button><div className="flex items-center justify-center gap-2 cursor-pointer p-2 hover:bg-slate-50 rounded-xl" onClick={() => setDoNotShow(!doNotShow)}><div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${doNotShow ? 'bg-blue-500 border-blue-500' : 'bg-white border-slate-300'}`}>{doNotShow && <CheckSquare className="w-3.5 h-3.5 text-white" />}</div><span className="text-sm text-slate-400 select-none font-medium">더 이상 열지 않기</span></div></div></div>); };
-const BirthdayNotifier = ({ weeklyBirthdays }) => { const [view, setView] = useState('current'); const list = view === 'current' ? weeklyBirthdays.current : weeklyBirthdays.next; return (<div className="bg-white rounded-3xl p-5 shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-slate-50 h-full flex flex-col"><h3 className="font-bold text-sm mb-4 flex items-center text-slate-800"><span className="mr-2">🎂</span> 생일자</h3><div className="flex bg-slate-100 p-1 rounded-2xl mb-4 border border-slate-200"><button onClick={() => setView('current')} className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${view === 'current' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>이번 주</button><button onClick={() => setView('next')} className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${view === 'next' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>다음 주</button></div><div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">{list.length > 0 ? (<div className="space-y-2">{list.map((b, index) => (<div key={index} className="flex items-center gap-3 p-3 bg-blue-50/50 border border-blue-100 rounded-2xl hover:bg-blue-50 transition-colors"><div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-sm shadow-sm border border-slate-50">🎂</div><div><p className="text-xs font-bold text-slate-700">{b.name}</p><p className="text-[10px] text-slate-400 font-medium">{b.date} <span className="text-blue-500 font-bold">{b.typeLabel}</span></p></div></div>))}</div>) : (<div className="h-full flex flex-col items-center justify-center text-slate-300 text-sm gap-2"><Smile className="w-6 h-6 opacity-50"/><span>생일자가 없어요</span></div>)}</div></div>); };
+const BirthdayNotifier = ({ weeklyBirthdays }) => { const [view, setView] = useState('current'); const list = view === 'current' ? weeklyBirthdays.current : weeklyBirthdays.next; return (<div className="bg-white rounded-3xl p-5 shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-slate-50 h-full flex flex-col"><h3 className="font-bold text-[13px] mb-4 flex items-center text-slate-800"><span className="mr-2">🎂</span> 생일자</h3><div className="flex bg-slate-100 p-1 rounded-2xl mb-4 border border-slate-200"><button onClick={() => setView('current')} className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all ${view === 'current' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>오늘</button><button onClick={() => setView('next')} className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all ${view === 'next' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>내일</button></div><div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">{list.length > 0 ? (<div className="space-y-2">{list.map((b, index) => (<div key={index} className="flex items-center gap-3 p-3 bg-blue-50/50 border border-blue-100 rounded-2xl hover:bg-blue-50 transition-colors"><div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-sm shadow-sm border border-slate-50">🎂</div><div><p className="text-[11px] font-bold text-slate-700">{b.name}</p><p className="text-[9px] text-slate-400 font-medium">{b.date} <span className="text-blue-500 font-bold">{b.typeLabel}</span></p></div></div>))}</div>) : (<div className="h-full flex flex-col items-center justify-center text-slate-300 text-[13px] gap-2"><Smile className="w-6 h-6 opacity-50"/><span>생일자가 없어요</span></div>)}</div></div>); };
 
 const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => {
     const [tab, setTab] = useState('dept');
@@ -684,13 +654,13 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
         {/* 상단 공지 섹션 제거됨 */}
 
         <div className="flex gap-4 h-44">
-             {/* [수정] 출퇴근 섹션 가로 줄이고(flex-1), 생일자 섹션 크기 키움(flex-[1.3]) */}
-             <div className="flex-1 bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col relative overflow-hidden">
+             {/* [수정] 출퇴근 섹션 가로 넓히고(flex-[1.2]), 생일자 섹션(flex-1) */}
+             <div className="flex-[1.2] bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col relative overflow-hidden">
                   <div className="flex justify-between items-start mb-2 relative z-10">
                     <div>
-                        <h2 className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1.5">
+                        <h2 className="text-[11px] font-bold text-slate-400 mb-1 flex items-center gap-1.5">
                             <span className="text-lg mr-1">⏰</span>출/퇴근 체크
-                            <span className="text-[9px] text-blue-500 font-bold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">각 +20P</span>
+                            <span className="text-[8px] text-blue-500 font-bold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">각 +20P</span>
                         </h2>
                     </div>
                   </div>
@@ -698,26 +668,26 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                      <div className="flex-1 flex flex-col gap-2 justify-center bg-blue-50/30 rounded-2xl p-2 border border-blue-50">
                          {!mood ? (
                              <div className="flex flex-col gap-1.5 h-full justify-center">
-                                 <button onClick={() => handleMoodCheck('good')} className="bg-white hover:bg-blue-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-blue-100 gap-1.5"><Smile className="w-4 h-4 text-blue-500"/><span className="text-[10px] font-bold text-slate-600">좋음</span></button>
-                                 <button onClick={() => handleMoodCheck('normal')} className="bg-white hover:bg-green-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-green-100 gap-1.5"><Meh className="w-4 h-4 text-green-500"/><span className="text-[10px] font-bold text-slate-600">보통</span></button>
-                                 <button onClick={() => handleMoodCheck('tired')} className="bg-white hover:bg-orange-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-orange-100 gap-1.5"><Frown className="w-4 h-4 text-orange-500"/><span className="text-[10px] font-bold text-slate-600">피곤</span></button>
+                                 <button onClick={() => handleMoodCheck('good')} className="bg-white hover:bg-blue-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-blue-100 gap-1.5"><Smile className="w-4 h-4 text-blue-500"/><span className="text-[9px] font-bold text-slate-600">좋음</span></button>
+                                 <button onClick={() => handleMoodCheck('normal')} className="bg-white hover:bg-green-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-green-100 gap-1.5"><Meh className="w-4 h-4 text-green-500"/><span className="text-[9px] font-bold text-slate-600">보통</span></button>
+                                 <button onClick={() => handleMoodCheck('tired')} className="bg-white hover:bg-orange-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-orange-100 gap-1.5"><Frown className="w-4 h-4 text-orange-500"/><span className="text-[9px] font-bold text-slate-600">피곤</span></button>
                              </div>
                          ) : (
                              <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl border border-blue-100 shadow-sm">
                                  <div className="text-2xl animate-bounce mb-1">🏢</div>
-                                 <span className="text-xs font-black text-blue-600">출근 완료</span>
+                                 <span className="text-[11px] font-black text-blue-600">출근 완료</span>
                              </div>
                          )}
                      </div>
                      <div className="flex-1 flex flex-col gap-2 justify-center bg-orange-50/30 rounded-2xl p-2 border border-orange-50">
-                         <button onClick={handleCheckOut} disabled={!mood || hasCheckedOut} className={`flex-1 ${hasCheckedOut ? 'bg-slate-100 text-slate-300' : !mood ? 'bg-slate-100 text-slate-300' : 'bg-slate-800 text-white hover:bg-slate-900 shadow-lg'} rounded-2xl flex flex-col items-center justify-center text-xs font-bold transition-all active:scale-95`}>
+                         <button onClick={handleCheckOut} disabled={!mood || hasCheckedOut} className={`flex-1 ${hasCheckedOut ? 'bg-slate-100 text-slate-300' : !mood ? 'bg-slate-100 text-slate-300' : 'bg-slate-800 text-white hover:bg-slate-900 shadow-lg'} rounded-2xl flex flex-col items-center justify-center text-[11px] font-bold transition-all active:scale-95`}>
                              {hasCheckedOut ? <><span className="text-2xl mb-1 grayscale opacity-50">🏠</span><span>퇴근 완료</span></> : <><span className="text-2xl mb-1">🏃</span><span>퇴근하기</span></>}
                          </button>
                      </div>
                   </div>
             </div>
-            {/* [수정] 생일자 섹션 flex 비중 확대 */}
-            <div className="flex-[1.3] h-full"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} /></div>
+            {/* [수정] 생일자 섹션 flex 비중 조정 */}
+            <div className="flex-1 h-full"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} /></div>
         </div>
         
         <div className="flex justify-between items-center px-1">
@@ -1370,13 +1340,39 @@ export default function App() {
               newLikes.push(userId);
               await supabase.from('posts').update({ likes: newLikes }).eq('id', postId);
 
-              // 본인이 아닌 경우 작성자 포인트 지급 (+5)
+              // 본인이 아닌 경우 작성자 포인트 지급 (+5) 및 푸시 알림
               if (authorId && authorId !== userId) {
                   const { data: author } = await supabase.from('profiles').select('points').eq('id', authorId).single();
                   if (author) {
                       const newPoints = (author.points || 0) + 5;
                       await supabase.from('profiles').update({ points: newPoints }).eq('id', authorId);
                       await supabase.from('point_history').insert({ user_id: authorId, reason: '게시글 좋아요 획득', amount: 5, type: 'earn' });
+                      
+                      // 푸시 알림 (1회만 표시)
+                      const notificationKey = `like_notification_${postId}_${userId}_${Date.now()}`;
+                      const alreadyNotified = localStorage.getItem(notificationKey);
+                      
+                      if (!alreadyNotified && 'Notification' in window) {
+                          if (Notification.permission === 'granted') {
+                              new Notification('좋아요 알림 💖', {
+                                  body: `${currentUser.name}님이 회원님의 게시글을 좋아합니다! (+5P)`,
+                                  icon: 'https://upload.wikimedia.org/wikipedia/commons/9/94/AXA_Logo.svg',
+                                  tag: notificationKey
+                              });
+                              localStorage.setItem(notificationKey, 'true');
+                          } else if (Notification.permission !== 'denied') {
+                              Notification.requestPermission().then(permission => {
+                                  if (permission === 'granted') {
+                                      new Notification('좋아요 알림 💖', {
+                                          body: `${currentUser.name}님이 회원님의 게시글을 좋아합니다! (+5P)`,
+                                          icon: 'https://upload.wikimedia.org/wikipedia/commons/9/94/AXA_Logo.svg',
+                                          tag: notificationKey
+                                      });
+                                      localStorage.setItem(notificationKey, 'true');
+                                  }
+                              });
+                          }
+                      }
                   }
               }
           }
@@ -1388,10 +1384,46 @@ export default function App() {
 
   const handleAddComment = async (e, postId, parentId = null) => {
       e.preventDefault(); const content = e.target.commentContent.value; if (!content || !currentUser) return;
+      
+      // 게시글 작성자 정보 가져오기
+      const post = feeds.find(f => f.id === postId);
+      const authorId = post?.author_id;
+      
       const tempComment = { id: `temp-${Date.now()}`, post_id: postId, author_id: currentUser.id, content: content, parent_id: parentId, created_at: new Date().toISOString(), profiles: { name: currentUser.name, role: currentUser.role } };
       setFeeds(prevFeeds => prevFeeds.map(feed => { if (feed.id === postId) { return { ...feed, comments: [...feed.comments, tempComment], totalComments: feed.totalComments + 1 }; } return feed; }));
       e.target.reset(); 
-      try { await supabase.from('comments').insert({ post_id: postId, author_id: currentUser.id, content: content, parent_id: parentId }); } catch (err) { console.error('Comment failed:', err); fetchFeeds(); }
+      
+      try { 
+          await supabase.from('comments').insert({ post_id: postId, author_id: currentUser.id, content: content, parent_id: parentId });
+          
+          // 본인이 아닌 경우 작성자에게 댓글 알림 (1회만)
+          if (authorId && authorId !== currentUser.id) {
+              const notificationKey = `comment_notification_${postId}_${currentUser.id}_${Date.now()}`;
+              const alreadyNotified = localStorage.getItem(notificationKey);
+              
+              if (!alreadyNotified && 'Notification' in window) {
+                  if (Notification.permission === 'granted') {
+                      new Notification('댓글 알림 💬', {
+                          body: `${currentUser.name}님이 회원님의 게시글에 댓글을 남겼습니다!`,
+                          icon: 'https://upload.wikimedia.org/wikipedia/commons/9/94/AXA_Logo.svg',
+                          tag: notificationKey
+                      });
+                      localStorage.setItem(notificationKey, 'true');
+                  } else if (Notification.permission !== 'denied') {
+                      Notification.requestPermission().then(permission => {
+                          if (permission === 'granted') {
+                              new Notification('댓글 알림 💬', {
+                                  body: `${currentUser.name}님이 회원님의 게시글에 댓글을 남겼습니다!`,
+                                  icon: 'https://upload.wikimedia.org/wikipedia/commons/9/94/AXA_Logo.svg',
+                                  tag: notificationKey
+                              });
+                              localStorage.setItem(notificationKey, 'true');
+                          }
+                      });
+                  }
+              }
+          }
+      } catch (err) { console.error('Comment failed:', err); fetchFeeds(); }
   };
   
   const handleDeleteComment = async (commentId) => {
@@ -1495,8 +1527,21 @@ export default function App() {
   const handleSignup = async (e) => {
     e.preventDefault(); if (!checkSupabaseConfig()) return; setLoading(true);
     const { name, email, password, dept, team, birthdate } = e.target;
+    
+    // 개인 이메일 검증 로직 추가
+    const emailValue = email.value.toLowerCase();
+    const isPersonalEmail = !emailValue.includes('@axa') && !emailValue.includes('@directasia');
+    const deptValue = dept.value;
+    const allowedDepts = ['사당CS부', '대구CS부'];
+    
+    if (isPersonalEmail && !allowedDepts.includes(deptValue)) {
+        alert('⛔ 개인 이메일은 사당CS부 또는 대구CS부 직원만 사용할 수 있습니다.\n회사 이메일을 사용해주세요.');
+        setLoading(false);
+        return;
+    }
+    
     try {
-        const { data: existingUser } = await supabase.from('profiles').select('id').eq('email', email).maybeSingle();
+        const { data: existingUser } = await supabase.from('profiles').select('id').eq('email', email.value).maybeSingle();
         if (existingUser) { alert('이미 가입된 이메일입니다.'); setLoading(false); return; }
         const initialData = { name: name.value, dept: dept.value, team: team.value, role: 'member', points: INITIAL_POINTS, birthdate: birthdate.value, email: email.value };
         const { data: signUpResult, error } = await supabase.auth.signUp({ email: email.value, password: password.value, options: { data: initialData } });
