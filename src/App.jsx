@@ -256,9 +256,10 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
             <div>
                 <label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">이메일</label>
                 <div className="flex gap-2">
-                    <input name="email" type="email" placeholder="example@email.com" className="flex-1 p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" value={email} onChange={(e) => setEmail(e.target.value)} readOnly={emailVerified} required />
+                    <input name="email" type="email" placeholder="회사/개인 이메일 입력" className="flex-1 p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" value={email} onChange={(e) => setEmail(e.target.value)} readOnly={emailVerified} required />
                     <button type="button" onClick={handleSendVerification} disabled={emailVerified || !email} className="bg-blue-100 text-blue-600 text-sm font-bold px-4 rounded-2xl hover:bg-blue-200 disabled:opacity-50 whitespace-nowrap shadow-sm transition-colors">{emailVerified ? '인증완료' : '인증요청'}</button>
                 </div>
+                <p className="text-xs text-slate-400 mt-1 ml-1">* 개인 이메일(Gmail, Naver 등)도 사용 가능합니다.</p>
             </div>
             {emailCodeSent && !emailVerified && (
                 <div className="animate-fade-in">
@@ -289,7 +290,7 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
         ) : (
           <div className="space-y-8">
             <form onSubmit={handleLogin} className="space-y-5">
-              <div><label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">이메일</label><input name="email" type="text" placeholder="이메일 입력" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" /></div>
+              <div><label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">이메일</label><input name="email" type="text" placeholder="이메일 입력 (회사/개인)" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" /></div>
               <div><label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">비밀번호</label><input name="password" type="password" placeholder="비밀번호 (숫자 6자리 이상)" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" required minLength="6" /></div>
               <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white p-4 rounded-2xl text-base font-bold hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all active:scale-[0.98] disabled:bg-blue-300 flex justify-center mt-2">{loading ? <Loader2 className="animate-spin w-6 h-6" /> : '🚀 로그인'}</button>
             </form>
@@ -301,13 +302,13 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
   );
 };
 
-// [수정] 헤더 디자인 리팩토링
+// [수정] 헤더 디자인 리팩토링 - 요청 반영
 const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, onOpenChangePwd, onOpenAdminGrant, onOpenRedemptionList, onOpenGift, onOpenAdminManage, onOpenAdminClawback, boosterActive }) => {
   const todayDate = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
   const [showSettings, setShowSettings] = useState(false);
   
   return (
-    <div className="bg-white/90 backdrop-blur-xl p-4 sticky top-0 z-40 border-b border-slate-100 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
+    <div className="bg-white/95 backdrop-blur-xl p-4 sticky top-0 z-40 border-b border-slate-100 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
       <div className="flex justify-between items-center mb-1">
           <div className="text-[11px] text-blue-500 font-bold pl-1 tracking-tight">{todayDate}</div>
           <div className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full font-bold flex items-center gap-1.5 shadow-sm border border-indigo-100">
@@ -337,15 +338,15 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
                          <span>2배</span>
                      </div>
                  )}
-                 <span className="text-[10px] text-slate-400 font-bold whitespace-nowrap group-hover:text-blue-500 transition-colors">MY POINT</span>
-                 <div className="flex items-center gap-1">
-                    <span className="text-xl font-black text-slate-800 group-hover:text-blue-600 transition-colors">{currentUser?.points?.toLocaleString()}</span>
-                    <span className="text-xs font-bold text-slate-400 mt-1">P</span>
+                 <span className="text-[10px] text-slate-500 font-bold whitespace-nowrap mb-0.5">My CARE Point</span>
+                 <div className="flex items-center gap-1 bg-gradient-to-r from-amber-100 to-yellow-100 px-2.5 py-1 rounded-lg shadow-sm border border-yellow-200">
+                    <span className="text-sm font-black text-amber-900 group-hover:text-amber-700 transition-colors">{currentUser?.points?.toLocaleString()}</span>
+                    <span className="text-[10px] font-bold text-amber-700">P</span>
                  </div>
              </div>
           </div>
           
-          <button onClick={onOpenGift} className="p-2 rounded-full bg-slate-50 hover:bg-pink-50 text-slate-600 hover:text-pink-500 transition-all shadow-sm border border-slate-100 active:scale-95">
+          <button onClick={onOpenGift} className="p-2 rounded-full bg-slate-50 hover:bg-pink-50 text-pink-500 transition-all shadow-sm border border-slate-100 active:scale-95">
             <Gift className="w-5 h-5"/>
           </button>
 
@@ -378,6 +379,7 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
   );
 };
 
+// [수정] 대분류: 본부/부서 로 변경
 const ChangeDeptModal = ({ onClose, onSave }) => { 
     const [dept, setDept] = useState(''); 
     const [team, setTeam] = useState(''); 
@@ -388,9 +390,9 @@ const ChangeDeptModal = ({ onClose, onSave }) => {
                 <h3 className="text-lg font-bold mb-6 flex items-center gap-2"><Building2 className="w-5 h-5 text-slate-800"/> 소속 변경</h3>
                 <div className="space-y-4">
                     <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-500 ml-1">대분류: 본부/부문</label>
+                        <label className="text-xs font-bold text-slate-500 ml-1">대분류: 본부/부서</label>
                         <select className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none focus:border-blue-500 transition-colors" onChange={(e) => setDept(e.target.value)}>
-                            <option value="">본부/부문 선택</option>
+                            <option value="">본부/부서 선택</option>
                             {Object.keys(ORGANIZATION).map(d => <option key={d} value={d}>{d}</option>)}
                         </select>
                     </div>
@@ -609,12 +611,15 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => 
     );
 };
 
+// [수정] 모던한 테마 적용, 상단 공지 삭제, 하단 공지 추가, 폰트 사이즈 조정
 const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive }) => {
     const averageLikes = useMemo(() => {
         if (feeds.length === 0) return 0;
         const totalLikes = feeds.reduce((acc, curr) => acc + (curr.likes?.length || 0), 0);
         return totalLikes / feeds.length;
     }, [feeds]);
+
+    const latestNotice = feeds.find(f => f.type === 'news');
 
     const renderFeedList = (listType, listData) => {
         return (
@@ -624,17 +629,17 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                     const isHot = listType !== 'news' && feed.likes.length >= averageLikes && feed.likes.length > 0;
                     
                     return (
-                        <div key={feed.id} onClick={() => onNavigateToFeed(feed.type, feed.id)} className="bg-white px-5 py-4 rounded-3xl shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-slate-50 cursor-pointer relative overflow-hidden active:scale-[0.99] transition-transform group hover:shadow-md">
+                        <div key={feed.id} onClick={() => onNavigateToFeed(feed.type, feed.id)} className="bg-white px-5 py-3.5 rounded-3xl shadow-sm border border-slate-100 cursor-pointer relative overflow-hidden active:scale-[0.99] transition-transform group hover:shadow-md hover:border-slate-200">
                             <div className="absolute top-4 right-5 flex gap-2 items-center z-10">
-                                {isHot && <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-600 border border-red-200 text-[10px] font-black animate-pulse shadow-sm">HOT</span>}
-                                {isNew && <span className="px-2 py-0.5 bg-red-600 text-white text-[10px] font-black rounded-full shadow-sm">NEW</span>}
+                                {isHot && <span className="px-1.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-100 text-[9px] font-black animate-pulse">HOT</span>}
+                                {isNew && <span className="px-1.5 py-0.5 bg-red-500 text-white text-[9px] font-black rounded-full shadow-sm">NEW</span>}
                             </div>
                             
-                            <div className="flex flex-col gap-1.5 pr-14">
+                            <div className="flex flex-col gap-1 pr-14">
                                 <div className="flex justify-between items-start">
-                                    <div className="text-sm font-bold text-slate-800 line-clamp-1 pr-2 group-hover:text-blue-600 transition-colors">
+                                    <div className="text-[13px] font-bold text-slate-800 line-clamp-1 pr-2 group-hover:text-blue-600 transition-colors">
                                         {feed.type === 'dept_news' && feed.region_main && (
-                                            <span className="inline-block px-2 py-0.5 rounded-lg bg-purple-100 text-purple-600 text-[10px] font-black mr-1.5 align-middle border border-purple-200">
+                                            <span className="inline-block px-2 py-0.5 rounded-lg bg-purple-50 text-purple-600 text-[9px] font-black mr-1.5 align-middle border border-purple-100">
                                                 {feed.region_main}
                                             </span>
                                         )}
@@ -645,10 +650,10 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                                 <div className="text-right mt-0.5">
                                     {(listType === 'dept_news' || listType === 'praise') && (
                                         <>
-                                        <span className="text-xs text-slate-500 font-medium">
+                                        <span className="text-[11px] text-slate-400 font-medium">
                                             {feed.author} ({feed.team})
                                         </span>
-                                        <span className="text-xs text-slate-300 ml-2">{feed.formattedTime}</span>
+                                        <span className="text-[10px] text-slate-300 ml-2">{feed.formattedTime}</span>
                                         </>
                                     )}
                                 </div>
@@ -656,53 +661,50 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                         </div>
                     );
                 }) : (
-                    <div className="text-center text-sm text-slate-400 py-8 bg-white rounded-3xl border border-dashed border-slate-200">등록된 게시글이 없습니다.</div>
+                    <div className="text-center text-xs text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">게시글이 없습니다.</div>
                 )}
             </div>
         );
     };
 
-    const noticeFeeds = feeds.filter(f => f.type === 'news').slice(0, 5); 
     const deptFeeds = feeds.filter(f => f.type === 'dept_news').slice(0, 5);
     const praiseFeeds = feeds.filter(f => f.type === 'praise').slice(0, 5); 
     const knowhowFeeds = feeds.filter(f => f.type === 'knowhow').slice(0, 5);
     const matjibFeeds = feeds.filter(f => f.type === 'matjib').slice(0, 5);
 
     return (
-      <div className="p-6 space-y-6 pb-36 animate-fade-in relative bg-slate-50 min-h-full">
-        <div>
-           <div className="flex justify-between items-center mb-4 px-2"><h2 className="text-base font-bold text-slate-800 flex items-center gap-2"><Megaphone className="w-5 h-5 text-red-500"/> 공지사항</h2><button onClick={onNavigateToNews} className="text-xs text-slate-400 font-medium hover:text-blue-600 flex items-center gap-0.5 bg-white px-2 py-1 rounded-lg shadow-sm border border-slate-100">더보기 <ChevronRight className="w-3 h-3" /></button></div>
-           {renderFeedList('news', noticeFeeds)}
-        </div>
+      <div className="p-6 space-y-5 pb-36 animate-fade-in relative bg-[#F8F9FA] min-h-full">
+        
+        {/* 상단 공지 섹션 제거됨 */}
 
-        <div className="flex gap-5 h-48">
-             <div className="flex-[2] bg-white rounded-3xl p-5 shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-slate-50 flex flex-col relative overflow-hidden">
-                  <div className="flex justify-between items-start mb-3 relative z-10">
+        <div className="flex gap-4 h-44">
+             <div className="flex-[2] bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col relative overflow-hidden">
+                  <div className="flex justify-between items-start mb-2 relative z-10">
                     <div>
-                        <h2 className="text-sm font-bold text-slate-400 mb-1 flex items-center gap-1.5">
-                            <span className="text-xl mr-1">⏰</span>출/퇴근 체크
-                            <span className="text-[10px] text-blue-500 font-bold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">각 +20P</span>
+                        <h2 className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1.5">
+                            <span className="text-lg mr-1">⏰</span>출/퇴근 체크
+                            <span className="text-[9px] text-blue-500 font-bold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">각 +20P</span>
                         </h2>
                     </div>
                   </div>
-                  <div className="flex-1 flex gap-3 relative z-10">
-                     <div className="flex-1 flex flex-col gap-2 justify-center bg-blue-50/50 rounded-2xl p-2 border border-blue-100">
+                  <div className="flex-1 flex gap-2 relative z-10">
+                     <div className="flex-1 flex flex-col gap-2 justify-center bg-blue-50/30 rounded-2xl p-2 border border-blue-50">
                          {!mood ? (
                              <div className="flex flex-col gap-1.5 h-full justify-center">
-                                 <button onClick={() => handleMoodCheck('good')} className="bg-white hover:bg-blue-100 rounded-xl flex items-center justify-start px-3 py-2 transition-all active:scale-95 shadow-sm border border-blue-100 gap-2.5"><Smile className="w-5 h-5 text-blue-500"/><span className="text-xs font-bold text-slate-600">좋음</span></button>
-                                 <button onClick={() => handleMoodCheck('normal')} className="bg-white hover:bg-green-100 rounded-xl flex items-center justify-start px-3 py-2 transition-all active:scale-95 shadow-sm border border-green-100 gap-2.5"><Meh className="w-5 h-5 text-green-500"/><span className="text-xs font-bold text-slate-600">보통</span></button>
-                                 <button onClick={() => handleMoodCheck('tired')} className="bg-white hover:bg-orange-100 rounded-xl flex items-center justify-start px-3 py-2 transition-all active:scale-95 shadow-sm border border-orange-100 gap-2.5"><Frown className="w-5 h-5 text-orange-500"/><span className="text-xs font-bold text-slate-600">피곤</span></button>
+                                 <button onClick={() => handleMoodCheck('good')} className="bg-white hover:bg-blue-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-blue-100 gap-1.5"><Smile className="w-4 h-4 text-blue-500"/><span className="text-[10px] font-bold text-slate-600">좋음</span></button>
+                                 <button onClick={() => handleMoodCheck('normal')} className="bg-white hover:bg-green-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-green-100 gap-1.5"><Meh className="w-4 h-4 text-green-500"/><span className="text-[10px] font-bold text-slate-600">보통</span></button>
+                                 <button onClick={() => handleMoodCheck('tired')} className="bg-white hover:bg-orange-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-orange-100 gap-1.5"><Frown className="w-4 h-4 text-orange-500"/><span className="text-[10px] font-bold text-slate-600">피곤</span></button>
                              </div>
                          ) : (
                              <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl border border-blue-100 shadow-sm">
-                                 <div className="text-3xl animate-bounce mb-2">🏢</div>
-                                 <span className="text-sm font-black text-blue-600">출근 완료</span>
+                                 <div className="text-2xl animate-bounce mb-1">🏢</div>
+                                 <span className="text-xs font-black text-blue-600">출근 완료</span>
                              </div>
                          )}
                      </div>
-                     <div className="flex-1 flex flex-col gap-2 justify-center bg-orange-50/50 rounded-2xl p-2 border border-orange-100">
-                         <button onClick={handleCheckOut} disabled={!mood || hasCheckedOut} className={`flex-1 ${hasCheckedOut ? 'bg-slate-100 text-slate-300' : !mood ? 'bg-slate-100 text-slate-300' : 'bg-slate-800 text-white hover:bg-slate-900 shadow-lg'} rounded-2xl flex flex-col items-center justify-center text-sm font-bold transition-all active:scale-95`}>
-                             {hasCheckedOut ? <><span className="text-2xl mb-2 grayscale opacity-50">🏠</span><span>퇴근 완료</span></> : <><span className="text-2xl mb-2">🏃</span><span>퇴근하기</span></>}
+                     <div className="flex-1 flex flex-col gap-2 justify-center bg-orange-50/30 rounded-2xl p-2 border border-orange-50">
+                         <button onClick={handleCheckOut} disabled={!mood || hasCheckedOut} className={`flex-1 ${hasCheckedOut ? 'bg-slate-100 text-slate-300' : !mood ? 'bg-slate-100 text-slate-300' : 'bg-slate-800 text-white hover:bg-slate-900 shadow-lg'} rounded-2xl flex flex-col items-center justify-center text-xs font-bold transition-all active:scale-95`}>
+                             {hasCheckedOut ? <><span className="text-2xl mb-1 grayscale opacity-50">🏠</span><span>퇴근 완료</span></> : <><span className="text-2xl mb-1">🏃</span><span>퇴근하기</span></>}
                          </button>
                      </div>
                   </div>
@@ -710,47 +712,59 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
             <div className="flex-1 h-full"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} /></div>
         </div>
         
-        <div className="flex justify-between items-center mb-2 px-2">
+        <div className="flex justify-between items-center px-1">
              <button 
                 onClick={() => onWriteClickWithCategory(null)} 
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-2xl text-sm font-bold shadow-[0_4px_15px_rgba(37,99,235,0.3)] flex items-center gap-2 hover:shadow-[0_6px_20px_rgba(37,99,235,0.4)] hover:-translate-y-0.5 transition-all active:scale-95 animate-pulse-slow"
+                className="bg-gradient-to-r from-slate-700 to-slate-800 text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-lg flex items-center gap-2 hover:-translate-y-0.5 transition-all active:scale-95"
              >
-                <PlusCircle className="w-5 h-5" />
+                <Pencil className="w-4 h-4" />
                 <span>게시글 작성</span>
              </button>
-             <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 bg-white px-3 py-1.5 rounded-full shadow-sm border border-slate-100"><div className="w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner"><Coins className="w-3 h-3 text-white fill-white"/></div>게시글당 +50P (최대 +100P)</div>
+             <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 bg-white px-3 py-1.5 rounded-full shadow-sm border border-slate-100"><div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner"><Coins className="w-2.5 h-2.5 text-white fill-white"/></div>게시글당 +50P</div>
         </div>
 
-        <div className="bg-white p-6 rounded-[2rem] shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-slate-50 transition-colors relative">
-           <div className="flex justify-between items-center mb-4">
-               <h3 className="text-base font-bold text-purple-600 flex items-center gap-2 pointer-events-none"><Building2 className="w-5 h-5 text-purple-500"/> 우리들 소식</h3>
-               <button onClick={() => onNavigateToFeed('dept_news')} className="text-xs text-slate-400 font-bold flex items-center hover:text-purple-600 bg-slate-50 px-2 py-1 rounded-lg">더보기 <ChevronRight className="w-3 h-3"/></button>
+        <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-slate-100 transition-colors relative">
+           <div className="flex justify-between items-center mb-3">
+               <h3 className="text-sm font-bold text-purple-600 flex items-center gap-2 pointer-events-none"><Building2 className="w-4 h-4 text-purple-500"/> 우리들 소식</h3>
+               <button onClick={() => onNavigateToFeed('dept_news')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-purple-600 bg-slate-50 px-2 py-1 rounded-lg">더보기 <ChevronRight className="w-3 h-3"/></button>
            </div>
            {renderFeedList('dept_news', deptFeeds)}
         </div>
 
-        <div className="bg-white p-6 rounded-[2rem] shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-slate-50 transition-colors relative">
-           <div className="flex justify-between items-center mb-4">
-               <h3 className="text-base font-bold text-green-600 flex items-center gap-2 pointer-events-none"><Heart className="w-5 h-5 fill-green-500 text-green-500"/> 칭찬합시다</h3>
-               <button onClick={() => onNavigateToFeed('praise')} className="text-xs text-slate-400 font-bold flex items-center hover:text-green-600 bg-slate-50 px-2 py-1 rounded-lg">더보기 <ChevronRight className="w-3 h-3"/></button>
+        <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-slate-100 transition-colors relative">
+           <div className="flex justify-between items-center mb-3">
+               <h3 className="text-sm font-bold text-green-600 flex items-center gap-2 pointer-events-none"><Heart className="w-4 h-4 fill-green-500 text-green-500"/> 칭찬합시다</h3>
+               <button onClick={() => onNavigateToFeed('praise')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-green-600 bg-slate-50 px-2 py-1 rounded-lg">더보기 <ChevronRight className="w-3 h-3"/></button>
            </div>
            {renderFeedList('praise', praiseFeeds)}
         </div>
         
-        <div className="bg-white p-6 rounded-[2rem] shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-slate-50 transition-colors relative">
-           <div className="flex justify-between items-center mb-4">
-               <h3 className="text-base font-bold text-blue-600 flex items-center gap-2 pointer-events-none"><Sparkles className="w-5 h-5 fill-blue-500 text-blue-500"/> 꿀팁 & 정보</h3>
-               <button onClick={() => onNavigateToFeed('knowhow')} className="text-xs text-slate-400 font-bold flex items-center hover:text-blue-600 bg-slate-50 px-2 py-1 rounded-lg"><ChevronRight className="w-3 h-3"/></button>
+        <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-slate-100 transition-colors relative">
+           <div className="flex justify-between items-center mb-3">
+               <h3 className="text-sm font-bold text-blue-600 flex items-center gap-2 pointer-events-none"><Sparkles className="w-4 h-4 fill-blue-500 text-blue-500"/> 꿀팁 & 정보</h3>
+               <button onClick={() => onNavigateToFeed('knowhow')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-blue-600 bg-slate-50 px-2 py-1 rounded-lg"><ChevronRight className="w-3 h-3"/></button>
            </div>
            {renderFeedList('knowhow', knowhowFeeds)}
         </div>
 
-        <div className="bg-white p-6 rounded-[2rem] shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-slate-50 transition-colors relative">
-           <div className="flex justify-between items-center mb-4">
-               <h3 className="text-base font-bold text-orange-600 flex items-center gap-2 pointer-events-none"><Utensils className="w-5 h-5 fill-orange-500 text-orange-500"/> 맛집 소개</h3>
-               <button onClick={() => onNavigateToFeed('matjib')} className="text-xs text-slate-400 font-bold flex items-center hover:text-orange-600 bg-slate-50 px-2 py-1 rounded-lg"><ChevronRight className="w-3 h-3"/></button>
+        <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-slate-100 transition-colors relative">
+           <div className="flex justify-between items-center mb-3">
+               <h3 className="text-sm font-bold text-orange-600 flex items-center gap-2 pointer-events-none"><Utensils className="w-4 h-4 fill-orange-500 text-orange-500"/> 맛집 소개</h3>
+               <button onClick={() => onNavigateToFeed('matjib')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-orange-600 bg-slate-50 px-2 py-1 rounded-lg"><ChevronRight className="w-3 h-3"/></button>
            </div>
            {renderFeedList('matjib', matjibFeeds)}
+        </div>
+
+        {/* 하단 공지사항 추가 */}
+        <div className="mt-6 mb-2">
+            <div onClick={onNavigateToNews} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition-colors">
+                <div className="bg-red-50 p-2 rounded-full"><Megaphone className="w-4 h-4 text-red-500"/></div>
+                <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-slate-400 mb-0.5">공지사항</p>
+                    <p className="text-sm font-bold text-slate-800 truncate">{latestNotice ? latestNotice.title : '등록된 공지사항이 없습니다.'}</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-300"/>
+            </div>
         </div>
       </div>
     );
@@ -1060,6 +1074,7 @@ const RankingTab = ({ feeds, profiles, allPointHistory }) => {
     
     return (<div className="p-6 space-y-8 pb-36 animate-fade-in bg-slate-50"><div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 text-center relative"><div className="flex justify-between items-center mb-4 px-2"><button onClick={handlePrevMonth} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><ChevronLeft className="w-6 h-6 text-slate-400" /></button><h2 className="text-xl font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2><button onClick={handleNextMonth} className="p-2 hover:bg-slate-100 rounded-full disabled:opacity-30 transition-colors" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-6 h-6 text-slate-400" /></button></div><div className="flex justify-center gap-2 mt-3"><span className="text-xs bg-green-50 text-green-600 px-3 py-1.5 rounded-full font-bold border border-green-100">🏆 소통상/좋아요상: 1~3등 1,000P</span></div></div><div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Coins className="w-5 h-5 text-yellow-500"/> 월간 획득 포인트 랭킹</h3><div className="space-y-3">{pointRanking.length > 0 ? pointRanking.map((p, i) => <RankItem key={i} rank={i+1} name={p.name} team={p.team} value={p.value.toLocaleString()} unit="P" color="text-yellow-500" showReward={false}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div><div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Pencil className="w-5 h-5 text-green-500"/> 소통왕 (게시글)</h3><div className="space-y-3">{postRanking.length > 0 ? postRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-green-500" showReward={true}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div><div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Heart className="w-5 h-5 text-red-500"/> 인기왕 (좋아요)</h3><div className="space-y-3">{likeRanking.length > 0 ? likeRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-red-500" showReward={true}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div></div>); };
 
+// [수정] 네비게이션 바 높이 축소
 const BottomNav = ({ activeTab, onTabChange }) => {
     const getTabColor = (id, isActive) => {
         if (!isActive) return 'text-slate-400 hover:text-slate-600';
@@ -1072,9 +1087,9 @@ const BottomNav = ({ activeTab, onTabChange }) => {
         }
     };
     return (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[380px] bg-white/90 backdrop-blur-xl border border-white/50 shadow-[0_8px_40px_rgba(0,0,0,0.12)] p-2 z-30 flex justify-between items-center rounded-[2.5rem] h-20">
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[380px] bg-white/90 backdrop-blur-xl border border-white/50 shadow-[0_8px_40px_rgba(0,0,0,0.12)] p-1.5 z-30 flex justify-between items-center rounded-[2.5rem] h-16">
             {[{ id: 'home', icon: Home, label: '홈' }, { id: 'feed', icon: MessageCircle, label: '게시판' }, { id: 'news', icon: Bell, label: '공지' }, { id: 'ranking', icon: Award, label: '랭킹' }].map(item => (
-                <button key={item.id} onClick={() => onTabChange(item.id)} className={`flex-1 flex flex-col items-center justify-center gap-1.5 h-full rounded-[2rem] transition-all duration-500 ease-out ${getTabColor(item.id, activeTab === item.id)}`}><item.icon className={`w-7 h-7 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} /><span className="text-[10px] font-bold">{item.label}</span></button>
+                <button key={item.id} onClick={() => onTabChange(item.id)} className={`flex-1 flex flex-col items-center justify-center gap-1 h-full rounded-[2rem] transition-all duration-500 ease-out ${getTabColor(item.id, activeTab === item.id)}`}><item.icon className={`w-6 h-6 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} /><span className="text-[9px] font-bold">{item.label}</span></button>
             ))}
         </div>
     );
