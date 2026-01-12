@@ -231,7 +231,7 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
         <div className="text-center mb-10 mt-6 flex flex-col items-center">
           <img src={AXA_LOGO_URL} alt="AXA Logo" className="w-24 h-auto mb-6 drop-shadow-sm" />
           <h1 className="text-3xl font-black text-slate-800 tracking-tight mb-2">AXA Connect</h1>
-          <p className="text-slate-500 text-base font-medium">함께 만드는 스마트한 조직문화 🚀</p>
+          <p className="text-slate-500 text-base font-medium">함께 만드는 스마트한 고객서비스본부 🚀</p>
         </div>
 
         {isSignupMode ? (
