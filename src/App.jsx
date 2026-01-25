@@ -112,42 +112,35 @@ const getPrevMonthRankers = (feeds, profiles) => {
     return { topPosts, topLikes };
 };
 
-// --- [추가] 4. 나의 활동 통계 컴포넌트 ---
+// --- [수정] 나의 활동 통계 컴포넌트 (이모지 및 시인성 개선) ---
 const UserActivityStats = ({ feeds, currentUser }) => {
   const stats = useMemo(() => {
     if (!currentUser || !feeds) return { posts: 0, comments: 0, likes: 0 };
-    
-    // 내가 작성한 게시글 수
     const myPosts = feeds.filter(f => f.author_id === currentUser.id);
     const postsCount = myPosts.length;
-    
-    // 내가 작성한 댓글 수 (전체 피드의 댓글 중 내 ID 검색)
     const myCommentsCount = feeds.reduce((acc, f) => 
       acc + (f.comments?.filter(c => c.author_id === currentUser.id).length || 0), 0);
-    
-    // 내가 받은 좋아요 총합 (내 게시글들의 likes 배열 길이 합)
     const receivedLikesCount = myPosts.reduce((acc, f) => acc + (f.likes?.length || 0), 0);
 
-    return {
-      posts: postsCount,
-      comments: myCommentsCount,
-      likes: receivedLikesCount
-    };
+    return { posts: postsCount, comments: myCommentsCount, likes: receivedLikesCount };
   }, [feeds, currentUser]);
 
   return (
-    <div className="bg-white rounded-3xl p-4 shadow-sm border border-slate-100 mb-4 grid grid-cols-3 gap-2">
-      <div className="text-center">
-        <p className="text-[10px] text-slate-400 font-bold mb-1">작성 게시글</p>
-        <p className="text-sm font-black text-slate-800">{stats.posts}</p>
+    <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 mb-4 grid grid-cols-3 gap-2">
+      <div className="text-center flex flex-col items-center">
+        <span className="text-lg mb-1">📝</span>
+        <p className="text-[10px] text-slate-400 font-bold mb-0.5">게시글</p>
+        <p className="text-base font-black text-slate-800">{stats.posts.toLocaleString()}</p>
       </div>
-      <div className="text-center border-l border-slate-50">
-        <p className="text-[10px] text-slate-400 font-bold mb-1">작성 댓글</p>
-        <p className="text-sm font-black text-slate-800">{stats.comments}</p>
+      <div className="text-center border-l border-slate-50 flex flex-col items-center">
+        <span className="text-lg mb-1">💬</span>
+        <p className="text-[10px] text-slate-400 font-bold mb-0.5">댓글</p>
+        <p className="text-base font-black text-slate-800">{stats.comments.toLocaleString()}</p>
       </div>
-      <div className="text-center border-l border-slate-50">
-        <p className="text-[10px] text-slate-400 font-bold mb-1">받은 좋아요</p>
-        <p className="text-sm font-black text-[#C60C30]">{stats.likes}</p>
+      <div className="text-center border-l border-slate-50 flex flex-col items-center">
+        <span className="text-lg mb-1">❤️</span>
+        <p className="text-[10px] text-slate-400 font-bold mb-0.5">좋아요</p>
+        <p className="text-base font-black text-[#C60C30]">{stats.likes.toLocaleString()}</p>
       </div>
     </div>
   );
@@ -237,7 +230,6 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
         <div className="text-center mb-10 mt-6 flex flex-col items-center">
           <img src={AXA_LOGO_URL} alt="AXA Logo" className="w-24 h-auto mb-6 drop-shadow-sm" />
-          {/* 3. 문구 수정: Connect */}
           <h1 className="text-3xl font-black text-slate-800 tracking-tight mb-2">Connect</h1>
           <p className="text-slate-500 text-base font-medium">함께 만드는 스마트한 조직문화 🚀</p>
         </div>
@@ -282,7 +274,7 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
   );
 };
 
-// --- [수정] 1, 3. Header 컴포넌트 ---
+// --- [수정] Header (번개 아이콘 위치 조정) ---
 const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, onOpenChangePwd, onOpenAdminGrant, onOpenRedemptionList, onOpenGift, onOpenAdminManage, onOpenAdminClawback, boosterActive }) => {
   const todayDate = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
   const [showSettings, setShowSettings] = useState(false);
@@ -301,24 +293,18 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
         <div className="flex items-center gap-1.5 relative mt-1">
             <img src={AXA_LOGO_URL} alt="AXA Logo" className="w-9 h-auto mr-0.5" />
             <div className="flex flex-col relative leading-none">
-                {/* 3. 문구 수정: AXA Connect -> Connect (간결하게 브랜드 노출) */}
                 <span className="text-xl font-black text-slate-800 tracking-tighter italic">Connect</span>
             </div>
             <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mb-3 ml-0.5"></div>
         </div>
         
         <div className="flex items-center gap-2 relative">
-          {/* 1. 포인트 영역 가운데 정렬 및 최소 너비 확보 */}
           <div className="flex items-center gap-2 mr-1 cursor-pointer group" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-center leading-none relative">
-                 {boosterActive && (
-                     <div className="absolute -top-4 right-0 text-[10px] bg-red-50 text-[#C60C30] px-2 py-0.5 rounded-full font-black animate-pulse whitespace-nowrap flex items-center gap-1 shadow-sm border border-red-100">
-                         <Zap className="w-4 h-4 fill-[#C60C30]" /> 
-                         <span>2배</span>
-                     </div>
-                 )}
                  <span className="text-[10px] text-slate-500 font-black whitespace-nowrap mb-0.5">My CARE Point</span>
-                 <div className="flex items-center justify-center gap-1 bg-gradient-to-r from-amber-100 to-yellow-100 px-3 py-1 rounded-lg shadow-sm border border-yellow-200 min-w-[90px]">
+                 <div className="flex items-center justify-center gap-1 bg-gradient-to-r from-amber-100 to-yellow-100 px-3 py-1 rounded-lg shadow-sm border border-yellow-200 min-w-[95px]">
+                    {/* 번개 아이콘(Zap)을 숫자 좌측으로 이동 */}
+                    {boosterActive && <Zap className="w-4 h-4 fill-[#C60C30] text-[#C60C30] animate-pulse" />}
                     <span className="text-xl font-black text-amber-900">{currentUser?.points?.toLocaleString()}</span>
                     <span className="text-[11px] font-bold text-amber-700">P</span>
                  </div>
@@ -563,7 +549,6 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => 
     );
 };
 
-// --- [수정] 4, 5. HomeTab ---
 const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive, currentUser }) => {
     const averageLikes = useMemo(() => {
         if (feeds.length === 0) return 0;
@@ -595,7 +580,8 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                                 </div>
                                 <div className="text-right mt-0.5">
                                     {(listType === 'dept_news' || listType === 'praise') && (
-                                        <><span className="text-[11px] text-slate-400 font-medium">{feed.author} ({feed.team})</span><span className="text-[10px] text-slate-300 ml-2">{feed.formattedTime}</span></>
+                                        /* 칭찬해요(praise)인 경우 작성자를 익명으로 표시 */
+                                        <><span className="text-[11px] text-slate-400 font-medium">{listType === 'praise' ? '익명' : feed.author} ({listType === 'praise' ? '***' : feed.team})</span><span className="text-[10px] text-slate-300 ml-2">{feed.formattedTime}</span></>
                                     )}
                                 </div>
                             </div>
@@ -615,12 +601,9 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
 
     return (
       <div className="p-6 space-y-5 pb-36 animate-fade-in relative bg-[#F8F9FA] min-h-full">
-        
-        {/* 4. 최상단: 나의 활동 통계 배치 */}
         <UserActivityStats feeds={feeds} currentUser={currentUser} />
 
         <div className="flex gap-4 h-44">
-             {/* 5. 출퇴근 섹션 비율 조정 (grid-cols-10 사용하여 가로 넓히기) */}
              <div className="flex-[1.5] bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col relative overflow-hidden">
                   <div className="flex justify-between items-start mb-2 relative z-10">
                     <div>
@@ -630,7 +613,6 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                         </h2>
                     </div>
                   </div>
-                  {/* grid-cols-10으로 출근(6) : 퇴근(4) 비율 구현 */}
                   <div className="flex-1 grid grid-cols-10 gap-2 relative z-10 h-full">
                      <div className="col-span-6 flex flex-col gap-2 justify-center bg-blue-50/30 rounded-2xl p-2 border border-blue-50">
                          {!mood ? (
@@ -756,7 +738,16 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
         return (
           <div key={feed.id} className="bg-white rounded-[2rem] p-6 shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-slate-50 relative group transition-all hover:shadow-md">
             <div className="absolute top-6 right-6 flex gap-2 items-center z-10">{isHot && <span className="px-2.5 py-1 rounded-full bg-red-100 text-red-600 border border-red-200 text-[10px] font-black animate-pulse shadow-sm tracking-wide">HOT</span>}{isNew && <span className="px-2.5 py-1 bg-red-600 text-white text-[10px] font-black rounded-full shadow-sm tracking-wide">NEW</span>}</div>
-            <div className="flex items-center gap-3 mb-4"><div className="flex items-center gap-2"><p className="text-base font-bold text-slate-800 flex items-center gap-1.5">{feed.author} <span className="text-slate-400 text-sm font-medium">({feed.team})</span>{feed.profiles?.role === 'admin' && <span className="bg-red-50 text-red-500 text-[10px] px-2 py-0.5 rounded-full border border-red-100 font-bold">관리자</span>}{feed.profiles?.is_reporter && <span className="bg-yellow-100 text-yellow-700 text-[10px] px-2 py-0.5 rounded-full border border-yellow-200 font-bold">리포터</span>}{feed.profiles?.is_ambassador && <span className="bg-purple-100 text-purple-700 text-[10px] px-2 py-0.5 rounded-full border border-purple-200 font-bold">앰버서더</span>}</p></div></div>
+            <div className="flex items-center gap-3 mb-4"><div className="flex items-center gap-2">
+                {/* [수정] 피드에서 칭찬해요(praise) 작성자 익명화 */}
+                <p className="text-base font-bold text-slate-800 flex items-center gap-1.5">
+                    {feed.type === 'praise' ? '익명' : feed.author} 
+                    <span className="text-slate-400 text-sm font-medium">({feed.type === 'praise' ? '***' : feed.team})</span>
+                    {feed.type !== 'praise' && feed.profiles?.role === 'admin' && <span className="bg-red-50 text-red-500 text-[10px] px-2 py-0.5 rounded-full border border-red-100 font-bold">관리자</span>}
+                    {feed.type !== 'praise' && feed.profiles?.is_reporter && <span className="bg-yellow-100 text-yellow-700 text-[10px] px-2 py-0.5 rounded-full border border-yellow-200 font-bold">리포터</span>}
+                    {feed.type !== 'praise' && feed.profiles?.is_ambassador && <span className="bg-purple-100 text-purple-700 text-[10px] px-2 py-0.5 rounded-full border border-purple-200 font-bold">앰버서더</span>}
+                </p>
+            </div></div>
             <div className="mb-5"><div className="flex flex-wrap gap-1.5 mb-3"><span className={`inline-block px-3 py-1 rounded-full text-[11px] font-bold border shadow-sm ${feed.type === 'praise' ? 'bg-green-50 text-green-600 border-green-100' : feed.type === 'news' ? 'bg-red-50 text-red-600 border-red-100' : feed.type === 'dept_news' ? 'bg-purple-50 text-purple-600 border-purple-100' : feed.type === 'matjib' ? 'bg-orange-50 text-orange-600 border-orange-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>{feed.type === 'praise' ? '칭찬해요' : feed.type === 'news' ? '📢 공지사항' : feed.type === 'dept_news' ? '🏢 우리들 소식' : feed.type === 'matjib' ? '맛집 소개' : '꿀팁'}</span>{feed.type === 'dept_news' && feed.region_main && (<span className="inline-block px-3 py-1 rounded-full text-[11px] font-bold bg-purple-100 text-purple-700 border border-purple-200 shadow-sm">{feed.region_main}</span>)}{feed.type === 'matjib' && feed.region_main && <span className="inline-block px-3 py-1 rounded-full text-[11px] font-bold bg-slate-50 text-slate-500 border border-slate-200"><MapPin className="w-3 h-3 inline mr-1"/>{feed.region_main} {feed.region_sub}</span>}</div>{feed.type === 'praise' && feed.target_name && <p className="text-sm font-bold text-green-600 mb-2">To. {feed.target_name}</p>}{feed.type !== 'praise' && feed.title && (<h3 className="text-base font-bold text-slate-800 mb-2 flex items-center gap-1.5">{feed.title}</h3>)}<p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{feed.content}</p></div>
             {feed.image_url && (<div className="mb-5 rounded-3xl overflow-hidden border border-slate-100 shadow-sm"><img src={feed.image_url} alt="Content" className="w-full h-auto object-cover" /></div>)}
             <div className="flex items-center justify-between border-t border-slate-50 pt-4"><div className="flex items-center gap-5"><button onClick={() => handleLikePost(feed.id, feed.likes, feed.isLiked)} className={`flex items-center gap-1.5 text-sm font-bold transition-all ${feed.isLiked ? 'text-red-500' : 'text-slate-400 hover:text-red-500'}`}><Heart className={`w-5 h-5 transition-transform active:scale-75 ${feed.isLiked ? 'fill-red-500' : ''}`} /> {feed.likes?.length || 0}</button><div className="flex items-center gap-1.5 text-sm font-bold text-slate-400"><MessageCircle className="w-5 h-5" /> {comments.length}</div>{(currentUser?.id === feed.author_id || currentUser?.role === 'admin') && (<button onClick={() => handleDeletePost(feed.id)} className="text-xs text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-lg">삭제</button>)}</div><div className="text-xs text-slate-300 font-medium">{feed.formattedTime}</div></div>
@@ -788,7 +779,6 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, boosterA
       if (currentUser?.dept && Object.keys(ORGANIZATION).includes(currentUser.dept)) { setDeptNewsOrg(currentUser.dept); }
   }, [categories, initialCategory, currentUser]);
   const showPointReward = ['praise', 'knowhow', 'matjib', 'dept_news'].includes(writeCategory);
-  // 2. 부스터 적용: 게시글 포인트 2배 (기본 100P 지급으로 설정하여 부스터 시 200P)
   const rewardAmount = boosterActive ? 200 : 100;
   const pointRewardText = showPointReward ? ` (+${rewardAmount}P)` : '';
   const praiseTargetUsers = useMemo(() => {
@@ -886,6 +876,42 @@ export default function App() {
   const [selectedPostId, setSelectedPostId] = useState(null);
 
   const weeklyBirthdays = React.useMemo(() => getWeeklyBirthdays(profiles), [profiles]);
+
+  // --- [추가] History API 기반 뒤로가기 제어 로직 ---
+  useEffect(() => {
+    // 팝업이나 모달이 열릴 때 history state를 푸시하여 '뒤로가기'를 가로챌 준비를 함
+    const isModalOpen = showWriteModal || showUserInfoModal || showBirthdayPopup || showGiftModal || 
+                        showAdminManageModal || showGiftNotificationModal || showAdminGrantPopup || 
+                        showAdminClawbackModal || showChangeDeptModal || showChangePwdModal || 
+                        showAdminGrantModal || showRedemptionListModal || showAdminAlertModal || selectedPostId;
+
+    if (isModalOpen) {
+      window.history.pushState({ modalOpen: true }, '');
+    }
+
+    const handlePopState = (event) => {
+      // 뒤로가기 클릭 시 모든 모달을 닫고 앱 종료 방지
+      setShowWriteModal(false);
+      setShowUserInfoModal(false);
+      setShowBirthdayPopup(false);
+      setShowGiftModal(false);
+      setShowAdminManageModal(false);
+      setShowGiftNotificationModal(false);
+      setShowAdminGrantPopup(false);
+      setShowAdminClawbackModal(false);
+      setShowChangeDeptModal(false);
+      setShowChangePwdModal(false);
+      setShowAdminGrantModal(false);
+      setShowRedemptionListModal(false);
+      setShowAdminAlertModal(false);
+      setSelectedPostId(null);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [showWriteModal, showUserInfoModal, showBirthdayPopup, showGiftModal, showAdminManageModal, 
+      showGiftNotificationModal, showAdminGrantPopup, showAdminClawbackModal, showChangeDeptModal, 
+      showChangePwdModal, showAdminGrantModal, showRedemptionListModal, showAdminAlertModal, selectedPostId]);
 
   useEffect(() => {
     if (window.supabase) {
@@ -1166,14 +1192,11 @@ export default function App() {
     } catch (err) { alert('가입 실패: ' + err.message); } finally { setLoading(false); }
   };
 
-  // --- [수정] 2. 포인트 부스터 반영 게시글 작성 로직 ---
   const handlePostSubmit = async (e) => {
     e.preventDefault(); 
     if (!currentUser || !checkSupabaseConfig()) return;
     const category = e.target.category.value;
     const isRewardCategory = ['praise', 'knowhow', 'matjib', 'dept_news'].includes(category);
-    
-    // 부스터 적용 시 게시글 작성 포인트 2배 (100P -> 200P)
     const rewardAmountBase = 100; 
     const rewardPoints = (isRewardCategory) ? (boosterActive ? rewardAmountBase * 2 : rewardAmountBase) : 0; 
     
@@ -1242,7 +1265,6 @@ export default function App() {
   const handleLogout = async () => { if (!supabase) return; try { await supabase.auth.signOut(); setCurrentUser(null); setSession(null); setMood(null); setHasCheckedOut(false); } catch (err) { console.error(err); } };
   const handleChangeDept = async (newDept, newTeam) => { if (!currentUser || !supabase) return; try { await supabase.from('profiles').update({ dept: newDept, team: newTeam }).eq('id', currentUser.id); fetchUserData(currentUser.id); setShowChangeDeptModal(false); alert('소속이 변경되었습니다.'); } catch(err) { console.error(err); } };
   const handleChangePassword = async (newPassword) => { if (!currentUser || !supabase) return; try { await supabase.auth.updateUser({ password: newPassword }); setShowChangePwdModal(false); alert('비밀번호가 변경되었습니다. 다시 로그인해주세요.'); handleLogout(); } catch(err) { console.error(err); } };
-  
   const handleTabChange = (tabId) => { setActiveTab(tabId); if (tabId === 'feed') { setActiveFeedFilter('all'); } };
 
   if (!isSupabaseReady) { return ( <div className="min-h-screen flex items-center justify-center bg-blue-50 flex-col gap-4"><Loader2 className="w-12 h-12 animate-spin text-blue-500" /><p className="text-sm font-bold text-slate-500">앱을 불러오는 중입니다...</p></div> ); }
