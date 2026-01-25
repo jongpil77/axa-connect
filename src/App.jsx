@@ -1005,13 +1005,22 @@ export default function App() {
  }, [ensureExitGuard]);
 
  const handleExitYes = useCallback(() => {
-  setShowExitConfirm(false);
-  // 다음 popstate는 통과시키고 실제로 한 단계 더 뒤로가서 앱을 나가게 함
-  exitAllowOnceRef.current = true;
+ setShowExitConfirm(false);
+ // 다음 popstate는 통과시키고 실제로 앱을 나가도록 예외적으로 허용
+ exitAllowOnceRef.current = true;
+
+ // 히스토리가 있는 일반 케이스: 한 단계 뒤로 이동(앱 나가기)
+ // ※ 모바일 브라우저에서는 탭을 코드로 닫을 수 없으므로, 가능한 경우 history.back()을 사용합니다.
+ if (window.history.length > 1) {
   window.history.back();
-  // 만약 뒤로갈 히스토리가 없어서 popstate가 발생하지 않는 경우를 대비해 플래그를 자동 해제
-  setTimeout(() => { exitAllowOnceRef.current = false; }, 1500);
- }, []);
+ } else {
+  // 히스토리가 거의 없는 단독 진입 케이스(직접 URL 입력/새 탭): 가능한 범위에서 앱을 벗어나도록 처리
+  window.location.replace('about:blank');
+ }
+
+ // 혹시 뒤로갈 히스토리가 없어서 popstate가 발생하지 않는 경우를 대비해 플래그를 자동 해제
+ setTimeout(() => { exitAllowOnceRef.current = false; }, 1500);
+}, []);
 
  const handleExitNo = useCallback(() => {
   setShowExitConfirm(false);
