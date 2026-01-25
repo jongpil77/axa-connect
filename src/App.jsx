@@ -950,83 +950,112 @@ export default function App() {
 
   const weeklyBirthdays = React.useMemo(() => getWeeklyBirthdays(profiles), [profiles]);
 
- // --- [수정] 모바일 브라우저 Back(뒤로가기) 비활성화 + 앱 종료 확인(Y/N) ---
- // 정책: 휴대폰 Back 버튼으로 앱 내 이동(탭 이동/모달 닫기/상세 복귀)을 하지 않습니다.
- // Back이 눌리면 '앱을 나가시겠습니까?' 확인 후, Y(Yes) 선택 시에만 실제로 브라우저 뒤로가기를 진행합니다.
+ // --- [수정] 모바일 Back 완전 차단(해시 기반 가드) + 앱 종료 확인(Y/N) ---
+ // 목표: 휴대폰 Back 버튼으로는 앱 내 이동/종료가 절대 발생하지 않게 하고,
+ //       예외적으로 'Y'를 선택한 경우에만 앱(현재 페이지)에서 나가도록 허용합니다.
+ // 방식: hashchange는 모바일 브라우저에서 Back과 함께 매우 안정적으로 발생하므로,
+ //       해시를 2단계(#app -> #guard)로 쌓아 Back 시도를 감지/차단합니다.
  const exitAllowOnceRef = useRef(false);
+ const backGuardInitRef = useRef(false);
+ const HASH_APP = '#app';
+ const HASH_GUARD = '#guard';
 
- const ensureExitGuard = useCallback(() => {
-  // 현재 히스토리 state가 가드가 아니면 가드 엔트리를 1개 추가해 Back으로 탭/브라우저가 즉시 닫히는 것을 방지합니다.
-  const st = window.history.state;
-  if (!st || !st.__exitGuard) {
-   window.history.pushState({ __exitGuard: true }, '', '');
+ const armBackGuard = useCallback(() => {
+  if (backGuardInitRef.current) return;
+  backGuardInitRef.current = true;
+
+  // 1) 최소 한 번은 #app 상태를 만들고
+  if (!window.location.hash) {
+   window.location.hash = HASH_APP;
+  }
+  // 2) 곧바로 #guard로 이동하여 Back 시 hashchange가 발생하도록 히스토리 2개를 확보
+  if (window.location.hash !== HASH_GUARD) {
+   window.location.hash = HASH_GUARD;
+  }
+ }, []);
+
+ const rearmGuard = useCallback(() => {
+  if (exitAllowOnceRef.current) return;
+  // 사용 중에 해시가 #guard가 아니게 되면 즉시 #guard로 복구
+  if (window.location.hash !== HASH_GUARD) {
+   window.location.hash = HASH_GUARD;
   }
  }, []);
 
  // 앱 진입 시 항상 가드 확보
  useEffect(() => {
-  ensureExitGuard();
- }, [ensureExitGuard]);
+  armBackGuard();
+ }, [armBackGuard]);
 
- // 로그인 직후에도 즉시 가드 재확보 (로그인 직후 Back 방지)
+ // 로그인 직후에도 가드 재확보(로그인 직후 Back 시도 방지)
  useEffect(() => {
-  if (session) ensureExitGuard();
- }, [session, ensureExitGuard]);
+  if (session) rearmGuard();
+ }, [session, rearmGuard]);
 
- // 사용 중 상태 변화(탭/모달/상세글 등)에도 가드를 유지
+ // 사용 중 상태 변화에도 가드를 유지
  useEffect(() => {
-  ensureExitGuard();
+  rearmGuard();
  }, [
   session, activeTab, selectedPostId,
   showWriteModal, showUserInfoModal, showBirthdayPopup, showGiftModal,
   showAdminManageModal, showGiftNotificationModal, showAdminGrantPopup,
   showAdminClawbackModal, showChangeDeptModal, showChangePwdModal,
   showAdminGrantModal, showRedemptionListModal, showAdminAlertModal,
-  ensureExitGuard
+  rearmGuard
  ]);
 
- // Back 버튼 인터셉트: 앱 내 이동은 막고, 종료 시도만 확인 모달로 처리
+ // Back 인터셉트 (hashchange + popstate 동시 대응)
  useEffect(() => {
-  const handlePopState = () => {
-   // 사용자가 종료를 'Y'로 허용한 경우, 다음 popstate(실제 뒤로가기)는 그대로 통과
-   if (exitAllowOnceRef.current) {
-    exitAllowOnceRef.current = false;
-    return;
-   }
-
-   // Back은 앱 내 네비게이션에 사용하지 않음: 종료 확인 모달 표시
+  const onBackAttempt = () => {
+   if (exitAllowOnceRef.current) return;
    setShowExitConfirm(true);
-   // popstate로 빠진 히스토리를 즉시 가드로 되돌려 앱이 닫히지 않게 함
-   ensureExitGuard();
+   rearmGuard();
   };
 
-  window.addEventListener('popstate', handlePopState);
-  return () => window.removeEventListener('popstate', handlePopState);
- }, [ensureExitGuard]);
+  const onHashChange = () => {
+   if (exitAllowOnceRef.current) return;
+   // 사용자가 Back을 눌렀다면 #guard -> #app(또는 '')로 바뀌는 경향이 있어 이를 감지
+   if (window.location.hash !== HASH_GUARD) {
+    onBackAttempt();
+   }
+  };
+
+  const onPopState = () => {
+   // 일부 브라우저/상황에서 popstate만 발생할 수 있어 동일하게 처리
+   onBackAttempt();
+  };
+
+  window.addEventListener('hashchange', onHashChange);
+  window.addEventListener('popstate', onPopState);
+  return () => {
+   window.removeEventListener('hashchange', onHashChange);
+   window.removeEventListener('popstate', onPopState);
+  };
+ }, [rearmGuard]);
 
  const handleExitYes = useCallback(() => {
- setShowExitConfirm(false);
- // 다음 popstate는 통과시키고 실제로 앱을 나가도록 예외적으로 허용
- exitAllowOnceRef.current = true;
+  setShowExitConfirm(false);
+  // 예외적으로 1회만 Back을 통과시켜 앱(현재 페이지) 밖으로 이동
+  exitAllowOnceRef.current = true;
 
- // 히스토리가 있는 일반 케이스: 한 단계 뒤로 이동(앱 나가기)
- // ※ 모바일 브라우저에서는 탭을 코드로 닫을 수 없으므로, 가능한 경우 history.back()을 사용합니다.
- if (window.history.length > 1) {
-  window.history.back();
- } else {
-  // 히스토리가 거의 없는 단독 진입 케이스(직접 URL 입력/새 탭): 가능한 범위에서 앱을 벗어나도록 처리
-  window.location.replace('about:blank');
- }
-
- // 혹시 뒤로갈 히스토리가 없어서 popstate가 발생하지 않는 경우를 대비해 플래그를 자동 해제
- setTimeout(() => { exitAllowOnceRef.current = false; }, 1500);
-}, []);
+  // #guard, #app 두 개의 히스토리를 쌓아두었으므로 -2면 앱 밖(이전 페이지)로 이동합니다.
+  // 단, 새 탭/직접 진입처럼 이전 히스토리가 없으면 about:blank로 대체합니다.
+  try {
+   if (window.history.length > 2) {
+    window.history.go(-2);
+   } else {
+    window.location.replace('about:blank');
+   }
+  } finally {
+   // 혹시 이동이 막힌 경우를 대비해 플래그 자동 해제
+   setTimeout(() => { exitAllowOnceRef.current = false; }, 2000);
+  }
+ }, []);
 
  const handleExitNo = useCallback(() => {
   setShowExitConfirm(false);
-  // 유지 선택 시 가드 재확보
-  ensureExitGuard();
- }, [ensureExitGuard]);
+  rearmGuard();
+ }, [rearmGuard]);
 useEffect(() => {
     if (window.supabase) {
         const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
