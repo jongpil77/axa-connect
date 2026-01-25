@@ -160,6 +160,21 @@ const MoodToast = ({ message, emoji, visible }) => {
     );
 };
 
+// --- [추가] 앱 종료 확인 모달 (모바일 Back으로 닫힘 방지) ---
+const ExitConfirmModal = ({ onYes, onNo }) => (
+ <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+  <div className="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl border border-slate-100">
+   <h3 className="text-lg font-black text-slate-800 mb-2">앱 종료</h3>
+   <p className="text-sm text-slate-600 leading-relaxed mb-6">이 앱을 나가시겠습니까?</p>
+   <div className="flex gap-3">
+    <button onClick={onNo} className="flex-1 bg-slate-100 text-slate-700 p-3 rounded-2xl font-bold hover:bg-slate-200 transition-colors">N</button>
+    <button onClick={onYes} className="flex-1 bg-red-600 text-white p-3 rounded-2xl font-bold hover:bg-red-700 transition-colors shadow-lg">Y</button>
+   </div>
+  </div>
+ </div>
+);
+
+
 const AdminGrantPopup = ({ grants, onClose }) => {
     const total = grants.reduce((acc, curr) => acc + curr.amount, 0);
     return (
@@ -923,7 +938,8 @@ export default function App() {
   const [showChangePwdModal, setShowChangePwdModal] = useState(false);
   const [showAdminGrantModal, setShowAdminGrantModal] = useState(false);
   const [showRedemptionListModal, setShowRedemptionListModal] = useState(false); 
-  const [showAdminAlertModal, setShowAdminAlertModal] = useState(false); 
+  const [showAdminAlertModal, setShowAdminAlertModal] = useState(false);
+ const [showExitConfirm, setShowExitConfirm] = useState(false); 
   const [toast, setToast] = useState({ visible: false, message: '', emoji: '' });
   const [activeTab, setActiveTab] = useState('home');
   const [activeFeedFilter, setActiveFeedFilter] = useState('all');
@@ -934,94 +950,32 @@ export default function App() {
 
   const weeklyBirthdays = React.useMemo(() => getWeeklyBirthdays(profiles), [profiles]);
 
- // --- [추가] 모바일 브라우저(크롬/삼성인터넷)에서도 Back으로 화면이 닫히지 않도록 루트 히스토리 가드 ---
- // 원리: 현재 페이지에 history entry(가드)를 1개 더 쌓아두면, Back이 눌려도 같은 문서 내에서 popstate로 제어할 수 있습니다.
- const backExitGuardRef = useRef(false);
+ // --- [수정] 모바일 브라우저 Back(뒤로가기) 비활성화 + 앱 종료 확인(Y/N) ---
+ // 정책: 휴대폰 Back 버튼으로 앱 내 이동(탭 이동/모달 닫기/상세 복귀)을 하지 않습니다.
+ // Back이 눌리면 '앱을 나가시겠습니까?' 확인 후, Y(Yes) 선택 시에만 실제로 브라우저 뒤로가기를 진행합니다.
+ const exitAllowOnceRef = useRef(false);
 
  const ensureExitGuard = useCallback(() => {
-  // 현재 state가 exit-guard가 아니라면 하나 더 쌓아 Back 시 앱(탭)이 바로 닫히지 않도록 합니다.
+  // 현재 히스토리 state가 가드가 아니면 가드 엔트리를 1개 추가해 Back으로 탭/브라우저가 즉시 닫히는 것을 방지합니다.
   const st = window.history.state;
   if (!st || !st.__exitGuard) {
    window.history.pushState({ __exitGuard: true }, '', '');
   }
-  backExitGuardRef.current = true;
  }, []);
 
+ // 앱 진입 시 항상 가드 확보
  useEffect(() => {
-  // 최초 1회: exit-guard 보장
   ensureExitGuard();
  }, [ensureExitGuard]);
 
+ // 로그인 직후에도 즉시 가드 재확보 (로그인 직후 Back 방지)
  useEffect(() => {
-  // 로그인 직후에도 exit-guard 재확인
   if (session) ensureExitGuard();
  }, [session, ensureExitGuard]);
 
-
-  // --- [수정] 뒤로가기 제어 로직 강화 (모바일 브라우저 Back 종료 방지) ---
-  useEffect(() => {
-    const isModalOpen = showWriteModal || showUserInfoModal || showBirthdayPopup || showGiftModal || 
-                        showAdminManageModal || showGiftNotificationModal || showAdminGrantPopup || 
-                        showAdminClawbackModal || showChangeDeptModal || showChangePwdModal || 
-                        showAdminGrantModal || showRedemptionListModal || showAdminAlertModal || selectedPostId;
-
-    if (isModalOpen) {
- // 모달/상세글 오픈 시: 뒤로가기로 닫히도록 히스토리를 1회만 쌓습니다.
- const st = window.history.state;
- if (!st || !st.__modal) {
-  window.history.pushState({ __modal: true }, '', '');
- }
-} else {
- // 모달이 없을 때는 항상 exit-guard를 보장해 Back으로 탭/브라우저가 닫히지 않게 합니다.
- ensureExitGuard();
-}
-
-    const handlePopState = (e) => {
- // 뒤로가기 이벤트 감지 시 처리
- if (isModalOpen) {
-  // 모달/상세글이 열려 있으면 우선 닫고, 즉시 exit-guard를 다시 쌓아 앱 종료를 방지
-  setShowWriteModal(false);
-  setShowUserInfoModal(false);
-  setShowBirthdayPopup(false);
-  setShowGiftModal(false);
-  setShowAdminManageModal(false);
-  setShowGiftNotificationModal(false);
-  setShowAdminGrantPopup(false);
-  setShowAdminClawbackModal(false);
-  setShowChangeDeptModal(false);
-  setShowChangePwdModal(false);
-  setShowAdminGrantModal(false);
-  setShowRedemptionListModal(false);
-  setShowAdminAlertModal(false);
-  setSelectedPostId(null);
-  ensureExitGuard();
- } else if (activeTab !== 'home') {
-  // 홈이 아니면 홈으로 이동하고, 종료 방지를 위해 exit-guard 재설정
-  setActiveTab('home');
-  ensureExitGuard();
- } else {
-  // 홈 화면: Back으로 탭/브라우저가 닫히는 것을 방지
-  ensureExitGuard();
- }
-};
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [ showWriteModal, showUserInfoModal, showBirthdayPopup, showGiftModal, showAdminManageModal, 
-      showGiftNotificationModal, showAdminGrantPopup, showAdminClawbackModal, showChangeDeptModal, 
-      showChangePwdModal, showAdminGrantModal, showRedemptionListModal, showAdminAlertModal, 
-      selectedPostId, activeTab, 
-
- // --- [추가] 앱 사용 중(중간) 상태 변경에도 exit-guard를 유지 (모바일 브라우저 Back 종료 방지) ---
+ // 사용 중 상태 변화(탭/모달/상세글 등)에도 가드를 유지
  useEffect(() => {
-  const modalOpen = showWriteModal || showUserInfoModal || showBirthdayPopup || showGiftModal ||
-   showAdminManageModal || showGiftNotificationModal || showAdminGrantPopup ||
-   showAdminClawbackModal || showChangeDeptModal || showChangePwdModal ||
-   showAdminGrantModal || showRedemptionListModal || showAdminAlertModal || selectedPostId;
-
-  if (!modalOpen) {
-   ensureExitGuard();
-  }
+  ensureExitGuard();
  }, [
   session, activeTab, selectedPostId,
   showWriteModal, showUserInfoModal, showBirthdayPopup, showGiftModal,
@@ -1030,9 +984,41 @@ export default function App() {
   showAdminGrantModal, showRedemptionListModal, showAdminAlertModal,
   ensureExitGuard
  ]);
-ensureExitGuard]);
 
-  useEffect(() => {
+ // Back 버튼 인터셉트: 앱 내 이동은 막고, 종료 시도만 확인 모달로 처리
+ useEffect(() => {
+  const handlePopState = () => {
+   // 사용자가 종료를 'Y'로 허용한 경우, 다음 popstate(실제 뒤로가기)는 그대로 통과
+   if (exitAllowOnceRef.current) {
+    exitAllowOnceRef.current = false;
+    return;
+   }
+
+   // Back은 앱 내 네비게이션에 사용하지 않음: 종료 확인 모달 표시
+   setShowExitConfirm(true);
+   // popstate로 빠진 히스토리를 즉시 가드로 되돌려 앱이 닫히지 않게 함
+   ensureExitGuard();
+  };
+
+  window.addEventListener('popstate', handlePopState);
+  return () => window.removeEventListener('popstate', handlePopState);
+ }, [ensureExitGuard]);
+
+ const handleExitYes = useCallback(() => {
+  setShowExitConfirm(false);
+  // 다음 popstate는 통과시키고 실제로 한 단계 더 뒤로가서 앱을 나가게 함
+  exitAllowOnceRef.current = true;
+  window.history.back();
+  // 만약 뒤로갈 히스토리가 없어서 popstate가 발생하지 않는 경우를 대비해 플래그를 자동 해제
+  setTimeout(() => { exitAllowOnceRef.current = false; }, 1500);
+ }, []);
+
+ const handleExitNo = useCallback(() => {
+  setShowExitConfirm(false);
+  // 유지 선택 시 가드 재확보
+  ensureExitGuard();
+ }, [ensureExitGuard]);
+useEffect(() => {
     if (window.supabase) {
         const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         setSupabase(client);
@@ -1416,7 +1402,8 @@ ensureExitGuard]);
               {showAdminClawbackModal && <AdminClawbackModal onClose={() => setShowAdminClawbackModal(false)} onClawback={handleAdminClawbackPoints} profiles={profiles} />}
               {showRedemptionListModal && <RedemptionListModal onClose={() => setShowRedemptionListModal(false)} redemptionList={redemptionList} onComplete={handleCompleteRedemption} />}
               {showAdminAlertModal && <AdminAlertModal onClose={handleCloseAdminAlert} />}
-              <MoodToast visible={toast.visible} message={toast.message} emoji={toast.emoji} />
+               {showExitConfirm && <ExitConfirmModal onYes={handleExitYes} onNo={handleExitNo} />}
+ <MoodToast visible={toast.visible} message={toast.message} emoji={toast.emoji} />
             </>
           )}
         </div>
