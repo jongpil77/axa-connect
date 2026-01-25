@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo , useRef} from 'react';
 import { 
   User, Heart, MessageCircle, Gift, Bell, Sparkles, Smile, Frown, Meh, 
   Megaphone, X, Send, Settings, ChevronRight, LogOut, Image as ImageIcon, 
@@ -934,7 +934,19 @@ export default function App() {
 
   const weeklyBirthdays = React.useMemo(() => getWeeklyBirthdays(profiles), [profiles]);
 
-  // --- [수정] 뒤로가기 제어 로직 강화 ---
+ // --- [추가] 모바일/웹뷰 하드웨어 Back(뒤로가기)로 앱이 종료되지 않도록 루트 히스토리 가드 ---
+ const backExitGuardRef = useRef(false);
+ useEffect(() => {
+  // 최초 1회: 현재 페이지에 가드용 history entry를 하나 더 쌓아 둡니다.
+  // 이렇게 하면 Android(WebView/PWA)에서 뒤로가기를 눌러도 앱이 바로 닫히지 않고 popstate로 제어할 수 있습니다.
+  if (!backExitGuardRef.current) {
+   window.history.pushState({ __exitGuard: true }, '', '');
+   backExitGuardRef.current = true;
+  }
+ }, []);
+
+
+  // --- [수정] 뒤로가기 제어 로직 강화 (모바일 Back로 앱 종료 방지) --- ---
   useEffect(() => {
     const isModalOpen = showWriteModal || showUserInfoModal || showBirthdayPopup || showGiftModal || 
                         showAdminManageModal || showGiftNotificationModal || showAdminGrantPopup || 
@@ -966,8 +978,11 @@ export default function App() {
       } else if (activeTab !== 'home') {
         // 모달이 없고 홈이 아닐 경우 홈으로 이동
         setActiveTab('home');
-        window.history.pushState(null, "", "");
-      }
+        window.history.go(1);
+ } else {
+ // 홈 화면 + 열린 모달 없음: 뒤로가기로 앱이 종료되는 것을 방지
+ window.history.go(1);
+ }
     };
 
     window.addEventListener('popstate', handlePopState);
