@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo , useRef} from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { 
   User, Heart, MessageCircle, Gift, Bell, Sparkles, Smile, Frown, Meh, 
   Megaphone, X, Send, Settings, ChevronRight, LogOut, Image as ImageIcon, 
@@ -936,17 +936,29 @@ export default function App() {
 
  // --- [추가] 모바일/웹뷰 하드웨어 Back(뒤로가기)로 앱이 종료되지 않도록 루트 히스토리 가드 ---
  const backExitGuardRef = useRef(false);
- useEffect(() => {
-  // 최초 1회: 현재 페이지에 가드용 history entry를 하나 더 쌓아 둡니다.
-  // 이렇게 하면 Android(WebView/PWA)에서 뒤로가기를 눌러도 앱이 바로 닫히지 않고 popstate로 제어할 수 있습니다.
-  if (!backExitGuardRef.current) {
+
+ // 로그인 직후(또는 화면 전환)에도 항상 exit-guard 히스토리를 보장
+ const ensureExitGuard = useCallback(() => {
+  // 현재 state가 exit-guard가 아니면 하나 더 쌓아 Back 시 앱이 바로 종료되지 않게 합니다.
+  const st = window.history.state;
+  if (!st || !st.__exitGuard) {
    window.history.pushState({ __exitGuard: true }, '', '');
-   backExitGuardRef.current = true;
   }
+  backExitGuardRef.current = true;
  }, []);
 
+ useEffect(() => {
+  // 최초 1회: 가드용 history entry를 쌓아 둡니다.
+  ensureExitGuard();
+ }, [ensureExitGuard]);
 
-  // --- [수정] 뒤로가기 제어 로직 강화 (모바일 Back로 앱 종료 방지) --- ---
+ useEffect(() => {
+  // [핵심] 로그인 직후에도 Back으로 앱이 종료되지 않도록 가드를 재확인합니다.
+  if (session) ensureExitGuard();
+ }, [session, ensureExitGuard]);
+
+
+  // --- [수정] 뒤로가기 제어 로직 강화 (모바일 Back로 앱 종료 방지 + 로그인 직후 적용) ---
   useEffect(() => {
     const isModalOpen = showWriteModal || showUserInfoModal || showBirthdayPopup || showGiftModal || 
                         showAdminManageModal || showGiftNotificationModal || showAdminGrantPopup || 
@@ -959,38 +971,40 @@ export default function App() {
     }
 
     const handlePopState = (e) => {
-      // 뒤로가기 이벤트 감지 시 모든 모달 닫기
-      if (isModalOpen) {
-        setShowWriteModal(false);
-        setShowUserInfoModal(false);
-        setShowBirthdayPopup(false);
-        setShowGiftModal(false);
-        setShowAdminManageModal(false);
-        setShowGiftNotificationModal(false);
-        setShowAdminGrantPopup(false);
-        setShowAdminClawbackModal(false);
-        setShowChangeDeptModal(false);
-        setShowChangePwdModal(false);
-        setShowAdminGrantModal(false);
-        setShowRedemptionListModal(false);
-        setShowAdminAlertModal(false);
-        setSelectedPostId(null);
-      } else if (activeTab !== 'home') {
-        // 모달이 없고 홈이 아닐 경우 홈으로 이동
-        setActiveTab('home');
-        window.history.go(1);
+ // 뒤로가기 이벤트 감지 시 처리
+ if (isModalOpen) {
+  // 모달/상세글이 열려 있으면 우선 닫고, 즉시 exit-guard를 다시 쌓아 앱 종료를 방지
+  setShowWriteModal(false);
+  setShowUserInfoModal(false);
+  setShowBirthdayPopup(false);
+  setShowGiftModal(false);
+  setShowAdminManageModal(false);
+  setShowGiftNotificationModal(false);
+  setShowAdminGrantPopup(false);
+  setShowAdminClawbackModal(false);
+  setShowChangeDeptModal(false);
+  setShowChangePwdModal(false);
+  setShowAdminGrantModal(false);
+  setShowRedemptionListModal(false);
+  setShowAdminAlertModal(false);
+  setSelectedPostId(null);
+  ensureExitGuard();
+ } else if (activeTab !== 'home') {
+  // 모달이 없고 홈이 아닐 경우 홈으로 이동 후 exit-guard 재설정
+  setActiveTab('home');
+  ensureExitGuard();
  } else {
- // 홈 화면 + 열린 모달 없음: 뒤로가기로 앱이 종료되는 것을 방지
- window.history.go(1);
+  // 홈 화면 + 열린 모달 없음: 뒤로가기로 앱(웹뷰/PWA)이 종료되는 것을 방지
+  ensureExitGuard();
  }
-    };
+};
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [showWriteModal, showUserInfoModal, showBirthdayPopup, showGiftModal, showAdminManageModal, 
+  }, [ showWriteModal, showUserInfoModal, showBirthdayPopup, showGiftModal, showAdminManageModal, 
       showGiftNotificationModal, showAdminGrantPopup, showAdminClawbackModal, showChangeDeptModal, 
       showChangePwdModal, showAdminGrantModal, showRedemptionListModal, showAdminAlertModal, 
-      selectedPostId, activeTab]);
+      selectedPostId, activeTab, ensureExitGuard]);
 
   useEffect(() => {
     if (window.supabase) {
