@@ -966,9 +966,15 @@ export default function App() {
                         showAdminGrantModal || showRedemptionListModal || showAdminAlertModal || selectedPostId;
 
     if (isModalOpen) {
-      // 모달이 열릴 때 history push
-      window.history.pushState({ modal: true }, "");
-    }
+ // 모달(또는 상세글) 오픈 시: 뒤로가기로 닫히도록 히스토리를 1회만 쌓습니다.
+ const st = window.history.state;
+ if (!st || !st.__modal) {
+  window.history.pushState({ __modal: true }, '', '');
+ }
+} else {
+ // 모달이 없을 때는 항상 exit-guard 상태를 보장해 Back으로 앱이 종료되지 않게 합니다.
+ ensureExitGuard();
+}
 
     const handlePopState = (e) => {
  // 뒤로가기 이벤트 감지 시 처리
@@ -1005,6 +1011,27 @@ export default function App() {
       showGiftNotificationModal, showAdminGrantPopup, showAdminClawbackModal, showChangeDeptModal, 
       showChangePwdModal, showAdminGrantModal, showRedemptionListModal, showAdminAlertModal, 
       selectedPostId, activeTab, ensureExitGuard]);
+
+ // --- [추가] 앱 사용 중에도(중간에도) Back으로 앱이 닫히지 않도록 항상 가드를 유지 ---
+ useEffect(() => {
+  const modalOpen = showWriteModal || showUserInfoModal || showBirthdayPopup || showGiftModal ||
+   showAdminManageModal || showGiftNotificationModal || showAdminGrantPopup ||
+   showAdminClawbackModal || showChangeDeptModal || showChangePwdModal ||
+   showAdminGrantModal || showRedemptionListModal || showAdminAlertModal || selectedPostId;
+
+  if (!modalOpen) {
+   // 상태가 바뀌더라도 항상 exit-guard를 보장
+   ensureExitGuard();
+  }
+ }, [
+  session, activeTab, selectedPostId,
+  showWriteModal, showUserInfoModal, showBirthdayPopup, showGiftModal,
+  showAdminManageModal, showGiftNotificationModal, showAdminGrantPopup,
+  showAdminClawbackModal, showChangeDeptModal, showChangePwdModal,
+  showAdminGrantModal, showRedemptionListModal, showAdminAlertModal,
+  ensureExitGuard
+ ]);
+
 
   useEffect(() => {
     if (window.supabase) {
