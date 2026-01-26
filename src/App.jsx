@@ -593,7 +593,7 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
   const [email, setEmail] = useState('');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex justify-center items-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex justify-center items-center p-3">
       <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] p-8 border border-white/50 animate-fade-in relative overflow-hidden backdrop-blur-xl">
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
         <div className="text-center mb-10 mt-6 flex flex-col items-center">
@@ -648,7 +648,7 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
   const [showSettings, setShowSettings] = useState(false);
   
   return (
-    <div className="bg-white/95 backdrop-blur-xl px-4 pt-6 pb-5 sticky top-0 z-40 border-b border-slate-100 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
+    <div className="bg-white/95 backdrop-blur-xl px-2 pt-6 pb-5 sticky top-0 z-40 border-b border-slate-100 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
       <div className="flex justify-between items-center mb-1">
           <div className="text-[11px] text-blue-500 font-bold pl-1 tracking-tight">{todayDate}</div>
           {/* 악사 레드 배경에 흰색 텍스트로 변경 */}
@@ -1047,7 +1047,7 @@ const myActivity = useMemo(() => {
     const matjibFeeds = feeds.filter(f => f.type === 'matjib').slice(0, 5);
 
     return (
-      <div className="p-6 space-y-5 pb-40 animate-fade-in relative bg-[#F8F9FA] min-h-full">
+      <div className="px-2 py-4 space-y-5 pb-40 animate-fade-in relative bg-[#F8F9FA] min-h-full">
         
         {/* 상단 공지 섹션 제거됨 */}
 
@@ -1248,7 +1248,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
   });
 
   return (
-    <div className="p-6 space-y-6 pb-40 animate-fade-in bg-slate-50 min-h-full">
+    <div className="px-2 py-4 space-y-6 pb-40 animate-fade-in bg-slate-50 min-h-full">
       {selectedPostId && (
           <button onClick={onClearSelection} className="w-full bg-slate-800 text-white p-4 rounded-2xl font-bold mb-2 flex items-center justify-center gap-2 hover:bg-slate-900 transition-colors shadow-lg">
               <ChevronLeft className="w-5 h-5"/> 목록으로 돌아가기
@@ -1537,7 +1537,7 @@ const RankingTab = ({ feeds, profiles, allPointHistory, currentUser }) => {
     
     const RankItem = ({ rank, name, value, unit, team, color, showReward }) => (<div className="flex items-center p-4 bg-white border border-slate-100 rounded-3xl shadow-[0_2px_15px_rgba(0,0,0,0.03)] relative overflow-hidden transition-transform hover:scale-[1.01]">{showReward && rank <= 3 && <div className="absolute right-0 top-0 bg-yellow-100 text-yellow-600 text-[10px] font-bold px-3 py-1 rounded-bl-xl shadow-sm">🎁 1,000P</div>}<div className={`text-2xl font-black mr-5 w-8 text-center ${color} drop-shadow-sm`}>{rank}</div><div className="flex-1"><p className="text-base font-bold text-slate-800">{name || 'Unknown'}</p><p className="text-xs text-slate-400 font-medium">{team}</p></div><div className="text-lg font-black text-slate-700 ml-4">{value}<span className="text-xs text-slate-400 ml-0.5 font-normal">{unit}</span></div></div>); 
     
-    return (<div className="p-6 space-y-8 pb-40 animate-fade-in bg-slate-50"><div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 text-center relative"><div className="flex justify-between items-center mb-4 px-2"><button onClick={handlePrevMonth} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><ChevronLeft className="w-6 h-6 text-slate-400" /></button><h2 className="text-xl font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2><button onClick={handleNextMonth} className="p-2 hover:bg-slate-100 rounded-full disabled:opacity-30 transition-colors" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-6 h-6 text-slate-400" /></button></div><div className="flex justify-center gap-2 mt-3"><span className="text-xs bg-green-50 text-green-600 px-3 py-1.5 rounded-full font-bold border border-green-100">🏆 소통상/좋아요상: 1~3등 1,000P</span></div></div>
+    return (<div className="px-2 py-4 space-y-8 pb-40 animate-fade-in bg-slate-50"><div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 text-center relative"><div className="flex justify-between items-center mb-4 px-2"><button onClick={handlePrevMonth} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><ChevronLeft className="w-6 h-6 text-slate-400" /></button><h2 className="text-xl font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2><button onClick={handleNextMonth} className="p-2 hover:bg-slate-100 rounded-full disabled:opacity-30 transition-colors" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-6 h-6 text-slate-400" /></button></div><div className="flex justify-center gap-2 mt-3"><span className="text-xs bg-green-50 text-green-600 px-3 py-1.5 rounded-full font-bold border border-green-100">🏆 소통상/좋아요상: 1~3등 1,000P</span></div></div>
       {myPointRank && (
         <div className="sticky top-2 z-20">
           <div className="bg-blue-50 border border-blue-100 rounded-3xl p-4 shadow-sm">
@@ -1595,9 +1595,9 @@ const BottomNav = ({ activeTab, onTabChange, onFabClick }) => {
   );
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-xl border-t border-slate-200 shadow-[0_-6px_24px_rgba(0,0,0,0.10)] p-2 z-30">
-      <div className="w-[96%] max-w-[420px] mx-auto relative">
-        <div className="grid grid-cols-5 items-center rounded-[2rem] h-16 bg-white/90 border border-white/60 shadow-sm overflow-hidden">
+    <div className="fixed bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-xl border-t border-slate-200 shadow-[0_-6px_24px_rgba(0,0,0,0.10)] p-0 z-30">
+      <div className="w-full relative">
+        <div className="grid grid-cols-5 items-center rounded-[2rem] h-16 bg-white/90 border border-white/60 shadow-sm overflow-hidden mx-2">
           <NavBtn item={homeItem} />
           <NavBtn item={feedItem} />
           <div className="h-full" />
