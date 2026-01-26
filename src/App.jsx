@@ -605,7 +605,7 @@ const UserInfoModal = ({ currentUser, pointHistory, feeds, setShowUserInfoModal,
               <ClipboardList className="w-5 h-5 text-slate-400" /> 나의 활동
             </h4>
 
-            {/* 요청 반영: '내가 받은 칭찬'은 '내 글' 아래, '내가 받은 좋아요'는 '댓글' 아래 */}
+            {/* 4개 항목을 2줄(2x2)로 배치: (내 글 -> 받은 칭찬), (내 댓글 -> 받은 좋아요) */}
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-inner">
                 <div className="flex items-center justify-between">
@@ -1811,13 +1811,7 @@ export default function App() {
     if (mood || !checkSupabaseConfig()) return;
     setMood('checked');
     const points = boosterActive ? 40 : 20;
-    const messages = [
-      "오늘 하루도 활기차게! 화이팅! 🚀",
-      "당신의 열정을 응원합니다! 🔥",
-      "좋은 일만 가득한 하루 보내세요! 🍀",
-      "힘내세요! 당신은 최고입니다! 👍",
-      "오늘도 멋진 성과를 기대할게요! 🌟"
-    ];
+    const messages = ["오늘 하루도 활기차게! 화이팅! 🚀", "당신의 열정을 응원합니다! 🔥", "좋은 일만 가득한 하루 되세요! 🍀", "힘내세요! 당신은 최고입니다! 👍", "오늘도 멋진 성과 기대할게요! 🌟"];
     const randomMsg = messages[Math.floor(Math.random() * messages.length)];
 
     setToast({ visible: true, message: `${randomMsg}\n(+${points}P)`, emoji: "👋" });
