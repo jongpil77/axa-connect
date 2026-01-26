@@ -219,41 +219,6 @@ const GiftNotificationModal = ({ onClose, gifts }) => {
     );
 };
 
-// 전체화면 유도 모달
-const FullscreenPromptModal = ({ onClose, onEnter }) => (
- <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
- <div className="bg-white w-full max-w-sm rounded-[2rem] p-7 shadow-2xl relative border border-slate-100">
- <button onClick={onClose} className="absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-600 rounded-full bg-slate-100"><X className="w-5 h-5" /></button>
- <div className="text-5xl mb-4">🖥️</div>
- <h3 className="text-xl font-black text-slate-800 mb-2">전체화면으로 실행할까요?</h3>
- <p className="text-sm text-slate-500 mb-6 leading-relaxed">더 넓은 화면에서 집중해서 사용할 수 있어요. (브라우저 정책상 버튼을 눌러야 전체화면이 적용됩니다.)</p>
- <div className="flex gap-3">
- <button onClick={onClose} className="flex-1 bg-slate-100 text-slate-700 p-4 rounded-2xl font-bold hover:bg-slate-200 transition-colors">나중에</button>
- <button onClick={onEnter} className="flex-1 bg-slate-800 text-white p-4 rounded-2xl font-bold hover:bg-slate-900 transition-colors shadow-lg">전체화면</button>
- </div>
- <div className="mt-4 text-[11px] text-slate-400">* 한 번 선택하면 다음 실행부터 자동으로 기억합니다.</div>
- </div>
- </div>
-);
-
-// 앱 종료 확인 모달
-const ExitConfirmModal = ({ onClose, onExit }) => (
- <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
- <div className="bg-white w-full max-w-sm rounded-[2rem] p-7 shadow-2xl relative border border-slate-100">
- <button onClick={onClose} className="absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-600 rounded-full bg-slate-100"><X className="w-5 h-5" /></button>
- <div className="text-5xl mb-4">👋</div>
- <h3 className="text-xl font-black text-slate-800 mb-2">앱을 종료할까요?</h3>
- <p className="text-sm text-slate-500 mb-6 leading-relaxed">종료하면 현재 화면을 다시 열어야 합니다.</p>
- <div className="flex gap-3">
- <button onClick={onClose} className="flex-1 bg-slate-100 text-slate-700 p-4 rounded-2xl font-bold hover:bg-slate-200 transition-colors">취소</button>
- <button onClick={onExit} className="flex-1 bg-red-600 text-white p-4 rounded-2xl font-bold hover:bg-red-700 transition-colors shadow-lg">종료</button>
- </div>
- <div className="mt-4 text-[11px] text-slate-400">* 브라우저 환경에서는 자동 종료가 제한될 수 있어요. 그 경우 빈 화면으로 이동한 뒤 탭을 닫아주세요.</div>
- </div>
- </div>
-);
-
-
 const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, loading }) => {
   const [birthdate, setBirthdate] = useState('1999-01-01'); 
   const [selectedDept, setSelectedDept] = useState('');
@@ -310,7 +275,7 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
 };
 
 // [수정] 헤더 디자인 리팩토링 - 요청 반영
-const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, onOpenChangePwd, onOpenAdminGrant, onOpenRedemptionList, onOpenGift, onOpenAdminManage, onOpenAdminClawback, onExitApp, boosterActive }) => {
+const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, onOpenChangePwd, onOpenAdminGrant, onOpenRedemptionList, onOpenGift, onOpenAdminManage, onOpenAdminClawback, boosterActive }) => {
   const todayDate = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
   const [showSettings, setShowSettings] = useState(false);
   
@@ -347,16 +312,13 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
                          <span>2배</span>
                      </div>
                  )}
-                 <span className="text-[10px] text-slate-500 font-black whitespace-nowrap mb-1 tracking-tight">내 포인트</span>
- <div className="flex items-center gap-2 bg-gradient-to-r from-[#C60C30] to-rose-500 px-3.5 py-2 rounded-2xl shadow-md border border-rose-200 ring-1 ring-rose-200/60 group-hover:shadow-lg transition-all">
- <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
- <Coins className="w-5 h-5 text-white fill-white" />
- </div>
- <div className="flex items-baseline gap-1">
- <span className="text-2xl font-black text-white drop-shadow-sm">{currentUser?.points?.toLocaleString()}</span>
- <span className="text-[12px] font-black text-white/90">P</span>
- </div>
- </div>
+                 {/* My CARE Point를 굵게 변경 (font-bold -> font-black) */}
+                 <span className="text-[10px] text-slate-500 font-black whitespace-nowrap mb-0.5">My CARE Point</span>
+                 <div className="flex items-center gap-1 bg-gradient-to-r from-amber-100 to-yellow-100 px-2.5 py-1 rounded-lg shadow-sm border border-yellow-200">
+                    {/* 포인트 숫자 크기 더 확대 (text-lg -> text-xl) */}
+                    <span className="text-xl font-black text-amber-900 group-hover:text-amber-700 transition-colors">{currentUser?.points?.toLocaleString()}</span>
+                    <span className="text-[11px] font-bold text-amber-700">P</span>
+                 </div>
              </div>
           </div>
           
@@ -384,10 +346,9 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
                     <button onClick={() => { setShowSettings(false); onOpenRedemptionList(); }} className="flex items-center gap-3 w-full p-3 text-xs text-purple-600 font-bold hover:bg-purple-50 rounded-xl transition-colors"><ClipboardList className="w-4 h-4 text-purple-500"/> 포인트 차감 신청 관리</button>
                     </div>
                 )}
-                <div className="border-t border-slate-100 p-2 space-y-1">
- <button onClick={() => { setShowSettings(false); onExitApp?.(); }} className="flex items-center gap-3 w-full p-3 text-xs text-slate-600 hover:bg-slate-50 rounded-xl transition-colors font-bold"><X className="w-4 h-4"/> 앱 종료</button>
- <button onClick={handleLogout} className="flex items-center gap-3 w-full p-3 text-xs text-red-500 hover:bg-red-50 rounded-xl transition-colors font-bold"><LogOut className="w-4 h-4"/> 로그아웃</button>
- </div>
+                <div className="border-t border-slate-100 p-2">
+                    <button onClick={handleLogout} className="flex items-center gap-3 w-full p-3 text-xs text-red-500 hover:bg-red-50 rounded-xl transition-colors font-bold"><LogOut className="w-4 h-4"/> 로그아웃</button>
+                </div>
              </div>
           )}
         </div>
@@ -1177,8 +1138,6 @@ export default function App() {
   const [showRedemptionListModal, setShowRedemptionListModal] = useState(false); 
   const [showAdminAlertModal, setShowAdminAlertModal] = useState(false); 
   const [toast, setToast] = useState({ visible: false, message: '', emoji: '' });
-  const [showExitConfirm, setShowExitConfirm] = useState(false);
-  const [showFullscreenPrompt, setShowFullscreenPrompt] = useState(false);
 
   const [activeTab, setActiveTab] = useState('home');
   const [activeFeedFilter, setActiveFeedFilter] = useState('all');
@@ -1216,56 +1175,6 @@ export default function App() {
   }, []);
   
   useEffect(() => { localStorage.setItem('axa_booster_active', boosterActive); }, [boosterActive]);
-
-  // 로그인 상태에서 "전체화면" 안내 (브라우저 정책상 사용자 제스처 필요)
-  useEffect(() => {
-    if (!session) return;
-    const dismissed = localStorage.getItem('axa_fullscreen_dismissed') === 'true';
-    const alreadyFullscreen = !!document.fullscreenElement;
-
-    if (!dismissed && document.fullscreenEnabled && !alreadyFullscreen) {
-      // PWA(standalone)인 경우 한 번 자동 시도 후 실패하면 모달 표시
-      if (isStandalone()) {
-        requestFullscreen().finally(() => {
-          if (!document.fullscreenElement) setShowFullscreenPrompt(true);
-        });
-      } else {
-        setShowFullscreenPrompt(true);
-      }
-    }
-  }, [session]);
-
-  // 새로고침/탭 닫기/앱 종료 전에 확인 (브라우저 기본 confirm 사용)
-  useEffect(() => {
-    if (!session) return;
-    const handler = (e) => {
-      e.preventDefault();
-      e.returnValue = '';
-      return '';
-    };
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, [session]);
-
-  // 모바일/브라우저 뒤로가기 버튼: 종료 확인으로 유도
-  useEffect(() => {
-    if (!session) return;
-    try {
-      window.history.pushState({ axa: 'stay' }, '', window.location.href);
-    } catch (e) {}
-
-    const onPopState = (e) => {
-      e.preventDefault();
-      setShowExitConfirm(true);
-      try {
-        window.history.pushState({ axa: 'stay' }, '', window.location.href);
-      } catch (err) {}
-    };
-
-    window.addEventListener('popstate', onPopState);
-    return () => window.removeEventListener('popstate', onPopState);
-  }, [session]);
-
 
   const checkBirthday = useCallback((user) => {
     if (!user.birthdate || user.birthday_granted) return; 
@@ -1397,44 +1306,6 @@ export default function App() {
   }, [supabase, fetchFeeds, fetchPointHistory, fetchProfiles, fetchUserData, fetchAllPointHistory]);
 
   const checkSupabaseConfig = () => { if (!supabase) return false; if (SUPABASE_URL.includes('your-project-url')) return false; return true; };
-
-  // ---- 전체화면/종료 Helper ----
-  const isStandalone = () => {
-    try {
-      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const requestFullscreen = async () => {
-    try {
-      const el = document.documentElement;
-      if (el.requestFullscreen) await el.requestFullscreen();
-    } catch (e) {
-      // 브라우저 정책으로 실패할 수 있음
-    }
-  };
-
-  const exitFullscreen = async () => {
-    try {
-      if (document.fullscreenElement && document.exitFullscreen) await document.exitFullscreen();
-    } catch (e) {}
-  };
-
-  const tryCloseApp = async () => {
-    // 전체화면이면 먼저 해제
-    await exitFullscreen();
-    // window.close는 대부분의 브라우저에서 제한됨
-    try { window.close(); } catch (e) {}
-    // 닫히지 않는 경우를 대비해 빈 화면으로 이동
-    setTimeout(() => {
-      try {
-        if (!window.closed) window.location.href = 'about:blank';
-      } catch (e) {}
-    }, 120);
-  };
-
   
   const handleBirthdayGrant = async () => {
     if (!currentUser || !checkSupabaseConfig()) return;
@@ -1825,27 +1696,6 @@ export default function App() {
       if (tabId === 'feed') { setActiveFeedFilter('all'); }
   };
 
-  const handleExitApp = () => {
-    setShowExitConfirm(true);
-  };
-
-  const handleConfirmExit = async () => {
-    setShowExitConfirm(false);
-    await tryCloseApp();
-  };
-
-  const handleEnterFullscreen = async () => {
-    await requestFullscreen();
-    localStorage.setItem('axa_fullscreen_dismissed', 'true');
-    setShowFullscreenPrompt(false);
-  };
-
-  const handleCloseFullscreenPrompt = () => {
-    localStorage.setItem('axa_fullscreen_dismissed', 'true');
-    setShowFullscreenPrompt(false);
-  };
-
-
   if (!isSupabaseReady) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-blue-50 flex-col gap-4">
@@ -1856,8 +1706,8 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 font-sans">
-      <div className="w-full min-h-screen relative overflow-hidden bg-slate-50">
+    <div className="min-h-screen bg-slate-200 flex justify-center font-sans">
+      <div className="w-full max-w-md h-full min-h-screen shadow-2xl relative overflow-hidden bg-slate-50">
         <div className="relative z-10 h-full flex flex-col">
           {!session ? (
             <AuthForm isSignupMode={isSignupMode} setIsSignupMode={setIsSignupMode} handleLogin={handleLogin} handleSignup={handleSignup} loading={loading} />
@@ -1874,8 +1724,7 @@ export default function App() {
                 onOpenGift={() => setShowGiftModal(true)} 
                 onOpenAdminManage={() => setShowAdminManageModal(true)} 
                 onOpenAdminClawback={() => setShowAdminClawbackModal(true)}
-                boosterActive={boosterActive}
-                onExitApp={handleExitApp}
+                boosterActive={boosterActive} 
               />
               <main className="flex-1 overflow-y-auto custom-scrollbar">
                 {activeTab === 'home' && (
@@ -1941,9 +1790,7 @@ export default function App() {
               {showRedemptionListModal && <RedemptionListModal onClose={() => setShowRedemptionListModal(false)} redemptionList={redemptionList} onComplete={handleCompleteRedemption} />}
               {showAdminAlertModal && <AdminAlertModal onClose={handleCloseAdminAlert} />}
               
-              {showFullscreenPrompt && <FullscreenPromptModal onClose={handleCloseFullscreenPrompt} onEnter={handleEnterFullscreen} />}
-          {showExitConfirm && <ExitConfirmModal onClose={() => setShowExitConfirm(false)} onExit={handleConfirmExit} />}
-          <MoodToast visible={toast.visible} message={toast.message} emoji={toast.emoji} />
+              <MoodToast visible={toast.visible} message={toast.message} emoji={toast.emoji} />
             </>
           )}
         </div>
