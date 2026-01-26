@@ -305,20 +305,20 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
         <div className="flex items-center gap-2 relative">
           <div className="flex items-center gap-2 mr-1 cursor-pointer group" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-end leading-none relative">
-                 {/* [수정] 플러그(Zap) 아이콘 크기 확대 및 AXA 레드 적용 */}
-                 {boosterActive && (
-                     <div className="absolute -top-4 right-0 text-[10px] bg-red-50 text-[#C60C30] px-2 py-0.5 rounded-full font-black animate-pulse whitespace-nowrap flex items-center gap-1 shadow-sm border border-red-100">
-                         <Zap className="w-4 h-4 fill-[#C60C30]" /> 
-                         <span>2배</span>
-                     </div>
-                 )}
-                 {/* My CARE Point를 굵게 변경 (font-bold -> font-black) */}
-                 <span className="text-[10px] text-slate-500 font-black whitespace-nowrap mb-0.5">My CARE Point</span>
-                 <div className="flex items-center gap-1 bg-gradient-to-r from-amber-100 to-yellow-100 px-2.5 py-1 rounded-lg shadow-sm border border-yellow-200">
-                    {/* 포인트 숫자 크기 더 확대 (text-lg -> text-xl) */}
-                    <span className="text-xl font-black text-amber-900 group-hover:text-amber-700 transition-colors">{currentUser?.points?.toLocaleString()}</span>
-                    <span className="text-[11px] font-bold text-amber-700">P</span>
-                 </div>
+                 {/* [수정] boosterActive 표시: 포인트 섹션 바깥(좌측)에 ⚡ X2배 */}
+{boosterActive && (
+  <div className="absolute -left-16 top-1/2 -translate-y-1/2 bg-red-50 text-[#C60C30] px-2.5 py-1 rounded-full font-black whitespace-nowrap flex items-center gap-1 shadow-sm border border-red-200 animate-pulse">
+    <span className="text-sm leading-none">⚡</span>
+    <span className="text-[10px] leading-none">X2배</span>
+  </div>
+)}
+{/* My CARE Point를 굵게 변경 (font-bold -> font-black) */}
+                 <span className="text-[11px] text-slate-600 font-black whitespace-nowrap mb-1">My CARE Point</span>
+<div className="flex items-center gap-1.5 bg-amber-200 px-3 py-1.5 rounded-xl shadow-md border border-amber-300">
+  <Coins className="w-4 h-4 text-amber-900 fill-amber-900"/>
+  <span className="text-2xl font-black text-amber-950 tracking-tight">{currentUser?.points?.toLocaleString()}</span>
+  <span className="text-[11px] font-black text-amber-800">P</span>
+</div>
              </div>
           </div>
           
@@ -590,7 +590,7 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => 
 };
 
 // [수정] 모던한 테마 적용, 상단 공지 삭제, 하단 공지 추가, 폰트 사이즈 조정
-const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive }) => {
+const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive, currentUser, checkInArmed, checkOutArmed }) => {
     const averageLikes = useMemo(() => {
         if (feeds.length === 0) return 0;
         const totalLikes = feeds.reduce((acc, curr) => acc + (curr.likes?.length || 0), 0);
@@ -598,6 +598,21 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
     }, [feeds]);
 
     const latestNotice = feeds.find(f => f.type === 'news');
+// [추가] 나의 활동(내가 쓴 글/댓글/칭찬/좋아요 받은 수)
+const myActivity = useMemo(() => {
+  const myId = currentUser?.id;
+  if (!myId) return { posts: 0, comments: 0, praises: 0, likesReceived: 0 };
+  const myPosts = feeds.filter(f => f.author_id === myId);
+  const posts = myPosts.length;
+  const praises = myPosts.filter(f => f.type === 'praise').length;
+  const likesReceived = myPosts.reduce((sum, f) => sum + (Array.isArray(f.likes) ? f.likes.length : 0), 0);
+  const comments = feeds.reduce((sum, f) => {
+    const cs = f.comments || [];
+    return sum + cs.filter(c => c.author_id === myId).length;
+  }, 0);
+  return { posts, comments, praises, likesReceived };
+}, [feeds, currentUser]);
+
 
     const renderFeedList = (listType, listData) => {
         return (
@@ -628,9 +643,7 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                                 <div className="text-right mt-0.5">
                                     {(listType === 'dept_news' || listType === 'praise') && (
                                         <>
-                                        <span className="text-[11px] text-slate-400 font-medium">
-                                            {feed.author} ({feed.team})
-                                        </span>
+                                        <span className="text-[11px] text-slate-400 font-medium">{feed.author ? <>{feed.author} ({feed.team})</> : null}</span>
                                         <span className="text-[10px] text-slate-300 ml-2">{feed.formattedTime}</span>
                                         </>
                                     )}
@@ -670,9 +683,9 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                      <div className="flex-1 flex flex-col gap-2 justify-center bg-blue-50/30 rounded-2xl p-2 border border-blue-50">
                          {!mood ? (
                              <div className="flex flex-col gap-1.5 h-full justify-center">
-                                 <button onClick={() => handleMoodCheck('good')} className="bg-white hover:bg-blue-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-blue-100 gap-1.5"><Smile className="w-4 h-4 text-blue-500"/><span className="text-[9px] font-bold text-slate-600">좋음</span></button>
-                                 <button onClick={() => handleMoodCheck('normal')} className="bg-white hover:bg-green-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-green-100 gap-1.5"><Meh className="w-4 h-4 text-green-500"/><span className="text-[9px] font-bold text-slate-600">보통</span></button>
-                                 <button onClick={() => handleMoodCheck('tired')} className="bg-white hover:bg-orange-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-orange-100 gap-1.5"><Frown className="w-4 h-4 text-orange-500"/><span className="text-[9px] font-bold text-slate-600">피곤</span></button>
+                                 <button onClick={() => handleMoodCheck('good')} disabled={checkOutArmed} className="bg-white hover:bg-blue-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-blue-100 gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"><Smile className="w-4 h-4 text-blue-500"/><span className="text-[9px] font-bold text-slate-600">좋음</span></button>
+                                 <button onClick={() => handleMoodCheck('normal')} disabled={checkOutArmed} className="bg-white hover:bg-green-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-green-100 gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"><Meh className="w-4 h-4 text-green-500"/><span className="text-[9px] font-bold text-slate-600">보통</span></button>
+                                 <button onClick={() => handleMoodCheck('tired')} disabled={checkOutArmed} className="bg-white hover:bg-orange-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-orange-100 gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"><Frown className="w-4 h-4 text-orange-500"/><span className="text-[9px] font-bold text-slate-600">피곤</span></button>
                              </div>
                          ) : (
                              <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl border border-blue-100 shadow-sm">
@@ -682,7 +695,7 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
                          )}
                      </div>
                      <div className="flex-1 flex flex-col gap-2 justify-center bg-orange-50/30 rounded-2xl p-2 border border-orange-50">
-                         <button onClick={handleCheckOut} disabled={!mood || hasCheckedOut} className={`flex-1 ${hasCheckedOut ? 'bg-slate-100 text-slate-300' : !mood ? 'bg-slate-100 text-slate-300' : 'bg-slate-800 text-white hover:bg-slate-900 shadow-lg'} rounded-2xl flex flex-col items-center justify-center text-[11px] font-bold transition-all active:scale-95`}>
+                         <button onClick={handleCheckOut} disabled={!mood || hasCheckedOut || checkInArmed} className={`flex-1 ${hasCheckedOut ? 'bg-slate-100 text-slate-300' : (!mood || checkInArmed) ? 'bg-slate-100 text-slate-300' : 'bg-slate-800 text-white hover:bg-slate-900 shadow-lg'} rounded-2xl flex flex-col items-center justify-center text-[11px] font-bold transition-all active:scale-95`}>
                              {hasCheckedOut ? <><span className="text-2xl mb-1 grayscale opacity-50">🏠</span><span>퇴근 완료</span></> : <><span className="text-2xl mb-1">🏃</span><span>퇴근하기</span></>}
                          </button>
                      </div>
@@ -692,7 +705,45 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
             <div className="flex-1 h-full"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} /></div>
         </div>
         
-        <div className="flex justify-between items-center px-1">
+        
+{/* 나의 활동 섹션 */}
+<div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
+  <div className="flex items-center justify-between mb-4">
+    <h3 className="text-sm font-black text-slate-800 flex items-center gap-2"><span>📌</span> 나의 활동</h3>
+    <span className="text-[10px] font-bold text-slate-400">최근 기준</span>
+  </div>
+  <div className="grid grid-cols-4 gap-3">
+    <div className="bg-slate-50 rounded-2xl p-3 text-center border border-slate-100">
+      <div className="text-xl">📝</div>
+      <div className="text-[10px] font-bold text-slate-500 mt-1">내가 쓴 글</div>
+      <div className="text-lg font-black text-slate-800">{myActivity.posts}</div>
+    </div>
+    <div className="bg-slate-50 rounded-2xl p-3 text-center border border-slate-100">
+      <div className="text-xl">💬</div>
+      <div className="text-[10px] font-bold text-slate-500 mt-1">댓글</div>
+      <div className="text-lg font-black text-slate-800">{myActivity.comments}</div>
+    </div>
+    <div className="bg-slate-50 rounded-2xl p-3 text-center border border-slate-100">
+      <div className="text-xl">💚</div>
+      <div className="text-[10px] font-bold text-slate-500 mt-1">칭찬</div>
+      <div className="text-lg font-black text-slate-800">{myActivity.praises}</div>
+    </div>
+    <div className="bg-slate-50 rounded-2xl p-3 text-center border border-slate-100">
+      <div className="text-xl">👍</div>
+      <div className="text-[10px] font-bold text-slate-500 mt-1">좋아요 받은</div>
+      <div className="text-lg font-black text-slate-800">{myActivity.likesReceived}</div>
+    </div>
+  </div>
+</div>
+
+{/* 출퇴근 2회 클릭(오작동 방지) 안내 */}
+{(checkInArmed || checkOutArmed) && (
+  <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-2xl px-4 py-3 text-[11px] font-bold flex items-center gap-2 animate-fade-in">
+    <span className="text-base">👆</span>
+    <span>{checkInArmed ? '출근체크는 한 번 더 누르면 완료됩니다.' : '퇴근체크는 한 번 더 누르면 완료됩니다.'}</span>
+  </div>
+)}
+<div className="flex justify-between items-center px-1">
              <button 
                 onClick={() => onWriteClickWithCategory(null)} 
                 className="bg-gradient-to-r from-slate-700 to-slate-800 text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-lg flex items-center gap-2 hover:-translate-y-0.5 transition-all active:scale-95"
@@ -866,8 +917,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
 
             <div className="flex items-center gap-3 mb-4">
               <div className="flex items-center gap-2">
-                  <p className="text-base font-bold text-slate-800 flex items-center gap-1.5">
-                      {feed.author} <span className="text-slate-400 text-sm font-medium">({feed.team})</span>
+                  <p className="text-base font-bold text-slate-800 flex items-center gap-1.5">{feed.author ? <>{feed.author} <span className="text-slate-400 text-sm font-medium">({feed.team})</span></> : null}
                       {feed.profiles?.role === 'admin' && <span className="bg-red-50 text-red-500 text-[10px] px-2 py-0.5 rounded-full border border-red-100 font-bold">관리자</span>}
                       {feed.profiles?.is_reporter && <span className="bg-yellow-100 text-yellow-700 text-[10px] px-2 py-0.5 rounded-full border border-yellow-200 font-bold">리포터</span>}
                       {feed.profiles?.is_ambassador && <span className="bg-purple-100 text-purple-700 text-[10px] px-2 py-0.5 rounded-full border border-purple-200 font-bold">앰버서더</span>}
@@ -1140,6 +1190,12 @@ export default function App() {
   const [toast, setToast] = useState({ visible: false, message: '', emoji: '' });
 
   const [activeTab, setActiveTab] = useState('home');
+  // [추가] 하단 네비 탭 전환 시 좌우 슬라이드 애니메이션
+  const TAB_ORDER = ['home', 'feed', 'news', 'ranking'];
+  const [displayTab, setDisplayTab] = useState('home');
+  const [nextTab, setNextTab] = useState(null);
+  const [slideDir, setSlideDir] = useState(1);
+  const [isSliding, setIsSliding] = useState(false);
   const [activeFeedFilter, setActiveFeedFilter] = useState('all');
   const [mood, setMood] = useState(null);
   const [hasCheckedOut, setHasCheckedOut] = useState(false);
@@ -1175,6 +1231,41 @@ export default function App() {
   }, []);
   
   useEffect(() => { localStorage.setItem('axa_booster_active', boosterActive); }, [boosterActive]);
+// [추가] 전체화면 시도 + 앱 종료(닫기/뒤로가기) 전 확인
+useEffect(() => {
+  if (!session) return;
+
+  // 전체화면은 브라우저 정책상 사용자 제스처가 없으면 실패할 수 있음(실패해도 무시)
+  const tryFullscreen = () => {
+    const el = document.documentElement;
+    if (el?.requestFullscreen && !document.fullscreenElement) {
+      el.requestFullscreen().catch(() => {});
+    }
+  };
+  setTimeout(tryFullscreen, 300);
+
+  const beforeUnload = (e) => {
+    e.preventDefault();
+    e.returnValue = '';
+  };
+  window.addEventListener('beforeunload', beforeUnload);
+
+  // 모바일/브라우저 뒤로가기(History) 종료 확인
+  const onPopState = () => {
+    const ok = window.confirm('앱을 종료하시겠습니까?');
+    if (!ok) {
+      history.pushState(null, '', window.location.href);
+    }
+  };
+  history.pushState(null, '', window.location.href);
+  window.addEventListener('popstate', onPopState);
+
+  return () => {
+    window.removeEventListener('beforeunload', beforeUnload);
+    window.removeEventListener('popstate', onPopState);
+  };
+}, [session]);
+
 
   const checkBirthday = useCallback((user) => {
     if (!user.birthdate || user.birthday_granted) return; 
@@ -1275,8 +1366,13 @@ export default function App() {
         if (posts) {
             const formatted = posts.map(post => {
                 const authorData = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
-                const authorName = authorData?.name || authorData?.email?.split('@')[0] || '알 수 없음';
-                const authorTeam = authorData?.team || '소속 미정';
+                let authorName = authorData?.name || authorData?.email?.split('@')[0] || '알 수 없음';
+let authorTeam = authorData?.team || '소속 미정';
+// [수정] 칭찬글 작성자 익명 처리(표시/문구 모두 숨김)
+if (post.type === 'praise') {
+  authorName = '';
+  authorTeam = '';
+}
                 let parsedLikes = [];
                 try { parsedLikes = post.likes ? (typeof post.likes === 'string' ? JSON.parse(post.likes) : post.likes) : []; } catch (e) { parsedLikes = []; }
                 const sortedComments = post.comments ? post.comments.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)) : [];
@@ -1634,7 +1730,7 @@ export default function App() {
                  await supabase.from('profiles').update({ points: tNewPoints }).eq('id', praiseTargetId);
                  await supabase.from('point_history').insert({ 
                      user_id: praiseTargetId, 
-                     reason: `칭찬 받음 (from ${currentUser.name})`, 
+                     reason: '칭찬 받음', 
                      amount: 100, 
                      type: 'earn' 
                  });
@@ -1686,15 +1782,83 @@ export default function App() {
           fetchUserData(currentUser.id); fetchAllPointHistory();
       } catch (err) { console.error(err); }
   };
+// [수정] 출근/퇴근 체크: 오작동 방지를 위해 2회 클릭(더블 확인) 후 실행, 동시에 진행 불가
+const [checkInArmed, setCheckInArmed] = useState(null); // 'good' | 'normal' | 'tired' | null
+const [checkOutArmed, setCheckOutArmed] = useState(false);
+
+useEffect(() => {
+  if (!checkInArmed) return;
+  const t = setTimeout(() => setCheckInArmed(null), 4000);
+  return () => clearTimeout(t);
+}, [checkInArmed]);
+
+useEffect(() => {
+  if (!checkOutArmed) return;
+  const t = setTimeout(() => setCheckOutArmed(false), 4000);
+  return () => clearTimeout(t);
+}, [checkOutArmed]);
+
+const requestMoodCheck = (selectedMood) => {
+  if (mood) return;
+  if (checkOutArmed) return; // 동시에 클릭 방지
+
+  if (checkInArmed !== selectedMood) {
+    setCheckInArmed(selectedMood);
+    setToast({ visible: true, message: '한 번 더 누르면 출근체크가 완료됩니다.', emoji: '👆' });
+    setTimeout(() => setToast({ visible: false, message: '', emoji: '' }), 1800);
+    return;
+  }
+  setCheckInArmed(null);
+  handleMoodCheck(selectedMood);
+};
+
+const requestCheckOut = () => {
+  if (!mood || hasCheckedOut) return;
+  if (checkInArmed) return; // 동시에 클릭 방지
+
+  if (!checkOutArmed) {
+    setCheckOutArmed(true);
+    setToast({ visible: true, message: '한 번 더 누르면 퇴근체크가 완료됩니다.', emoji: '👆' });
+    setTimeout(() => setToast({ visible: false, message: '', emoji: '' }), 1800);
+    return;
+  }
+  setCheckOutArmed(false);
+  handleCheckOut();
+};
+
 
   const handleLogout = async () => { if (!supabase) return; try { await supabase.auth.signOut(); setCurrentUser(null); setSession(null); setMood(null); setHasCheckedOut(false); setPointHistory([]); } catch (err) { console.error('로그아웃 실패: ', err.message); } };
   const handleChangeDept = async (newDept, newTeam) => { if (!currentUser || !supabase) return; try { await supabase.from('profiles').update({ dept: newDept, team: newTeam }).eq('id', currentUser.id); fetchUserData(currentUser.id); setShowChangeDeptModal(false); alert('소속이 변경되었습니다.'); } catch(err) { console.error(err); } };
   const handleChangePassword = async (newPassword) => { if (!currentUser || !supabase) return; try { const { error } = await supabase.auth.updateUser({ password: newPassword }); if (error) throw error; setShowChangePwdModal(false); alert('비밀번호가 변경되었습니다. 다시 로그인해주세요.'); handleLogout(); } catch(err) { console.error(err); } };
   
   const handleTabChange = (tabId) => {
-      setActiveTab(tabId);
-      if (tabId === 'feed') { setActiveFeedFilter('all'); }
-  };
+  if (tabId === activeTab) return;
+
+  // 네비 버튼은 즉시 활성화
+  setActiveTab(tabId);
+
+  // 슬라이드 애니메이션 시작
+  if (isSliding) return;
+  const fromIdx = TAB_ORDER.indexOf(displayTab);
+  const toIdx = TAB_ORDER.indexOf(tabId);
+  const dir = toIdx >= fromIdx ? 1 : -1;
+  setSlideDir(dir);
+  setNextTab(tabId);
+  setIsSliding(true);
+
+  setTimeout(() => {
+    setDisplayTab(tabId);
+    setNextTab(null);
+    setIsSliding(false);
+
+    if (tabId === 'feed') {
+      setActiveFeedFilter('all');
+    }
+    if (tabId !== 'feed') {
+      setSelectedPostId(null);
+    }
+  }, 280);
+};
 
   if (!isSupabaseReady) {
     return (
@@ -1706,8 +1870,8 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-200 flex justify-center font-sans">
-      <div className="w-full max-w-md h-full min-h-screen shadow-2xl relative overflow-hidden bg-slate-50">
+    <div className="min-h-screen w-full bg-slate-50 font-sans">
+  <div className="w-full h-screen min-h-screen shadow-2xl relative overflow-hidden bg-slate-50">
         <div className="relative z-10 h-full flex flex-col">
           {!session ? (
             <AuthForm isSignupMode={isSignupMode} setIsSignupMode={setIsSignupMode} handleLogin={handleLogin} handleSignup={handleSignup} loading={loading} />
@@ -1726,44 +1890,112 @@ export default function App() {
                 onOpenAdminClawback={() => setShowAdminClawbackModal(true)}
                 boosterActive={boosterActive} 
               />
-              <main className="flex-1 overflow-y-auto custom-scrollbar">
-                {activeTab === 'home' && (
-                    <HomeTab 
-                        mood={mood} 
-                        handleMoodCheck={handleMoodCheck} 
-                        handleCheckOut={handleCheckOut} 
-                        hasCheckedOut={hasCheckedOut} 
-                        feeds={feeds} 
-                        weeklyBirthdays={weeklyBirthdays} 
-                        onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }} 
-                        onNavigateToNews={() => { setActiveTab('feed'); setActiveFeedFilter('news'); }} 
-                        onNavigateToFeed={(type, id) => { 
-                            setActiveTab('feed'); 
-                            setActiveFeedFilter(type); 
-                            setSelectedPostId(id);
-                        }} 
-                        boosterActive={boosterActive} 
-                    />
-                )}
-                
-                {(activeTab === 'feed' || activeTab === 'news') && (
-                    <FeedTab 
-                        feeds={feeds} 
-                        activeFeedFilter={activeTab === 'news' ? 'news' : activeFeedFilter} 
-                        setActiveFeedFilter={setActiveFeedFilter} 
-                        onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }} 
-                        currentUser={currentUser} 
-                        handleDeletePost={handleDeletePost} 
-                        handleLikePost={handleLikePost} 
-                        handleAddComment={handleAddComment} 
-                        handleDeleteComment={handleDeleteComment} 
-                        boosterActive={boosterActive}
-                        selectedPostId={selectedPostId}
-                        onClearSelection={() => setSelectedPostId(null)}
-                    />
-                )}
-                {activeTab === 'ranking' && <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} />}
-              </main>
+              <main className="flex-1 overflow-hidden">
+  <div className="relative h-full overflow-hidden">
+    {/* 현재 화면 */}
+    <div
+      className={`absolute inset-0 h-full w-full transition-transform duration-300 ease-out ${
+        isSliding ? (slideDir === 1 ? '-translate-x-full' : 'translate-x-full') : 'translate-x-0'
+      }`}
+    >
+      <div className="h-full overflow-y-auto custom-scrollbar">
+        {displayTab === 'home' && (
+          <HomeTab
+            mood={mood}
+            handleMoodCheck={requestMoodCheck}
+            handleCheckOut={requestCheckOut}
+            hasCheckedOut={hasCheckedOut}
+            feeds={feeds}
+            weeklyBirthdays={weeklyBirthdays}
+            onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
+            onNavigateToNews={() => { handleTabChange('news'); }}
+            onNavigateToFeed={(type, id) => {
+              handleTabChange('feed');
+              setActiveFeedFilter(type);
+              setSelectedPostId(id);
+            }}
+            boosterActive={boosterActive}
+            currentUser={currentUser}
+            checkInArmed={!!checkInArmed}
+            checkOutArmed={!!checkOutArmed}
+          />
+        )}
+        {(displayTab === 'feed' || displayTab === 'news') && (
+          <FeedTab
+            feeds={feeds}
+            activeFeedFilter={displayTab === 'news' ? 'news' : activeFeedFilter}
+            setActiveFeedFilter={setActiveFeedFilter}
+            onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
+            currentUser={currentUser}
+            handleDeletePost={handleDeletePost}
+            handleLikePost={handleLikePost}
+            handleAddComment={handleAddComment}
+            handleDeleteComment={handleDeleteComment}
+            boosterActive={boosterActive}
+            selectedPostId={selectedPostId}
+            onClearSelection={() => setSelectedPostId(null)}
+          />
+        )}
+        {displayTab === 'ranking' && (
+          <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} />
+        )}
+      </div>
+    </div>
+
+    {/* 다음 화면 */}
+    {nextTab && (
+      <div
+        className={`absolute inset-0 h-full w-full transition-transform duration-300 ease-out ${
+          isSliding ? 'translate-x-0' : (slideDir === 1 ? 'translate-x-full' : '-translate-x-full')
+        }`}
+        style={{ transform: isSliding ? 'translateX(0)' : `translateX(${slideDir === 1 ? 100 : -100}%)` }}
+      >
+        <div className="h-full overflow-y-auto custom-scrollbar">
+          {nextTab === 'home' && (
+            <HomeTab
+              mood={mood}
+              handleMoodCheck={requestMoodCheck}
+              handleCheckOut={requestCheckOut}
+              hasCheckedOut={hasCheckedOut}
+              feeds={feeds}
+              weeklyBirthdays={weeklyBirthdays}
+              onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
+              onNavigateToNews={() => { handleTabChange('news'); }}
+              onNavigateToFeed={(type, id) => {
+                handleTabChange('feed');
+                setActiveFeedFilter(type);
+                setSelectedPostId(id);
+              }}
+              boosterActive={boosterActive}
+              currentUser={currentUser}
+              checkInArmed={!!checkInArmed}
+              checkOutArmed={!!checkOutArmed}
+            />
+          )}
+          {(nextTab === 'feed' || nextTab === 'news') && (
+            <FeedTab
+              feeds={feeds}
+              activeFeedFilter={nextTab === 'news' ? 'news' : activeFeedFilter}
+              setActiveFeedFilter={setActiveFeedFilter}
+              onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
+              currentUser={currentUser}
+              handleDeletePost={handleDeletePost}
+              handleLikePost={handleLikePost}
+              handleAddComment={handleAddComment}
+              handleDeleteComment={handleDeleteComment}
+              boosterActive={boosterActive}
+              selectedPostId={selectedPostId}
+              onClearSelection={() => setSelectedPostId(null)}
+            />
+          )}
+          {nextTab === 'ranking' && (
+            <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} />
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+</main>
               <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
               
               {showWriteModal && <WriteModal setShowWriteModal={setShowWriteModal} handlePostSubmit={handlePostSubmit} currentUser={currentUser} activeTab={activeTab} boosterActive={boosterActive} initialCategory={writeCategory} profiles={profiles} />}
