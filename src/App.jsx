@@ -680,9 +680,9 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
         
         <div className="flex items-center gap-2 relative">
           <div className="flex items-center gap-2 mr-1 cursor-pointer group" onClick={onOpenUserInfo}>
-             <div className="flex flex-col items-end leading-none relative">
+             <div className="flex flex-col items-center leading-none relative">
   <div className="flex items-center gap-2">
-    <div className="flex flex-col items-end leading-none">
+    <div className="flex flex-col items-center leading-none">
       <span className="text-[11px] text-slate-600 font-black whitespace-nowrap mb-1">My CARE Point</span>
       <div className="flex items-center gap-1.5 bg-amber-200 px-3 py-1.5 rounded-xl shadow-md border border-amber-300 ring-2 ring-amber-400/40 motion-safe:animate-pulse">
         <Coins className="w-4 h-4 text-amber-900 fill-amber-900"/>
@@ -1149,22 +1149,15 @@ const myActivity = useMemo(() => {
           </div>
         </div>
 
-<div className="flex justify-between items-center px-1">
-             <button 
-                onClick={() => onWriteClickWithCategory(null)} 
-                className="bg-gradient-to-r from-slate-700 to-slate-800 text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-lg flex items-center gap-2 hover:-translate-y-0.5 transition-all active:scale-95"
-             >
-                <Pencil className="w-4 h-4" />
-                <span>게시글 작성</span>
-             </button>
-             {/* [수정] 게시글당 포인트 문구 추가 */}
+<div className="flex justify-end items-center px-1">
+{/* [수정] 게시글당 포인트 문구 추가 */}
              <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 bg-white px-3 py-1.5 rounded-full shadow-sm border border-slate-100">
                  <div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner">
                      <Coins className="w-2.5 h-2.5 text-white fill-white"/>
                  </div>
                  게시글당 +50P (최대 +100P)
              </div>
-        </div>
+</div>
 
         {/* [수정] 홈화면 섹션 바깥 색상 구분 (파스텔톤) */}
         <div className="bg-purple-50/60 p-5 rounded-[2rem] shadow-sm border border-purple-100 transition-colors relative">
