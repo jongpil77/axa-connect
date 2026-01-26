@@ -654,10 +654,18 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
       <div className="flex justify-between items-center mb-1">
           <div className="text-[11px] text-blue-500 font-bold pl-1 tracking-tight">{todayDate}</div>
           {/* 악사 레드 배경에 흰색 텍스트로 변경 */}
-          <div className="text-[10px] bg-[#C60C30] text-white px-3 py-1.5 rounded-full font-bold flex items-center gap-1.5 shadow-md">
+          <div className="flex items-center gap-2">
+  {boosterActive && (
+    <div className="bg-red-50 text-[#C60C30] px-2.5 py-1 rounded-full font-black whitespace-nowrap flex items-center gap-1 shadow-sm border border-red-200">
+      <span className="text-sm leading-none">⚡</span>
+      <span className="text-[10px] leading-none">X2배</span>
+    </div>
+  )}
+  <div className="text-[10px] bg-[#C60C30] text-white px-3 py-1.5 rounded-full font-bold flex items-center gap-1.5 shadow-md">
              <User className="w-3 h-3" />
              {currentUser && <span>{currentUser.team} - {currentUser.name} 님</span>}
           </div>
+</div>
       </div>
       
       <div className="flex justify-between items-end">
@@ -676,12 +684,6 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
           <div className="flex items-center gap-2 mr-1 cursor-pointer group" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-end leading-none relative">
   <div className="flex items-center gap-2">
-    {boosterActive && (
-      <div className="bg-red-50 text-[#C60C30] px-2.5 py-1 rounded-full font-black whitespace-nowrap flex items-center gap-1 shadow-sm border border-red-200">
-        <span className="text-sm leading-none">⚡</span>
-        <span className="text-[10px] leading-none">X2배</span>
-      </div>
-    )}
     <div className="flex flex-col items-end leading-none">
       <span className="text-[11px] text-slate-600 font-black whitespace-nowrap mb-1">My CARE Point</span>
       <div className="flex items-center gap-1.5 bg-amber-200 px-3 py-1.5 rounded-xl shadow-md border border-amber-300 ring-2 ring-amber-400/40 motion-safe:animate-pulse">
@@ -1115,36 +1117,36 @@ const myActivity = useMemo(() => {
 
           {/* 4개 항목을 각각 독립 카드로 구성 (2열 x 2행) */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 shadow-inner flex items-center justify-between">
+            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 shadow-inner flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-lg">📝</span>
+                <span className="text-base">📝</span>
                 <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">내 글</span>
               </div>
-              <span className="text-xl font-black text-slate-800 whitespace-nowrap">{myActivity.posts}</span>
+              <span className="text-lg font-black text-slate-800 whitespace-nowrap">{myActivity.posts}</span>
             </div>
 
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 shadow-inner flex items-center justify-between">
+            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 shadow-inner flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-lg">💬</span>
+                <span className="text-base">💬</span>
                 <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">댓글</span>
               </div>
-              <span className="text-xl font-black text-slate-800 whitespace-nowrap">{myActivity.comments}</span>
+              <span className="text-lg font-black text-slate-800 whitespace-nowrap">{myActivity.comments}</span>
             </div>
 
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 shadow-inner flex items-center justify-between">
+            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 shadow-inner flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-lg">💚</span>
+                <span className="text-base">💚</span>
                 <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">칭찬</span>
               </div>
-              <span className="text-xl font-black text-slate-800 whitespace-nowrap">{myActivity.praises}</span>
+              <span className="text-lg font-black text-slate-800 whitespace-nowrap">{myActivity.praises}</span>
             </div>
 
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 shadow-inner flex items-center justify-between">
+            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 shadow-inner flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-lg">👍</span>
+                <span className="text-base">👍</span>
                 <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">내 좋아요</span>
               </div>
-              <span className="text-xl font-black text-slate-800 whitespace-nowrap">{myActivity.likesGiven}</span>
+              <span className="text-lg font-black text-slate-800 whitespace-nowrap">{myActivity.likesGiven}</span>
             </div>
           </div>
         </div>
@@ -1507,13 +1509,36 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
   );
 };
 
-const RankingTab = ({ feeds, profiles, allPointHistory }) => { 
+const RankingTab = ({ feeds, profiles, allPointHistory, currentUser }) => { 
     const [selectedDate, setSelectedDate] = useState(new Date()); 
     const isSelectedMonth = (dateString) => { if(!dateString) return false; const d = new Date(dateString); return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear(); }; 
     const handlePrevMonth = () => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() - 1))); 
     const handleNextMonth = () => { const nextMonth = new Date(selectedDate); nextMonth.setMonth(selectedDate.getMonth() + 1); if (nextMonth <= new Date()) setSelectedDate(nextMonth); }; 
     
-    const pointRanking = useMemo(() => { const monthlyPoints = {}; allPointHistory.forEach(record => { if (isSelectedMonth(record.created_at) && record.type === 'earn') monthlyPoints[record.user_id] = (monthlyPoints[record.user_id] || 0) + record.amount; }); return Object.entries(monthlyPoints).map(([id, points]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: points, unit: 'P', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); }, [allPointHistory, profiles, selectedDate]); 
+    const pointRankingAll = useMemo(() => {
+    const monthlyPoints = {};
+    allPointHistory.forEach((record) => {
+      if (isSelectedMonth(record.created_at) && record.type === 'earn') {
+        monthlyPoints[record.user_id] = (monthlyPoints[record.user_id] || 0) + record.amount;
+      }
+    });
+    return Object.entries(monthlyPoints)
+      .map(([id, points]) => {
+        const p = profiles.find((profile) => profile.id === id) || { name: '알수없음', team: '소속미정' };
+        return { id, name: p.name, value: points, unit: 'P', team: p.team };
+      })
+      .sort((a, b) => b.value - a.value);
+  }, [allPointHistory, profiles, selectedDate]);
+
+  const pointRankingTop10 = useMemo(() => pointRankingAll.slice(0, 10), [pointRankingAll]);
+
+  const myPointRank = useMemo(() => {
+    if (!currentUser?.id) return null;
+    const idx = pointRankingAll.findIndex((x) => x.id === currentUser.id);
+    if (idx === -1) return { rank: null, name: currentUser.name, team: currentUser.team, value: 0, unit: 'P' };
+    const me = pointRankingAll[idx];
+    return { rank: idx + 1, ...me };
+  }, [pointRankingAll, currentUser]); 
     const postCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { postCounts[f.author_id] = (postCounts[f.author_id] || 0) + 1; }); 
     const postRanking = Object.entries(postCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '건', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); 
     const likeCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { const likes = f.likes ? (Array.isArray(f.likes) ? f.likes.length : 0) : 0; if(likes > 0) likeCounts[f.author_id] = (likeCounts[f.author_id] || 0) + likes; }); 
@@ -1521,7 +1546,26 @@ const RankingTab = ({ feeds, profiles, allPointHistory }) => {
     
     const RankItem = ({ rank, name, value, unit, team, color, showReward }) => (<div className="flex items-center p-4 bg-white border border-slate-100 rounded-3xl shadow-[0_2px_15px_rgba(0,0,0,0.03)] relative overflow-hidden transition-transform hover:scale-[1.01]">{showReward && rank <= 3 && <div className="absolute right-0 top-0 bg-yellow-100 text-yellow-600 text-[10px] font-bold px-3 py-1 rounded-bl-xl shadow-sm">🎁 1,000P</div>}<div className={`text-2xl font-black mr-5 w-8 text-center ${color} drop-shadow-sm`}>{rank}</div><div className="flex-1"><p className="text-base font-bold text-slate-800">{name || 'Unknown'}</p><p className="text-xs text-slate-400 font-medium">{team}</p></div><div className="text-lg font-black text-slate-700 ml-4">{value}<span className="text-xs text-slate-400 ml-0.5 font-normal">{unit}</span></div></div>); 
     
-    return (<div className="p-6 space-y-8 pb-36 animate-fade-in bg-slate-50"><div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 text-center relative"><div className="flex justify-between items-center mb-4 px-2"><button onClick={handlePrevMonth} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><ChevronLeft className="w-6 h-6 text-slate-400" /></button><h2 className="text-xl font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2><button onClick={handleNextMonth} className="p-2 hover:bg-slate-100 rounded-full disabled:opacity-30 transition-colors" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-6 h-6 text-slate-400" /></button></div><div className="flex justify-center gap-2 mt-3"><span className="text-xs bg-green-50 text-green-600 px-3 py-1.5 rounded-full font-bold border border-green-100">🏆 소통상/좋아요상: 1~3등 1,000P</span></div></div><div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Coins className="w-5 h-5 text-yellow-500"/> 월간 획득 포인트 랭킹</h3><div className="space-y-3">{pointRanking.length > 0 ? pointRanking.map((p, i) => <RankItem key={i} rank={i+1} name={p.name} team={p.team} value={p.value.toLocaleString()} unit="P" color="text-yellow-500" showReward={false}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div><div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Pencil className="w-5 h-5 text-green-500"/> 소통왕 (게시글)</h3><div className="space-y-3">{postRanking.length > 0 ? postRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-green-500" showReward={true}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div><div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Heart className="w-5 h-5 text-red-500"/> 인기왕 (좋아요)</h3><div className="space-y-3">{likeRanking.length > 0 ? likeRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-red-500" showReward={true}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div></div>); };
+    return (<div className="p-6 space-y-8 pb-36 animate-fade-in bg-slate-50"><div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 text-center relative"><div className="flex justify-between items-center mb-4 px-2"><button onClick={handlePrevMonth} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><ChevronLeft className="w-6 h-6 text-slate-400" /></button><h2 className="text-xl font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2><button onClick={handleNextMonth} className="p-2 hover:bg-slate-100 rounded-full disabled:opacity-30 transition-colors" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-6 h-6 text-slate-400" /></button></div><div className="flex justify-center gap-2 mt-3"><span className="text-xs bg-green-50 text-green-600 px-3 py-1.5 rounded-full font-bold border border-green-100">🏆 소통상/좋아요상: 1~3등 1,000P</span></div></div>
+      {myPointRank && (
+        <div className="sticky top-2 z-20">
+          <div className="bg-blue-50 border border-blue-100 rounded-3xl p-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-blue-600">내 월간 포인트 순위</p>
+                <p className="text-sm font-black text-slate-800">{myPointRank.name} <span className="text-slate-400 font-medium">({myPointRank.team})</span></p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-bold text-slate-500">순위</p>
+                <p className="text-2xl font-black text-blue-700">{myPointRank.rank ? myPointRank.rank : '-'} </p>
+                <p className="text-xs font-bold text-slate-500 mt-1">{myPointRank.value.toLocaleString()}P</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Coins className="w-5 h-5 text-yellow-500"/> 월간 획득 포인트 랭킹 TOP 10</h3><div className="space-y-3">{pointRankingTop10.length > 0 ? pointRankingTop10.map((p, i) => <RankItem key={i} rank={i+1} name={p.name} team={p.team} value={p.value.toLocaleString()} unit="P" color="text-yellow-500" showReward={false}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div><div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Pencil className="w-5 h-5 text-green-500"/> 소통왕 (게시글)</h3><div className="space-y-3">{postRanking.length > 0 ? postRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-green-500" showReward={true}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div><div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Heart className="w-5 h-5 text-red-500"/> 인기왕 (좋아요)</h3><div className="space-y-3">{likeRanking.length > 0 ? likeRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-red-500" showReward={true}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div></div>); };
 
 // [수정] 네비게이션 바 높이 축소
 const BottomNav = ({ activeTab, onTabChange }) => {
@@ -1981,12 +2025,17 @@ useEffect(() => {
     try {
         const { error } = await supabase.from('posts').delete().eq('id', postId); if (error) throw error;
         if (['praise', 'knowhow', 'matjib', 'dept_news'].includes(postToDelete.type)) {
-            const deductAmount = 50; 
-            const newPoints = Math.max(0, currentUser.points - deductAmount); 
-            await supabase.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
-            await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '게시글 삭제 (회수)', amount: deductAmount, type: 'use' });
-            fetchUserData(currentUser.id); fetchAllPointHistory(); 
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+        const ageMs = Date.now() - new Date(postToDelete.created_at).getTime();
+        // 작성일로부터 1일(24h) 이내 삭제 시에만 지급 포인트 회수
+        if (ageMs < ONE_DAY_MS) {
+          const deductAmount = 50;
+          const newPoints = Math.max(0, currentUser.points - deductAmount);
+          await supabase.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
+          await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '게시글 삭제 (회수)', amount: deductAmount, type: 'use' });
+          fetchUserData(currentUser.id); fetchAllPointHistory();
         }
+      }
         await fetchFeeds();
     } catch (err) { console.error('삭제 실패: ', err.message); alert('삭제 실패'); }
   };
@@ -2334,7 +2383,7 @@ useEffect(() => {
         )}
 
         {displayTab === 'ranking' && (
-          <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} />
+          <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} currentUser={currentUser} />
         )}
       </div>
     </div>
@@ -2388,7 +2437,7 @@ useEffect(() => {
           )}
 
           {nextTab === 'ranking' && (
-            <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} />
+            <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} currentUser={currentUser} />
           )}
         </div>
       </div>
