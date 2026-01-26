@@ -692,7 +692,8 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
     </div>
   </div>
 </div>
-          
+          </div>
+
           {/* [수정] 선물 아이콘 -> 이모지 + 노란색/빨간 포장끈 스타일 */}
           <button onClick={onOpenGift} className="p-2 rounded-full bg-yellow-100 hover:bg-yellow-200 border-2 border-red-400 transition-all shadow-sm active:scale-95 flex items-center justify-center">
             <span className="text-xl leading-none">🎁</span>
