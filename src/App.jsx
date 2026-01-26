@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { 
-  User, Heart, MessageCircle, Gift, Bell, Sparkles, Smile, Frown, Meh, 
-  Megaphone, X, Send, Settings, ChevronRight, LogOut, Image as ImageIcon, 
-  Coins, Pencil, Trash2, Loader2, Lock, Clock, Award, Wallet, Building2, 
-  CornerDownRight, Link as LinkIcon, MapPin, Search, Key, Edit3, 
-  ClipboardList, CheckSquare, ChevronLeft, Zap, Users, Briefcase, Utensils,
-  ThumbsUp, Coffee, Sun, Moon, PlusCircle, CheckCircle, Plug, MinusCircle,
-  Home 
+import {
+ User, Heart, MessageCircle, Gift, Bell, Sparkles, Smile, Frown, Meh, Megaphone, X, Send,
+  Settings, ChevronRight, LogOut, Image as ImageIcon, Coins, Pencil, Trash2, Loader2, Lock,
+  Clock, Award, Wallet, Building2, CornerDownRight, Link as LinkIcon, MapPin, Search, Key,
+  Edit3, ClipboardList, CheckSquare, ChevronLeft, Zap, Users, Briefcase, Utensils, ThumbsUp,
+  Coffee, Sun, Moon, PlusCircle, CheckCircle, Plug, MinusCircle, Medal, Plus, Home
 } from 'lucide-react';
 
 // --- [필수] Supabase 설정 ---
@@ -650,7 +648,7 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
   const [showSettings, setShowSettings] = useState(false);
   
   return (
-    <div className="bg-white/95 backdrop-blur-xl p-4 sticky top-0 z-40 border-b border-slate-100 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
+    <div className="bg-white/95 backdrop-blur-xl px-4 pt-6 pb-5 sticky top-0 z-40 border-b border-slate-100 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
       <div className="flex justify-between items-center mb-1">
           <div className="text-[11px] text-blue-500 font-bold pl-1 tracking-tight">{todayDate}</div>
           {/* 악사 레드 배경에 흰색 텍스트로 변경 */}
@@ -1049,7 +1047,7 @@ const myActivity = useMemo(() => {
     const matjibFeeds = feeds.filter(f => f.type === 'matjib').slice(0, 5);
 
     return (
-      <div className="p-6 space-y-5 pb-36 animate-fade-in relative bg-[#F8F9FA] min-h-full">
+      <div className="p-6 space-y-5 pb-40 animate-fade-in relative bg-[#F8F9FA] min-h-full">
         
         {/* 상단 공지 섹션 제거됨 */}
 
@@ -1068,9 +1066,9 @@ const myActivity = useMemo(() => {
                      <div className="flex-1 flex flex-col gap-2 justify-center bg-blue-50/30 rounded-2xl p-2 border border-blue-50">
                          {!mood ? (
                              <div className="flex flex-col gap-1.5 h-full justify-center">
-                                 <button onClick={() => handleMoodCheck('good')} disabled={!attendanceEnabled} className="bg-white hover:bg-blue-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-blue-100 gap-1.5"><Smile className="w-4 h-4 text-blue-500"/><span className="text-[9px] font-bold text-slate-600">좋음</span></button>
-                                 <button onClick={() => handleMoodCheck('normal')} disabled={!attendanceEnabled} className="bg-white hover:bg-green-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-green-100 gap-1.5"><Meh className="w-4 h-4 text-green-500"/><span className="text-[9px] font-bold text-slate-600">보통</span></button>
-                                 <button onClick={() => handleMoodCheck('tired')} disabled={!attendanceEnabled} className="bg-white hover:bg-orange-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-orange-100 gap-1.5"><Frown className="w-4 h-4 text-orange-500"/><span className="text-[9px] font-bold text-slate-600">피곤</span></button>
+                                 <button onClick={() => handleMoodCheck('good')} disabled={!attendanceEnabled} className="bg-white hover:bg-blue-100 rounded-xl w-full flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-blue-100 gap-1.5"><Smile className="w-4 h-4 text-blue-500"/><span className="text-[9px] font-bold text-slate-600">좋음</span></button>
+                                 <button onClick={() => handleMoodCheck('normal')} disabled={!attendanceEnabled} className="bg-white hover:bg-green-100 rounded-xl w-full flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-green-100 gap-1.5"><Meh className="w-4 h-4 text-green-500"/><span className="text-[9px] font-bold text-slate-600">보통</span></button>
+                                 <button onClick={() => handleMoodCheck('tired')} disabled={!attendanceEnabled} className="bg-white hover:bg-orange-100 rounded-xl w-full flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-orange-100 gap-1.5"><Frown className="w-4 h-4 text-orange-500"/><span className="text-[9px] font-bold text-slate-600">피곤</span></button>
                              </div>
                          ) : (
                              <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl border border-blue-100 shadow-sm">
@@ -1135,16 +1133,16 @@ const myActivity = useMemo(() => {
 
             <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 shadow-inner flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-base">💚</span>
-                <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">칭찬</span>
+                <Medal className="w-5 h-5 text-amber-500" />
+                <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">받은 칭찬</span>
               </div>
               <span className="text-lg font-black text-slate-800 whitespace-nowrap">{myActivity.praises}</span>
             </div>
 
             <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 shadow-inner flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-base">👍</span>
-                <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">내 좋아요</span>
+                <Heart className="w-5 h-5 text-red-500 fill-red-500" />
+                <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">받은 좋아요</span>
               </div>
               <span className="text-lg font-black text-slate-800 whitespace-nowrap">{myActivity.likesGiven}</span>
             </div>
@@ -1257,7 +1255,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
   });
 
   return (
-    <div className="p-6 space-y-6 pb-36 animate-fade-in bg-slate-50 min-h-full">
+    <div className="p-6 space-y-6 pb-40 animate-fade-in bg-slate-50 min-h-full">
       {selectedPostId && (
           <button onClick={onClearSelection} className="w-full bg-slate-800 text-white p-4 rounded-2xl font-bold mb-2 flex items-center justify-center gap-2 hover:bg-slate-900 transition-colors shadow-lg">
               <ChevronLeft className="w-5 h-5"/> 목록으로 돌아가기
@@ -1546,7 +1544,7 @@ const RankingTab = ({ feeds, profiles, allPointHistory, currentUser }) => {
     
     const RankItem = ({ rank, name, value, unit, team, color, showReward }) => (<div className="flex items-center p-4 bg-white border border-slate-100 rounded-3xl shadow-[0_2px_15px_rgba(0,0,0,0.03)] relative overflow-hidden transition-transform hover:scale-[1.01]">{showReward && rank <= 3 && <div className="absolute right-0 top-0 bg-yellow-100 text-yellow-600 text-[10px] font-bold px-3 py-1 rounded-bl-xl shadow-sm">🎁 1,000P</div>}<div className={`text-2xl font-black mr-5 w-8 text-center ${color} drop-shadow-sm`}>{rank}</div><div className="flex-1"><p className="text-base font-bold text-slate-800">{name || 'Unknown'}</p><p className="text-xs text-slate-400 font-medium">{team}</p></div><div className="text-lg font-black text-slate-700 ml-4">{value}<span className="text-xs text-slate-400 ml-0.5 font-normal">{unit}</span></div></div>); 
     
-    return (<div className="p-6 space-y-8 pb-36 animate-fade-in bg-slate-50"><div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 text-center relative"><div className="flex justify-between items-center mb-4 px-2"><button onClick={handlePrevMonth} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><ChevronLeft className="w-6 h-6 text-slate-400" /></button><h2 className="text-xl font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2><button onClick={handleNextMonth} className="p-2 hover:bg-slate-100 rounded-full disabled:opacity-30 transition-colors" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-6 h-6 text-slate-400" /></button></div><div className="flex justify-center gap-2 mt-3"><span className="text-xs bg-green-50 text-green-600 px-3 py-1.5 rounded-full font-bold border border-green-100">🏆 소통상/좋아요상: 1~3등 1,000P</span></div></div>
+    return (<div className="p-6 space-y-8 pb-40 animate-fade-in bg-slate-50"><div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 text-center relative"><div className="flex justify-between items-center mb-4 px-2"><button onClick={handlePrevMonth} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><ChevronLeft className="w-6 h-6 text-slate-400" /></button><h2 className="text-xl font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2><button onClick={handleNextMonth} className="p-2 hover:bg-slate-100 rounded-full disabled:opacity-30 transition-colors" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-6 h-6 text-slate-400" /></button></div><div className="flex justify-center gap-2 mt-3"><span className="text-xs bg-green-50 text-green-600 px-3 py-1.5 rounded-full font-bold border border-green-100">🏆 소통상/좋아요상: 1~3등 1,000P</span></div></div>
       {myPointRank && (
         <div className="sticky top-2 z-20">
           <div className="bg-blue-50 border border-blue-100 rounded-3xl p-4 shadow-sm">
@@ -1567,31 +1565,62 @@ const RankingTab = ({ feeds, profiles, allPointHistory, currentUser }) => {
 
       <div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Coins className="w-5 h-5 text-yellow-500"/> 월간 획득 포인트 랭킹 TOP 10</h3><div className="space-y-3">{pointRankingTop10.length > 0 ? pointRankingTop10.map((p, i) => <RankItem key={i} rank={i+1} name={p.name} team={p.team} value={p.value.toLocaleString()} unit="P" color="text-yellow-500" showReward={false}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div><div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Pencil className="w-5 h-5 text-green-500"/> 소통왕 (게시글)</h3><div className="space-y-3">{postRanking.length > 0 ? postRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-green-500" showReward={true}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div><div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Heart className="w-5 h-5 text-red-500"/> 인기왕 (좋아요)</h3><div className="space-y-3">{likeRanking.length > 0 ? likeRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-red-500" showReward={true}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div></div>); };
 
-// [수정] 네비게이션 바 높이 축소
-const BottomNav = ({ activeTab, onTabChange }) => {
+// [수정] 네비게이션 바 + 중앙 플로팅 버튼(+)
+const BottomNav = ({ activeTab, onTabChange, onFabClick }) => {
   const getTabColor = (id, isActive) => {
-        if (!isActive) return 'text-slate-400 hover:text-slate-600';
-        switch (id) {
-            case 'home': return 'text-white bg-blue-600 shadow-lg shadow-blue-500/30';
-            case 'feed': return 'text-white bg-green-500 shadow-lg shadow-green-500/30';
-            case 'news': return 'text-white bg-red-500 shadow-lg shadow-red-500/30';
-            case 'ranking': return 'text-white bg-yellow-500 shadow-lg shadow-yellow-500/30';
-            default: return 'text-slate-600';
-        }
-    };
+    if (!isActive) return 'text-slate-400 hover:text-slate-600';
+    switch (id) {
+      case 'home':
+        return 'text-white bg-blue-600 shadow-lg shadow-blue-500/30';
+      case 'feed':
+        return 'text-white bg-green-500 shadow-lg shadow-green-500/30';
+      case 'news':
+        return 'text-white bg-red-500 shadow-lg shadow-red-500/30';
+      case 'ranking':
+        return 'text-white bg-yellow-500 shadow-lg shadow-yellow-500/30';
+      default:
+        return 'text-slate-600';
+    }
+  };
+
+  const homeItem = { id: 'home', icon: Home, label: '홈' };
+  const feedItem = { id: 'feed', icon: MessageCircle, label: '게시판' };
+  const newsItem = { id: 'news', icon: Bell, label: '공지' };
+  const rankingItem = { id: 'ranking', icon: Award, label: '랭킹' };
+
+  const NavBtn = ({ item }) => (
+    <button
+      onClick={() => onTabChange(item.id)}
+      className={`flex flex-col items-center justify-center gap-1 h-full rounded-[2rem] transition-all duration-300 ease-out ${getTabColor(
+        item.id,
+        activeTab === item.id
+      )}`}
+    >
+      <item.icon className={`w-6 h-6 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} />
+      <span className="text-[9px] font-bold whitespace-nowrap">{item.label}</span>
+    </button>
+  );
+
   return (
     <div className="fixed bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-xl border-t border-slate-200 shadow-[0_-6px_24px_rgba(0,0,0,0.10)] p-2 z-30">
-      <div className="w-[96%] max-w-[420px] mx-auto flex justify-between items-center rounded-[2rem] h-16 bg-white/90 border border-white/60 shadow-sm overflow-hidden">
-        {[{ id: 'home', icon: Home, label: '홈' }, { id: 'feed', icon: MessageCircle, label: '게시판' }, { id: 'news', icon: Bell, label: '공지' }, { id: 'ranking', icon: Award, label: '랭킹' }].map(item => (
-          <button
-            key={item.id}
-            onClick={() => onTabChange(item.id)}
-            className={`flex-1 flex flex-col items-center justify-center gap-1 h-full rounded-[2rem] transition-all duration-300 ease-out ${getTabColor(item.id, activeTab === item.id)}`}
-          >
-            <item.icon className={`w-6 h-6 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} />
-            <span className="text-[9px] font-bold whitespace-nowrap">{item.label}</span>
-          </button>
-        ))}
+      <div className="w-[96%] max-w-[420px] mx-auto relative">
+        <div className="grid grid-cols-5 items-center rounded-[2rem] h-16 bg-white/90 border border-white/60 shadow-sm overflow-hidden">
+          <NavBtn item={homeItem} />
+          <NavBtn item={feedItem} />
+          <div className="h-full" />
+          <NavBtn item={newsItem} />
+          <NavBtn item={rankingItem} />
+        </div>
+
+        {/* 중앙 플로팅 버튼 */}
+        <button
+          type="button"
+          onClick={onFabClick}
+          aria-label="새 게시글 작성"
+          className="absolute left-1/2 -translate-x-1/2 -top-6 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white w-16 h-16 rounded-full shadow-xl shadow-blue-500/35 border-4 border-white flex items-center justify-center transition-all"
+        >
+          <Plus className="w-8 h-8" />
+        </button>
       </div>
     </div>
   );
@@ -2444,7 +2473,7 @@ useEffect(() => {
     )}
   </div>
 </main>
-              <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
+              <BottomNav activeTab={activeTab} onTabChange={handleTabChange}  onFabClick={() => { setWriteCategory(null); setShowWriteModal(true); }} />
               
               {showWriteModal && <WriteModal setShowWriteModal={setShowWriteModal} handlePostSubmit={handlePostSubmit} currentUser={currentUser} activeTab={activeTab} boosterActive={boosterActive} initialCategory={writeCategory} profiles={profiles} />}
               {showUserInfoModal && currentUser && <UserInfoModal currentUser={currentUser} pointHistory={pointHistory} setShowUserInfoModal={setShowUserInfoModal} handleRedeemPoints={handleRedeemPoints} />}
