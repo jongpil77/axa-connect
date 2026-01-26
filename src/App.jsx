@@ -52,6 +52,376 @@ const AXA_LOGO_URL = "https://upload.wikimedia.org/wikipedia/commons/9/94/AXA_Lo
 // [수정] 악사 레드 색상 상수
 const AXA_RED = '#C60C30';
 
+// [추가] 365일 자기계발/긍정 명언
+const MOTTO_365 = [
+  '루틴을 선택한 너는 이미 반은 이겼다.',
+  '노력은 기록해. 이 나를 단단하게 만든다.',
+  '작은 습관은 개선해. 이 성공의 출발점이다.',
+  '준비은 지켜. 이 결국 큰 변화를 만든다.',
+  '꾸준함이 답답해도 멈추지 않으면 된다.',
+  '피드백은 시작해. 이 충분히 가치 있다.',
+  '루틴은 시작해. 이 성공의 출발점이다.',
+  '작은 습관은 웃어. 이 내일의 나를 만든다.',
+  '실수은 정리해. 이 성장의 증거다.',
+  '성실함은 단순화해. 이 결국 큰 변화를 만든다.',
+  '루틴은 기록해. 이 가장 빠른 길이다.',
+  '지금은 나아가. 이 기회를 만든다.',
+  '목표을 선택한 너는 이미 반은 이겼다.',
+  '태도은 도전해. 이 나를 단단하게 만든다.',
+  '마음이 쌓이면 결과는 따라온다.',
+  '선택은 집중해. 이 결국 큰 변화를 만든다.',
+  '마음을 선택한 너는 이미 반은 이겼다.',
+  '선택을 바꾸면 인생이 바뀐다.',
+  '마음은 시작해. 이 기회를 만든다.',
+  '실수은 감사해. 이 나를 단단하게 만든다.',
+  '성실함은 개선해. 이 성장의 증거다.',
+  '태도을 바꾸면 인생이 바뀐다.',
+  '용기은 도전해. 이 결국 큰 변화를 만든다.',
+  '꾸준함은 시작해. 이 나만의 무기다.',
+  '준비을 바꾸면 인생이 바뀐다.',
+  '루틴이 흔들려도 방향만은 잃지 말자.',
+  '피드백부터 하면 된다. 완벽은 나중이다.',
+  '용기은 연습해. 이 충분히 가치 있다.',
+  '꾸준함은 기록해. 이 나만의 무기다.',
+  '지금은 단순화해. 이 기회를 만든다.',
+  '경험은 다시 일어나. 이 자신감을 키운다.',
+  '오늘은 성장해. 이 나만의 무기다.',
+  '성실함을 선택한 너는 이미 반은 이겼다.',
+  '작은 습관부터 하면 된다. 완벽은 나중이다.',
+  '용기이 답답해도 멈추지 않으면 된다.',
+  '계획을 선택한 너는 이미 반은 이겼다.',
+  '노력을 바꾸면 인생이 바뀐다.',
+  '성실함이 쌓이면 결과는 따라온다.',
+  '오늘이 흔들려도 방향만은 잃지 말자.',
+  '작은 습관을 바꾸면 인생이 바뀐다.',
+  '시간은 실행해. 이 성공의 출발점이다.',
+  '피드백은 믿어. 이 성공의 출발점이다.',
+  '꾸준함은 성장해. 이 가장 빠른 길이다.',
+  '한 걸음이 답답해도 멈추지 않으면 된다.',
+  '계획을 바꾸면 인생이 바뀐다.',
+  '태도이 답답해도 멈추지 않으면 된다.',
+  '태도은 집중해. 이 가장 빠른 길이다.',
+  '한 걸음은 감사해. 이 성장의 증거다.',
+  '시간이 답답해도 멈추지 않으면 된다.',
+  '준비은 연습해. 이 성공의 출발점이다.',
+  '지금은 개선해. 이 나만의 무기다.',
+  '오늘부터 하면 된다. 완벽은 나중이다.',
+  '작은 습관이 쌓이면 결과는 따라온다.',
+  '계획부터 하면 된다. 완벽은 나중이다.',
+  '성실함부터 하면 된다. 완벽은 나중이다.',
+  '경험은 붙잡아. 이 성공의 출발점이다.',
+  '지금은 지켜. 이 성공의 출발점이다.',
+  '성실함은 반복해. 이 나만의 무기다.',
+  '피드백은 감사해. 이 결국 큰 변화를 만든다.',
+  '시간이 쌓이면 결과는 따라온다.',
+  '선택부터 하면 된다. 완벽은 나중이다.',
+  '꾸준함을 바꾸면 인생이 바뀐다.',
+  '시간은 성장해. 이 나만의 무기다.',
+  '피드백은 시작해. 이 내일의 나를 만든다.',
+  '선택은 배워. 이 성장의 증거다.',
+  '오늘이 답답해도 멈추지 않으면 된다.',
+  '계획은 연습해. 이 나를 단단하게 만든다.',
+  '지금을 바꾸면 인생이 바뀐다.',
+  '목표은 다시 일어나. 이 기회를 만든다.',
+  '용기을 바꾸면 인생이 바뀐다.',
+  '루틴은 나아가. 이 자신감을 키운다.',
+  '실수을 바꾸면 인생이 바뀐다.',
+  '한 걸음이 흔들려도 방향만은 잃지 말자.',
+  '경험을 바꾸면 인생이 바뀐다.',
+  '실수은 다시 일어나. 이 나를 단단하게 만든다.',
+  '경험은 성장해. 이 결국 큰 변화를 만든다.',
+  '작은 습관은 나아가. 이 충분히 가치 있다.',
+  '작은 습관은 나아가. 이 나를 단단하게 만든다.',
+  '용기은 단순화해. 이 가장 빠른 길이다.',
+  '준비이 답답해도 멈추지 않으면 된다.',
+  '집중은 성장해. 이 성공의 출발점이다.',
+  '계획이 쌓이면 결과는 따라온다.',
+  '마음을 바꾸면 인생이 바뀐다.',
+  '마음은 반복해. 이 기회를 만든다.',
+  '경험은 버텨. 이 내일의 나를 만든다.',
+  '시간은 도전해. 이 나를 단단하게 만든다.',
+  '실수은 믿어. 이 내일의 나를 만든다.',
+  '꾸준함은 붙잡아. 이 성공의 출발점이다.',
+  '한 걸음은 정리해. 이 내일의 나를 만든다.',
+  '피드백은 붙잡아. 이 나만의 무기다.',
+  '준비이 흔들려도 방향만은 잃지 말자.',
+  '시간이 흔들려도 방향만은 잃지 말자.',
+  '준비이 쌓이면 결과는 따라온다.',
+  '작은 습관은 시작해. 이 결국 큰 변화를 만든다.',
+  '선택이 흔들려도 방향만은 잃지 말자.',
+  '목표부터 하면 된다. 완벽은 나중이다.',
+  '용기은 단순화해. 이 결국 큰 변화를 만든다.',
+  '마음은 웃어. 이 충분히 가치 있다.',
+  '시간은 반복해. 이 결국 큰 변화를 만든다.',
+  '작은 습관이 답답해도 멈추지 않으면 된다.',
+  '성실함을 바꾸면 인생이 바뀐다.',
+  '준비은 배워. 이 내일의 나를 만든다.',
+  '선택이 답답해도 멈추지 않으면 된다.',
+  '집중이 답답해도 멈추지 않으면 된다.',
+  '작은 습관은 정리해. 이 자신감을 키운다.',
+  '실수이 답답해도 멈추지 않으면 된다.',
+  '준비은 웃어. 이 내일의 나를 만든다.',
+  '루틴은 믿어. 이 내일의 나를 만든다.',
+  '준비부터 하면 된다. 완벽은 나중이다.',
+  '피드백은 기록해. 이 나를 단단하게 만든다.',
+  '성실함은 반복해. 이 가장 빠른 길이다.',
+  '집중은 버텨. 이 자신감을 키운다.',
+  '실수은 개선해. 이 결국 큰 변화를 만든다.',
+  '피드백을 바꾸면 인생이 바뀐다.',
+  '태도은 감사해. 이 결국 큰 변화를 만든다.',
+  '목표은 단순화해. 이 충분히 가치 있다.',
+  '용기부터 하면 된다. 완벽은 나중이다.',
+  '용기은 붙잡아. 이 성장의 증거다.',
+  '피드백을 선택한 너는 이미 반은 이겼다.',
+  '태도부터 하면 된다. 완벽은 나중이다.',
+  '마음은 버텨. 이 내일의 나를 만든다.',
+  '루틴은 성장해. 이 결국 큰 변화를 만든다.',
+  '준비은 붙잡아. 이 나를 단단하게 만든다.',
+  '지금은 붙잡아. 이 결국 큰 변화를 만든다.',
+  '실수은 집중해. 이 기회를 만든다.',
+  '시간은 지켜. 이 나를 단단하게 만든다.',
+  '용기은 연습해. 이 기회를 만든다.',
+  '준비을 선택한 너는 이미 반은 이겼다.',
+  '경험을 선택한 너는 이미 반은 이겼다.',
+  '계획은 정리해. 이 결국 큰 변화를 만든다.',
+  '시간을 선택한 너는 이미 반은 이겼다.',
+  '성실함은 성장해. 이 기회를 만든다.',
+  '한 걸음을 바꾸면 인생이 바뀐다.',
+  '실수은 지켜. 이 내일의 나를 만든다.',
+  '시간은 성장해. 이 성공의 출발점이다.',
+  '오늘을 바꾸면 인생이 바뀐다.',
+  '준비은 시작해. 이 성장의 증거다.',
+  '선택은 정리해. 이 자신감을 키운다.',
+  '꾸준함은 성장해. 이 성공의 출발점이다.',
+  '한 걸음을 선택한 너는 이미 반은 이겼다.',
+  '실수부터 하면 된다. 완벽은 나중이다.',
+  '오늘은 성장해. 이 성공의 출발점이다.',
+  '작은 습관은 붙잡아. 이 자신감을 키운다.',
+  '집중은 지켜. 이 성장의 증거다.',
+  '태도을 선택한 너는 이미 반은 이겼다.',
+  '지금은 붙잡아. 이 나를 단단하게 만든다.',
+  '태도은 기록해. 이 충분히 가치 있다.',
+  '마음이 답답해도 멈추지 않으면 된다.',
+  '용기을 선택한 너는 이미 반은 이겼다.',
+  '마음은 연습해. 이 가장 빠른 길이다.',
+  '지금은 나아가. 이 결국 큰 변화를 만든다.',
+  '선택은 성장해. 이 나를 단단하게 만든다.',
+  '지금은 도전해. 이 나를 단단하게 만든다.',
+  '경험은 지켜. 이 내일의 나를 만든다.',
+  '마음은 연습해. 이 충분히 가치 있다.',
+  '꾸준함은 다시 일어나. 이 성장의 증거다.',
+  '한 걸음은 믿어. 이 성장의 증거다.',
+  '시간은 배워. 이 결국 큰 변화를 만든다.',
+  '시간은 도전해. 이 나만의 무기다.',
+  '오늘은 나아가. 이 충분히 가치 있다.',
+  '루틴을 바꾸면 인생이 바뀐다.',
+  '태도은 다시 일어나. 이 결국 큰 변화를 만든다.',
+  '마음은 단순화해. 이 성장의 증거다.',
+  '꾸준함은 붙잡아. 이 내일의 나를 만든다.',
+  '피드백이 답답해도 멈추지 않으면 된다.',
+  '목표은 도전해. 이 내일의 나를 만든다.',
+  '경험이 흔들려도 방향만은 잃지 말자.',
+  '용기은 단순화해. 이 기회를 만든다.',
+  '노력은 감사해. 이 자신감을 키운다.',
+  '피드백은 성장해. 이 충분히 가치 있다.',
+  '한 걸음은 시작해. 이 기회를 만든다.',
+  '선택은 반복해. 이 내일의 나를 만든다.',
+  '한 걸음이 쌓이면 결과는 따라온다.',
+  '피드백은 버텨. 이 자신감을 키운다.',
+  '지금은 정리해. 이 충분히 가치 있다.',
+  '꾸준함은 나아가. 이 충분히 가치 있다.',
+  '지금부터 하면 된다. 완벽은 나중이다.',
+  '시간은 기록해. 이 나만의 무기다.',
+  '실수은 성장해. 이 성장의 증거다.',
+  '태도은 실행해. 이 충분히 가치 있다.',
+  '계획이 흔들려도 방향만은 잃지 말자.',
+  '루틴은 나아가. 이 가장 빠른 길이다.',
+  '태도은 실행해. 이 내일의 나를 만든다.',
+  '집중부터 하면 된다. 완벽은 나중이다.',
+  '마음은 정리해. 이 자신감을 키운다.',
+  '실수은 다시 일어나. 이 충분히 가치 있다.',
+  '꾸준함을 선택한 너는 이미 반은 이겼다.',
+  '시간은 연습해. 이 내일의 나를 만든다.',
+  '한 걸음부터 하면 된다. 완벽은 나중이다.',
+  '준비은 다시 일어나. 이 가장 빠른 길이다.',
+  '마음부터 하면 된다. 완벽은 나중이다.',
+  '시간을 바꾸면 인생이 바뀐다.',
+  '준비은 단순화해. 이 충분히 가치 있다.',
+  '준비은 버텨. 이 기회를 만든다.',
+  '한 걸음은 웃어. 이 성공의 출발점이다.',
+  '목표은 반복해. 이 가장 빠른 길이다.',
+  '준비은 나아가. 이 충분히 가치 있다.',
+  '용기이 쌓이면 결과는 따라온다.',
+  '성실함은 집중해. 이 가장 빠른 길이다.',
+  '지금은 개선해. 이 나를 단단하게 만든다.',
+  '작은 습관은 실행해. 이 결국 큰 변화를 만든다.',
+  '계획은 나아가. 이 충분히 가치 있다.',
+  '집중이 흔들려도 방향만은 잃지 말자.',
+  '오늘은 지켜. 이 결국 큰 변화를 만든다.',
+  '노력부터 하면 된다. 완벽은 나중이다.',
+  '경험이 답답해도 멈추지 않으면 된다.',
+  '경험은 나아가. 이 가장 빠른 길이다.',
+  '마음은 배워. 이 기회를 만든다.',
+  '작은 습관은 단순화해. 이 나를 단단하게 만든다.',
+  '실수은 믿어. 이 성장의 증거다.',
+  '목표이 흔들려도 방향만은 잃지 말자.',
+  '선택은 다시 일어나. 이 충분히 가치 있다.',
+  '루틴은 도전해. 이 나만의 무기다.',
+  '시간은 정리해. 이 충분히 가치 있다.',
+  '선택은 성장해. 이 가장 빠른 길이다.',
+  '목표은 개선해. 이 성장의 증거다.',
+  '오늘은 감사해. 이 기회를 만든다.',
+  '목표은 연습해. 이 충분히 가치 있다.',
+  '실수을 선택한 너는 이미 반은 이겼다.',
+  '용기은 나아가. 이 내일의 나를 만든다.',
+  '마음은 다시 일어나. 이 나만의 무기다.',
+  '노력을 선택한 너는 이미 반은 이겼다.',
+  '꾸준함은 배워. 이 나를 단단하게 만든다.',
+  '성실함은 연습해. 이 나를 단단하게 만든다.',
+  '목표은 단순화해. 이 나를 단단하게 만든다.',
+  '계획은 버텨. 이 가장 빠른 길이다.',
+  '경험은 개선해. 이 성장의 증거다.',
+  '마음은 단순화해. 이 기회를 만든다.',
+  '지금이 쌓이면 결과는 따라온다.',
+  '실수은 붙잡아. 이 기회를 만든다.',
+  '집중은 감사해. 이 결국 큰 변화를 만든다.',
+  '태도은 단순화해. 이 내일의 나를 만든다.',
+  '마음은 도전해. 이 성장의 증거다.',
+  '오늘은 시작해. 이 결국 큰 변화를 만든다.',
+  '선택은 감사해. 이 성공의 출발점이다.',
+  '루틴이 쌓이면 결과는 따라온다.',
+  '태도이 쌓이면 결과는 따라온다.',
+  '목표은 성장해. 이 성장의 증거다.',
+  '경험부터 하면 된다. 완벽은 나중이다.',
+  '실수이 쌓이면 결과는 따라온다.',
+  '작은 습관은 붙잡아. 이 기회를 만든다.',
+  '꾸준함이 흔들려도 방향만은 잃지 말자.',
+  '준비은 웃어. 이 충분히 가치 있다.',
+  '루틴은 웃어. 이 성공의 출발점이다.',
+  '지금은 믿어. 이 기회를 만든다.',
+  '시간은 지켜. 이 내일의 나를 만든다.',
+  '계획은 정리해. 이 자신감을 키운다.',
+  '마음은 감사해. 이 나를 단단하게 만든다.',
+  '실수은 집중해. 이 충분히 가치 있다.',
+  '노력이 흔들려도 방향만은 잃지 말자.',
+  '지금은 시작해. 이 기회를 만든다.',
+  '노력은 웃어. 이 충분히 가치 있다.',
+  '실수은 반복해. 이 성장의 증거다.',
+  '성실함은 시작해. 이 나를 단단하게 만든다.',
+  '꾸준함은 다시 일어나. 이 나를 단단하게 만든다.',
+  '성실함은 시작해. 이 결국 큰 변화를 만든다.',
+  '노력은 연습해. 이 성장의 증거다.',
+  '경험은 붙잡아. 이 가장 빠른 길이다.',
+  '시간은 집중해. 이 결국 큰 변화를 만든다.',
+  '노력은 시작해. 이 내일의 나를 만든다.',
+  '선택을 선택한 너는 이미 반은 이겼다.',
+  '목표은 웃어. 이 나만의 무기다.',
+  '피드백은 연습해. 이 나만의 무기다.',
+  '집중은 개선해. 이 성장의 증거다.',
+  '용기은 버텨. 이 가장 빠른 길이다.',
+  '용기은 집중해. 이 자신감을 키운다.',
+  '꾸준함이 쌓이면 결과는 따라온다.',
+  '꾸준함은 단순화해. 이 성장의 증거다.',
+  '마음은 배워. 이 나를 단단하게 만든다.',
+  '용기이 흔들려도 방향만은 잃지 말자.',
+  '목표은 도전해. 이 나만의 무기다.',
+  '오늘은 단순화해. 이 가장 빠른 길이다.',
+  '경험이 쌓이면 결과는 따라온다.',
+  '피드백은 성장해. 이 나만의 무기다.',
+  '피드백은 지켜. 이 성장의 증거다.',
+  '시간은 성장해. 이 성장의 증거다.',
+  '지금은 정리해. 이 가장 빠른 길이다.',
+  '준비은 믿어. 이 내일의 나를 만든다.',
+  '태도은 붙잡아. 이 가장 빠른 길이다.',
+  '실수은 나아가. 이 나만의 무기다.',
+  '꾸준함은 도전해. 이 자신감을 키운다.',
+  '한 걸음은 버텨. 이 성공의 출발점이다.',
+  '시간은 개선해. 이 내일의 나를 만든다.',
+  '준비은 감사해. 이 나만의 무기다.',
+  '꾸준함부터 하면 된다. 완벽은 나중이다.',
+  '목표은 붙잡아. 이 충분히 가치 있다.',
+  '선택이 쌓이면 결과는 따라온다.',
+  '집중을 바꾸면 인생이 바뀐다.',
+  '태도이 흔들려도 방향만은 잃지 말자.',
+  '루틴이 답답해도 멈추지 않으면 된다.',
+  '용기은 배워. 이 성장의 증거다.',
+  '태도은 웃어. 이 나를 단단하게 만든다.',
+  '노력은 개선해. 이 성장의 증거다.',
+  '꾸준함은 감사해. 이 나만의 무기다.',
+  '시간은 반복해. 이 자신감을 키운다.',
+  '경험은 나아가. 이 성장의 증거다.',
+  '오늘을 선택한 너는 이미 반은 이겼다.',
+  '작은 습관은 정리해. 이 성장의 증거다.',
+  '계획은 다시 일어나. 이 나를 단단하게 만든다.',
+  '시간은 감사해. 이 자신감을 키운다.',
+  '시간은 감사해. 이 충분히 가치 있다.',
+  '노력은 지켜. 이 내일의 나를 만든다.',
+  '성실함은 성장해. 이 나만의 무기다.',
+  '태도은 성장해. 이 가장 빠른 길이다.',
+  '성실함은 지켜. 이 내일의 나를 만든다.',
+  '작은 습관은 붙잡아. 이 충분히 가치 있다.',
+  '준비은 정리해. 이 충분히 가치 있다.',
+  '마음이 흔들려도 방향만은 잃지 말자.',
+  '태도은 버텨. 이 나만의 무기다.',
+  '선택은 시작해. 이 자신감을 키운다.',
+  '피드백은 정리해. 이 내일의 나를 만든다.',
+  '준비은 나아가. 이 성장의 증거다.',
+  '성실함이 흔들려도 방향만은 잃지 말자.',
+  '집중이 쌓이면 결과는 따라온다.',
+  '목표은 반복해. 이 결국 큰 변화를 만든다.',
+  '집중은 단순화해. 이 나만의 무기다.',
+  '노력은 나아가. 이 충분히 가치 있다.',
+  '피드백은 나아가. 이 충분히 가치 있다.',
+  '시간은 배워. 이 가장 빠른 길이다.',
+  '성실함은 시작해. 이 충분히 가치 있다.',
+  '목표은 믿어. 이 가장 빠른 길이다.',
+  '지금은 지켜. 이 내일의 나를 만든다.',
+  '시간은 배워. 이 기회를 만든다.',
+  '계획은 개선해. 이 성장의 증거다.',
+  '마음은 시작해. 이 나를 단단하게 만든다.',
+  '용기은 믿어. 이 나를 단단하게 만든다.',
+  '오늘은 붙잡아. 이 성공의 출발점이다.',
+  '실수은 성장해. 이 내일의 나를 만든다.',
+  '경험은 연습해. 이 기회를 만든다.',
+  '오늘은 버텨. 이 나를 단단하게 만든다.',
+  '용기은 나아가. 이 기회를 만든다.',
+  '지금은 믿어. 이 성장의 증거다.',
+  '성실함이 답답해도 멈추지 않으면 된다.',
+  '꾸준함은 연습해. 이 내일의 나를 만든다.',
+  '실수이 흔들려도 방향만은 잃지 말자.',
+  '시간은 버텨. 이 기회를 만든다.',
+  '경험은 기록해. 이 성공의 출발점이다.',
+  '오늘은 성장해. 이 충분히 가치 있다.',
+  '집중은 연습해. 이 가장 빠른 길이다.',
+  '마음은 기록해. 이 내일의 나를 만든다.',
+  '준비은 감사해. 이 성공의 출발점이다.',
+  '마음은 개선해. 이 성공의 출발점이다.',
+  '실수은 지켜. 이 결국 큰 변화를 만든다.',
+  '작은 습관을 선택한 너는 이미 반은 이겼다.',
+  '성실함은 지켜. 이 충분히 가치 있다.',
+  '지금은 감사해. 이 나만의 무기다.',
+  '시간은 반복해. 이 성공의 출발점이다.',
+  '성실함은 실행해. 이 가장 빠른 길이다.',
+  '실수은 기록해. 이 가장 빠른 길이다.',
+  '선택은 도전해. 이 기회를 만든다.',
+  '시간부터 하면 된다. 완벽은 나중이다.',
+  '실수은 나아가. 이 성장의 증거다.',
+  '성실함은 붙잡아. 이 충분히 가치 있다.',
+  '마음은 정리해. 이 가장 빠른 길이다.',
+  '루틴은 단순화해. 이 성장의 증거다.',
+  '태도은 나아가. 이 가장 빠른 길이다.',
+  '꾸준함은 웃어. 이 성공의 출발점이다.',
+  '한 걸음은 집중해. 이 나만의 무기다.',
+  '한 걸음은 믿어. 이 성공의 출발점이다.',
+  '오늘은 집중해. 이 자신감을 키운다.',
+  '태도은 붙잡아. 이 내일의 나를 만든다.',
+  '경험은 버텨. 이 나만의 무기다.',
+  '선택은 집중해. 이 나를 단단하게 만든다.',
+  '오늘은 연습해. 이 자신감을 키운다.',
+  '꾸준함은 웃어. 이 나를 단단하게 만든다.',
+];
+
+
 // --- Helper Functions ---
 const formatName = (name) => {
   if (!name) return '';
@@ -305,22 +675,23 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
         <div className="flex items-center gap-2 relative">
           <div className="flex items-center gap-2 mr-1 cursor-pointer group" onClick={onOpenUserInfo}>
              <div className="flex flex-col items-end leading-none relative">
-                 {/* [수정] boosterActive 표시: 포인트 섹션 바깥(좌측)에 ⚡ X2배 */}
-{boosterActive && (
-  <div className="absolute -left-16 top-1/2 -translate-y-1/2 bg-red-50 text-[#C60C30] px-2.5 py-1 rounded-full font-black whitespace-nowrap flex items-center gap-1 shadow-sm border border-red-200 animate-pulse">
-    <span className="text-sm leading-none">⚡</span>
-    <span className="text-[10px] leading-none">X2배</span>
+  <div className="flex items-center gap-2">
+    {boosterActive && (
+      <div className="bg-red-50 text-[#C60C30] px-2.5 py-1 rounded-full font-black whitespace-nowrap flex items-center gap-1 shadow-sm border border-red-200">
+        <span className="text-sm leading-none">⚡</span>
+        <span className="text-[10px] leading-none">X2배</span>
+      </div>
+    )}
+    <div className="flex flex-col items-end leading-none">
+      <span className="text-[11px] text-slate-600 font-black whitespace-nowrap mb-1">My CARE Point</span>
+      <div className="flex items-center gap-1.5 bg-amber-200 px-3 py-1.5 rounded-xl shadow-md border border-amber-300 ring-2 ring-amber-400/40 motion-safe:animate-pulse">
+        <Coins className="w-4 h-4 text-amber-900 fill-amber-900"/>
+        <span className="text-2xl font-black text-amber-950 tracking-tight">{currentUser?.points?.toLocaleString()}</span>
+        <span className="text-[11px] font-black text-amber-800">P</span>
+      </div>
+    </div>
   </div>
-)}
-{/* My CARE Point를 굵게 변경 (font-bold -> font-black) */}
-                 <span className="text-[11px] text-slate-600 font-black whitespace-nowrap mb-1">My CARE Point</span>
-<div className="flex items-center gap-1.5 bg-amber-200 px-3 py-1.5 rounded-xl shadow-md border border-amber-300">
-  <Coins className="w-4 h-4 text-amber-900 fill-amber-900"/>
-  <span className="text-2xl font-black text-amber-950 tracking-tight">{currentUser?.points?.toLocaleString()}</span>
-  <span className="text-[11px] font-black text-amber-800">P</span>
 </div>
-             </div>
-          </div>
           
           {/* [수정] 선물 아이콘 -> 이모지 + 노란색/빨간 포장끈 스타일 */}
           <button onClick={onOpenGift} className="p-2 rounded-full bg-yellow-100 hover:bg-yellow-200 border-2 border-red-400 transition-all shadow-sm active:scale-95 flex items-center justify-center">
@@ -590,7 +961,7 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => 
 };
 
 // [수정] 모던한 테마 적용, 상단 공지 삭제, 하단 공지 추가, 폰트 사이즈 조정
-const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive, currentUser, checkInArmed, checkOutArmed }) => {
+const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive, currentUser, attendanceEnabled, attendanceOpenCount }) => {
     const averageLikes = useMemo(() => {
         if (feeds.length === 0) return 0;
         const totalLikes = feeds.reduce((acc, curr) => acc + (curr.likes?.length || 0), 0);
@@ -598,19 +969,28 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
     }, [feeds]);
 
     const latestNotice = feeds.find(f => f.type === 'news');
-// [추가] 나의 활동(내가 쓴 글/댓글/칭찬/좋아요 받은 수)
+// [추가] 365 명언(LED 흘러가기) - 오늘의 문구 선택
+const ledIndex = useMemo(() => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 1);
+  const diff = Math.floor((now - start) / 86400000);
+  return diff % 365;
+}, []);
+const ledMessage = useMemo(() => `💡 오늘의 한마디: ${MOTTO_365[ledIndex]}`, [ledIndex]);
+
+// [추가] 나의 활동(내가 쓴 글/댓글/칭찬/좋아요(내가 누른))
 const myActivity = useMemo(() => {
   const myId = currentUser?.id;
-  if (!myId) return { posts: 0, comments: 0, praises: 0, likesReceived: 0 };
+  if (!myId) return { posts: 0, comments: 0, praises: 0, likesGiven: 0 };
   const myPosts = feeds.filter(f => f.author_id === myId);
   const posts = myPosts.length;
   const praises = myPosts.filter(f => f.type === 'praise').length;
-  const likesReceived = myPosts.reduce((sum, f) => sum + (Array.isArray(f.likes) ? f.likes.length : 0), 0);
   const comments = feeds.reduce((sum, f) => {
     const cs = f.comments || [];
     return sum + cs.filter(c => c.author_id === myId).length;
   }, 0);
-  return { posts, comments, praises, likesReceived };
+  const likesGiven = feeds.reduce((sum, f) => sum + (Array.isArray(f.likes) && f.likes.includes(myId) ? 1 : 0), 0);
+  return { posts, comments, praises, likesGiven };
 }, [feeds, currentUser]);
 
 
@@ -643,7 +1023,9 @@ const myActivity = useMemo(() => {
                                 <div className="text-right mt-0.5">
                                     {(listType === 'dept_news' || listType === 'praise') && (
                                         <>
-                                        <span className="text-[11px] text-slate-400 font-medium">{feed.author ? <>{feed.author} ({feed.team})</> : null}</span>
+                                        <span className="text-[11px] text-slate-400 font-medium">
+                                            {feed.author ? <>{feed.author} ({feed.team})</> : null}
+                                        </span>
                                         <span className="text-[10px] text-slate-300 ml-2">{feed.formattedTime}</span>
                                         </>
                                     )}
@@ -683,9 +1065,9 @@ const myActivity = useMemo(() => {
                      <div className="flex-1 flex flex-col gap-2 justify-center bg-blue-50/30 rounded-2xl p-2 border border-blue-50">
                          {!mood ? (
                              <div className="flex flex-col gap-1.5 h-full justify-center">
-                                 <button onClick={() => handleMoodCheck('good')} disabled={checkOutArmed} className="bg-white hover:bg-blue-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-blue-100 gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"><Smile className="w-4 h-4 text-blue-500"/><span className="text-[9px] font-bold text-slate-600">좋음</span></button>
-                                 <button onClick={() => handleMoodCheck('normal')} disabled={checkOutArmed} className="bg-white hover:bg-green-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-green-100 gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"><Meh className="w-4 h-4 text-green-500"/><span className="text-[9px] font-bold text-slate-600">보통</span></button>
-                                 <button onClick={() => handleMoodCheck('tired')} disabled={checkOutArmed} className="bg-white hover:bg-orange-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-orange-100 gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"><Frown className="w-4 h-4 text-orange-500"/><span className="text-[9px] font-bold text-slate-600">피곤</span></button>
+                                 <button onClick={() => handleMoodCheck('good')} disabled={!attendanceEnabled} className="bg-white hover:bg-blue-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-blue-100 gap-1.5"><Smile className="w-4 h-4 text-blue-500"/><span className="text-[9px] font-bold text-slate-600">좋음</span></button>
+                                 <button onClick={() => handleMoodCheck('normal')} disabled={!attendanceEnabled} className="bg-white hover:bg-green-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-green-100 gap-1.5"><Meh className="w-4 h-4 text-green-500"/><span className="text-[9px] font-bold text-slate-600">보통</span></button>
+                                 <button onClick={() => handleMoodCheck('tired')} disabled={!attendanceEnabled} className="bg-white hover:bg-orange-100 rounded-xl flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-orange-100 gap-1.5"><Frown className="w-4 h-4 text-orange-500"/><span className="text-[9px] font-bold text-slate-600">피곤</span></button>
                              </div>
                          ) : (
                              <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl border border-blue-100 shadow-sm">
@@ -695,7 +1077,7 @@ const myActivity = useMemo(() => {
                          )}
                      </div>
                      <div className="flex-1 flex flex-col gap-2 justify-center bg-orange-50/30 rounded-2xl p-2 border border-orange-50">
-                         <button onClick={handleCheckOut} disabled={!mood || hasCheckedOut || checkInArmed} className={`flex-1 ${hasCheckedOut ? 'bg-slate-100 text-slate-300' : (!mood || checkInArmed) ? 'bg-slate-100 text-slate-300' : 'bg-slate-800 text-white hover:bg-slate-900 shadow-lg'} rounded-2xl flex flex-col items-center justify-center text-[11px] font-bold transition-all active:scale-95`}>
+                         <button onClick={handleCheckOut} disabled={!attendanceEnabled || !mood || hasCheckedOut} className={`flex-1 ${hasCheckedOut ? 'bg-slate-100 text-slate-300' : (!attendanceEnabled || !mood) ? 'bg-slate-100 text-slate-300' : 'bg-slate-800 text-white hover:bg-slate-900 shadow-lg'} rounded-2xl flex flex-col items-center justify-center text-[11px] font-bold transition-all active:scale-95`}>
                              {hasCheckedOut ? <><span className="text-2xl mb-1 grayscale opacity-50">🏠</span><span>퇴근 완료</span></> : <><span className="text-2xl mb-1">🏃</span><span>퇴근하기</span></>}
                          </button>
                      </div>
@@ -706,43 +1088,50 @@ const myActivity = useMemo(() => {
         </div>
         
         
-{/* 나의 활동 섹션 */}
-<div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
-  <div className="flex items-center justify-between mb-4">
-    <h3 className="text-sm font-black text-slate-800 flex items-center gap-2"><span>📌</span> 나의 활동</h3>
-    <span className="text-[10px] font-bold text-slate-400">최근 기준</span>
-  </div>
-  <div className="grid grid-cols-4 gap-3">
-    <div className="bg-slate-50 rounded-2xl p-3 text-center border border-slate-100">
-      <div className="text-xl">📝</div>
-      <div className="text-[10px] font-bold text-slate-500 mt-1">내가 쓴 글</div>
-      <div className="text-lg font-black text-slate-800">{myActivity.posts}</div>
-    </div>
-    <div className="bg-slate-50 rounded-2xl p-3 text-center border border-slate-100">
-      <div className="text-xl">💬</div>
-      <div className="text-[10px] font-bold text-slate-500 mt-1">댓글</div>
-      <div className="text-lg font-black text-slate-800">{myActivity.comments}</div>
-    </div>
-    <div className="bg-slate-50 rounded-2xl p-3 text-center border border-slate-100">
-      <div className="text-xl">💚</div>
-      <div className="text-[10px] font-bold text-slate-500 mt-1">칭찬</div>
-      <div className="text-lg font-black text-slate-800">{myActivity.praises}</div>
-    </div>
-    <div className="bg-slate-50 rounded-2xl p-3 text-center border border-slate-100">
-      <div className="text-xl">👍</div>
-      <div className="text-[10px] font-bold text-slate-500 mt-1">좋아요 받은</div>
-      <div className="text-lg font-black text-slate-800">{myActivity.likesReceived}</div>
-    </div>
-  </div>
-</div>
 
-{/* 출퇴근 2회 클릭(오작동 방지) 안내 */}
-{(checkInArmed || checkOutArmed) && (
-  <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-2xl px-4 py-3 text-[11px] font-bold flex items-center gap-2 animate-fade-in">
-    <span className="text-base">👆</span>
-    <span>{checkInArmed ? '출근체크는 한 번 더 누르면 완료됩니다.' : '퇴근체크는 한 번 더 누르면 완료됩니다.'}</span>
-  </div>
-)}
+        {/* [추가] LED 스타일 명언(좌측으로 흘러가기) */}
+        <div className="bg-slate-900 rounded-2xl px-4 py-3 shadow-sm border border-slate-800 overflow-hidden">
+          <style>{`
+            @keyframes ledMarquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+            .ledTrack { display: inline-flex; white-space: nowrap; gap: 3rem; will-change: transform; animation: ledMarquee 18s linear infinite; }
+          `}</style>
+          <div className="text-[11px] font-black text-emerald-300 tracking-wide drop-shadow-[0_0_10px_rgba(16,185,129,0.35)]">
+            <div className="ledTrack">
+              <span>{ledMessage}</span>
+              <span>{ledMessage}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* [추가] 나의 활동 섹션(가로 배치/줄바꿈 방지) */}
+        <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-black text-slate-800 flex items-center gap-2 whitespace-nowrap"><span>📌</span> 나의 활동</h3>
+            <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap">최근 기준</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 bg-slate-50 rounded-2xl px-3 py-2 border border-slate-100 flex items-center justify-center gap-2">
+              <span className="text-base">📝</span>
+              <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">내 글</span>
+              <span className="text-base font-black text-slate-800 whitespace-nowrap">{myActivity.posts}</span>
+            </div>
+            <div className="flex-1 bg-slate-50 rounded-2xl px-3 py-2 border border-slate-100 flex items-center justify-center gap-2">
+              <span className="text-base">💬</span>
+              <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">댓글</span>
+              <span className="text-base font-black text-slate-800 whitespace-nowrap">{myActivity.comments}</span>
+            </div>
+            <div className="flex-1 bg-slate-50 rounded-2xl px-3 py-2 border border-slate-100 flex items-center justify-center gap-2">
+              <span className="text-base">💚</span>
+              <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">칭찬</span>
+              <span className="text-base font-black text-slate-800 whitespace-nowrap">{myActivity.praises}</span>
+            </div>
+            <div className="flex-1 bg-slate-50 rounded-2xl px-3 py-2 border border-slate-100 flex items-center justify-center gap-2">
+              <span className="text-base">👍</span>
+              <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">내 좋아요</span>
+              <span className="text-base font-black text-slate-800 whitespace-nowrap">{myActivity.likesGiven}</span>
+            </div>
+          </div>
+        </div>
 <div className="flex justify-between items-center px-1">
              <button 
                 onClick={() => onWriteClickWithCategory(null)} 
@@ -764,7 +1153,7 @@ const myActivity = useMemo(() => {
         <div className="bg-purple-50/60 p-5 rounded-[2rem] shadow-sm border border-purple-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
                {/* 진한 보라색 배경에 흰색 텍스트 */}
-               <h3 className="text-sm font-bold text-white bg-purple-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Building2 className="w-4 h-4 text-white"/> 우리들 소식</h3>
+               <h3 className="text-sm font-bold text-white bg-purple-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Building2 className="w-4 h-4 text-white"/> 우리팀 톡톡🏢</h3>
                <button onClick={() => onNavigateToFeed('dept_news')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-purple-600 bg-white px-2 py-1 rounded-lg shadow-sm">더보기 <ChevronRight className="w-3 h-3"/></button>
            </div>
            {renderFeedList('dept_news', deptFeeds)}
@@ -773,7 +1162,7 @@ const myActivity = useMemo(() => {
         <div className="bg-green-50/60 p-5 rounded-[2rem] shadow-sm border border-green-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
                {/* 진한 초록색 배경에 흰색 텍스트 */}
-               <h3 className="text-sm font-bold text-white bg-green-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Heart className="w-4 h-4 fill-white text-white"/> 칭찬합시다</h3>
+               <h3 className="text-sm font-bold text-white bg-green-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Heart className="w-4 h-4 fill-white text-white"/> 칭찬뿜뿜💚</h3>
                <button onClick={() => onNavigateToFeed('praise')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-green-600 bg-white px-2 py-1 rounded-lg shadow-sm">더보기 <ChevronRight className="w-3 h-3"/></button>
            </div>
            {renderFeedList('praise', praiseFeeds)}
@@ -782,7 +1171,7 @@ const myActivity = useMemo(() => {
         <div className="bg-blue-50/60 p-5 rounded-[2rem] shadow-sm border border-blue-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
                {/* 진한 파란색 배경에 흰색 텍스트 */}
-               <h3 className="text-sm font-bold text-white bg-blue-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Sparkles className="w-4 h-4 fill-white text-white"/> 꿀팁 & 정보</h3>
+               <h3 className="text-sm font-bold text-white bg-blue-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Sparkles className="w-4 h-4 fill-white text-white"/> 꿀팁.zip🧠</h3>
                <button onClick={() => onNavigateToFeed('knowhow')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-blue-600 bg-white px-2 py-1 rounded-lg shadow-sm"><ChevronRight className="w-3 h-3"/></button>
            </div>
            {renderFeedList('knowhow', knowhowFeeds)}
@@ -791,7 +1180,7 @@ const myActivity = useMemo(() => {
         <div className="bg-orange-50/60 p-5 rounded-[2rem] shadow-sm border border-orange-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
                {/* 진한 오렌지색 배경에 흰색 텍스트 */}
-               <h3 className="text-sm font-bold text-white bg-orange-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Utensils className="w-4 h-4 fill-white text-white"/> 맛집 소개</h3>
+               <h3 className="text-sm font-bold text-white bg-orange-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Utensils className="w-4 h-4 fill-white text-white"/> 맛집레이더🍜</h3>
                <button onClick={() => onNavigateToFeed('matjib')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-orange-600 bg-white px-2 py-1 rounded-lg shadow-sm"><ChevronRight className="w-3 h-3"/></button>
            </div>
            {renderFeedList('matjib', matjibFeeds)}
@@ -882,7 +1271,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
-        {[{ id: 'all', label: '전체' }, { id: 'praise', label: '칭찬해요' }, { id: 'dept_news', label: '우리들 소식' }, { id: 'knowhow', label: '꿀팁 & 정보' }, { id: 'matjib', label: '맛집 소개' }].map(tab => (
+        {[{ id: 'all', label: '전체' }, { id: 'praise', label: '칭찬뿜뿜💚' }, { id: 'dept_news', label: '우리팀 톡톡🏢' }, { id: 'knowhow', label: '꿀팁.zip🧠' }, { id: 'matjib', label: '맛집레이더🍜' }].map(tab => (
           <button key={tab.id} onClick={() => setActiveFeedFilter(tab.id)} className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all border ${activeFeedFilter === tab.id ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}>{tab.label}</button>
         ))}
       </div>
@@ -917,7 +1306,8 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
 
             <div className="flex items-center gap-3 mb-4">
               <div className="flex items-center gap-2">
-                  <p className="text-base font-bold text-slate-800 flex items-center gap-1.5">{feed.author ? <>{feed.author} <span className="text-slate-400 text-sm font-medium">({feed.team})</span></> : null}
+                  <p className="text-base font-bold text-slate-800 flex items-center gap-1.5">
+                      {feed.author ? <>{feed.author} <span className="text-slate-400 text-sm font-medium">({feed.team})</span></> : null}
                       {feed.profiles?.role === 'admin' && <span className="bg-red-50 text-red-500 text-[10px] px-2 py-0.5 rounded-full border border-red-100 font-bold">관리자</span>}
                       {feed.profiles?.is_reporter && <span className="bg-yellow-100 text-yellow-700 text-[10px] px-2 py-0.5 rounded-full border border-yellow-200 font-bold">리포터</span>}
                       {feed.profiles?.is_ambassador && <span className="bg-purple-100 text-purple-700 text-[10px] px-2 py-0.5 rounded-full border border-purple-200 font-bold">앰버서더</span>}
@@ -928,7 +1318,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
             <div className="mb-5">
                 <div className="flex flex-wrap gap-1.5 mb-3">
                     <span className={`inline-block px-3 py-1 rounded-full text-[11px] font-bold border shadow-sm ${feed.type === 'praise' ? 'bg-green-50 text-green-600 border-green-100' : feed.type === 'news' ? 'bg-red-50 text-red-600 border-red-100' : feed.type === 'dept_news' ? 'bg-purple-50 text-purple-600 border-purple-100' : feed.type === 'matjib' ? 'bg-orange-50 text-orange-600 border-orange-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
-                        {feed.type === 'praise' ? '칭찬해요' : feed.type === 'news' ? '📢 공지사항' : feed.type === 'dept_news' ? '🏢 우리들 소식' : feed.type === 'matjib' ? '맛집 소개' : '꿀팁'}
+                        {feed.type === 'praise' ? '칭찬뿜뿜💚' : feed.type === 'news' ? '📢 공지사항' : feed.type === 'dept_news' ? '🏢 우리팀 톡톡' : feed.type === 'matjib' ? '맛집레이더🍜' : '꿀팁'}
                     </span>
                     {feed.type === 'dept_news' && feed.region_main && (
                         <span className="inline-block px-3 py-1 rounded-full text-[11px] font-bold bg-purple-100 text-purple-700 border border-purple-200 shadow-sm">
@@ -988,10 +1378,10 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
   
   const categories = useMemo(() => {
     const baseCategories = [
-        {id: 'dept_news', label: '우리들 소식'}, 
+        {id: 'dept_news', label: '우리팀 톡톡🏢'}, 
         {id: 'praise', label: '칭찬하기'},
         {id: 'matjib', label: '맛집소개'},
-        {id: 'knowhow', label: '꿀팁 & 정보'}
+        {id: 'knowhow', label: '꿀팁.zip🧠'}
     ];
     if (currentUser?.role === 'admin' || currentUser?.is_ambassador) {
         baseCategories.push({id: 'news', label: '공지사항 (관리자/앰버서더)'});
@@ -1118,7 +1508,7 @@ const RankingTab = ({ feeds, profiles, allPointHistory }) => {
 
 // [수정] 네비게이션 바 높이 축소
 const BottomNav = ({ activeTab, onTabChange }) => {
-    const getTabColor = (id, isActive) => {
+  const getTabColor = (id, isActive) => {
         if (!isActive) return 'text-slate-400 hover:text-slate-600';
         switch (id) {
             case 'home': return 'text-white bg-blue-600 shadow-lg shadow-blue-500/30';
@@ -1128,14 +1518,24 @@ const BottomNav = ({ activeTab, onTabChange }) => {
             default: return 'text-slate-600';
         }
     };
-    return (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[380px] bg-white/90 backdrop-blur-xl border border-white/50 shadow-[0_8px_40px_rgba(0,0,0,0.12)] p-1.5 z-30 flex justify-between items-center rounded-[2.5rem] h-16">
-            {[{ id: 'home', icon: Home, label: '홈' }, { id: 'feed', icon: MessageCircle, label: '게시판' }, { id: 'news', icon: Bell, label: '공지' }, { id: 'ranking', icon: Award, label: '랭킹' }].map(item => (
-                <button key={item.id} onClick={() => onTabChange(item.id)} className={`flex-1 flex flex-col items-center justify-center gap-1 h-full rounded-[2rem] transition-all duration-500 ease-out ${getTabColor(item.id, activeTab === item.id)}`}><item.icon className={`w-6 h-6 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} /><span className="text-[9px] font-bold">{item.label}</span></button>
-            ))}
-        </div>
-    );
+  return (
+    <div className="fixed bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-xl border-t border-slate-200 shadow-[0_-6px_24px_rgba(0,0,0,0.10)] p-2 z-30">
+      <div className="w-[96%] max-w-[420px] mx-auto flex justify-between items-center rounded-[2rem] h-16 bg-white/90 border border-white/60 shadow-sm overflow-hidden">
+        {[{ id: 'home', icon: Home, label: '홈' }, { id: 'feed', icon: MessageCircle, label: '게시판' }, { id: 'news', icon: Bell, label: '공지' }, { id: 'ranking', icon: Award, label: '랭킹' }].map(item => (
+          <button
+            key={item.id}
+            onClick={() => onTabChange(item.id)}
+            className={`flex-1 flex flex-col items-center justify-center gap-1 h-full rounded-[2rem] transition-all duration-300 ease-out ${getTabColor(item.id, activeTab === item.id)}`}
+          >
+            <item.icon className={`w-6 h-6 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} />
+            <span className="text-[9px] font-bold whitespace-nowrap">{item.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 };
+
 
 const Comment = ({ comment, currentUser, handleDeleteComment }) => (
     <div className="flex gap-3 p-4 bg-slate-50/80 rounded-2xl border border-slate-100 hover:bg-slate-100/80 transition-colors">
@@ -1199,6 +1599,9 @@ export default function App() {
   const [activeFeedFilter, setActiveFeedFilter] = useState('all');
   const [mood, setMood] = useState(null);
   const [hasCheckedOut, setHasCheckedOut] = useState(false);
+  // [수정] 출근/퇴근 체크는 앱을 2번 이상 열어야 활성화(접속 횟수 기반)
+  const [attendanceOpenCount, setAttendanceOpenCount] = useState(0);
+  const [attendanceEnabled, setAttendanceEnabled] = useState(false);
   const [boosterActive, setBoosterActive] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
 
@@ -1231,6 +1634,27 @@ export default function App() {
   }, []);
   
   useEffect(() => { localStorage.setItem('axa_booster_active', boosterActive); }, [boosterActive]);
+// [추가] 앱 접속(오픈) 횟수 카운트: 하루 2회 이상 열어야 출근/퇴근 체크 활성화
+useEffect(() => {
+  if (!session) { setAttendanceOpenCount(0); setAttendanceEnabled(false); return; }
+
+  const userId = session.user.id;
+  const todayStr = new Date().toISOString().split('T')[0];
+  const openKey = `open_count_${userId}_${todayStr}`;
+
+  // 동일 탭에서 반복 호출 시 중복 증가 방지
+  const onceKey = `opened_once_${userId}_${todayStr}`;
+  if (!sessionStorage.getItem(onceKey)) {
+    sessionStorage.setItem(onceKey, 'true');
+    const prev = parseInt(localStorage.getItem(openKey) || '0', 10);
+    const next = prev + 1;
+    localStorage.setItem(openKey, String(next));
+  }
+
+  const count = parseInt(localStorage.getItem(openKey) || '0', 10);
+  setAttendanceOpenCount(count);
+  setAttendanceEnabled(count >= 2);
+}, [session]);
 // [추가] 전체화면 시도 + 앱 종료(닫기/뒤로가기) 전 확인
 useEffect(() => {
   if (!session) return;
@@ -1265,6 +1689,7 @@ useEffect(() => {
     window.removeEventListener('popstate', onPopState);
   };
 }, [session]);
+
 
 
   const checkBirthday = useCallback((user) => {
@@ -1367,12 +1792,9 @@ useEffect(() => {
             const formatted = posts.map(post => {
                 const authorData = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
                 let authorName = authorData?.name || authorData?.email?.split('@')[0] || '알 수 없음';
-let authorTeam = authorData?.team || '소속 미정';
-// [수정] 칭찬글 작성자 익명 처리(표시/문구 모두 숨김)
-if (post.type === 'praise') {
-  authorName = '';
-  authorTeam = '';
-}
+      let authorTeam = authorData?.team || '소속 미정';
+      // [수정] 칭찬글 작성자 익명 처리(표시/문구 모두 숨김)
+      if (post.type === 'praise') { authorName = ''; authorTeam = ''; }
                 let parsedLikes = [];
                 try { parsedLikes = post.likes ? (typeof post.likes === 'string' ? JSON.parse(post.likes) : post.likes) : []; } catch (e) { parsedLikes = []; }
                 const sortedComments = post.comments ? post.comments.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)) : [];
@@ -1710,7 +2132,7 @@ if (post.type === 'praise') {
         if (rewardPoints > 0) {
             const newPoints = (currentUser.points || 0) + rewardPoints;
             await supabase.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
-            let categoryLabel = category === 'praise' ? '칭찬하기' : category === 'matjib' ? '맛집소개' : category === 'knowhow' ? '꿀팁' : '우리들 소식';
+            let categoryLabel = category === 'praise' ? '칭찬하기' : category === 'matjib' ? '맛집소개' : category === 'knowhow' ? '꿀팁' : '우리팀 톡톡🏢';
             await supabase.from('point_history').insert({ user_id: currentUser.id, reason: `게시글 작성 (${categoryLabel})`, amount: rewardPoints, type: 'earn' });
         }
         
@@ -1782,50 +2204,6 @@ if (post.type === 'praise') {
           fetchUserData(currentUser.id); fetchAllPointHistory();
       } catch (err) { console.error(err); }
   };
-// [수정] 출근/퇴근 체크: 오작동 방지를 위해 2회 클릭(더블 확인) 후 실행, 동시에 진행 불가
-const [checkInArmed, setCheckInArmed] = useState(null); // 'good' | 'normal' | 'tired' | null
-const [checkOutArmed, setCheckOutArmed] = useState(false);
-
-useEffect(() => {
-  if (!checkInArmed) return;
-  const t = setTimeout(() => setCheckInArmed(null), 4000);
-  return () => clearTimeout(t);
-}, [checkInArmed]);
-
-useEffect(() => {
-  if (!checkOutArmed) return;
-  const t = setTimeout(() => setCheckOutArmed(false), 4000);
-  return () => clearTimeout(t);
-}, [checkOutArmed]);
-
-const requestMoodCheck = (selectedMood) => {
-  if (mood) return;
-  if (checkOutArmed) return; // 동시에 클릭 방지
-
-  if (checkInArmed !== selectedMood) {
-    setCheckInArmed(selectedMood);
-    setToast({ visible: true, message: '한 번 더 누르면 출근체크가 완료됩니다.', emoji: '👆' });
-    setTimeout(() => setToast({ visible: false, message: '', emoji: '' }), 1800);
-    return;
-  }
-  setCheckInArmed(null);
-  handleMoodCheck(selectedMood);
-};
-
-const requestCheckOut = () => {
-  if (!mood || hasCheckedOut) return;
-  if (checkInArmed) return; // 동시에 클릭 방지
-
-  if (!checkOutArmed) {
-    setCheckOutArmed(true);
-    setToast({ visible: true, message: '한 번 더 누르면 퇴근체크가 완료됩니다.', emoji: '👆' });
-    setTimeout(() => setToast({ visible: false, message: '', emoji: '' }), 1800);
-    return;
-  }
-  setCheckOutArmed(false);
-  handleCheckOut();
-};
-
 
   const handleLogout = async () => { if (!supabase) return; try { await supabase.auth.signOut(); setCurrentUser(null); setSession(null); setMood(null); setHasCheckedOut(false); setPointHistory([]); } catch (err) { console.error('로그아웃 실패: ', err.message); } };
   const handleChangeDept = async (newDept, newTeam) => { if (!currentUser || !supabase) return; try { await supabase.from('profiles').update({ dept: newDept, team: newTeam }).eq('id', currentUser.id); fetchUserData(currentUser.id); setShowChangeDeptModal(false); alert('소속이 변경되었습니다.'); } catch(err) { console.error(err); } };
@@ -1871,7 +2249,7 @@ const requestCheckOut = () => {
 
   return (
     <div className="min-h-screen w-full bg-slate-50 font-sans">
-  <div className="w-full h-screen min-h-screen shadow-2xl relative overflow-hidden bg-slate-50">
+      <div className="w-full h-screen min-h-screen shadow-2xl relative overflow-hidden bg-slate-50">
         <div className="relative z-10 h-full flex flex-col">
           {!session ? (
             <AuthForm isSignupMode={isSignupMode} setIsSignupMode={setIsSignupMode} handleLogin={handleLogin} handleSignup={handleSignup} loading={loading} />
@@ -1902,8 +2280,8 @@ const requestCheckOut = () => {
         {displayTab === 'home' && (
           <HomeTab
             mood={mood}
-            handleMoodCheck={requestMoodCheck}
-            handleCheckOut={requestCheckOut}
+            handleMoodCheck={handleMoodCheck}
+            handleCheckOut={handleCheckOut}
             hasCheckedOut={hasCheckedOut}
             feeds={feeds}
             weeklyBirthdays={weeklyBirthdays}
@@ -1916,10 +2294,11 @@ const requestCheckOut = () => {
             }}
             boosterActive={boosterActive}
             currentUser={currentUser}
-            checkInArmed={!!checkInArmed}
-            checkOutArmed={!!checkOutArmed}
+            attendanceEnabled={attendanceEnabled}
+            attendanceOpenCount={attendanceOpenCount}
           />
         )}
+
         {(displayTab === 'feed' || displayTab === 'news') && (
           <FeedTab
             feeds={feeds}
@@ -1936,6 +2315,7 @@ const requestCheckOut = () => {
             onClearSelection={() => setSelectedPostId(null)}
           />
         )}
+
         {displayTab === 'ranking' && (
           <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} />
         )}
@@ -1954,8 +2334,8 @@ const requestCheckOut = () => {
           {nextTab === 'home' && (
             <HomeTab
               mood={mood}
-              handleMoodCheck={requestMoodCheck}
-              handleCheckOut={requestCheckOut}
+              handleMoodCheck={handleMoodCheck}
+              handleCheckOut={handleCheckOut}
               hasCheckedOut={hasCheckedOut}
               feeds={feeds}
               weeklyBirthdays={weeklyBirthdays}
@@ -1968,10 +2348,11 @@ const requestCheckOut = () => {
               }}
               boosterActive={boosterActive}
               currentUser={currentUser}
-              checkInArmed={!!checkInArmed}
-              checkOutArmed={!!checkOutArmed}
+              attendanceEnabled={attendanceEnabled}
+              attendanceOpenCount={attendanceOpenCount}
             />
           )}
+
           {(nextTab === 'feed' || nextTab === 'news') && (
             <FeedTab
               feeds={feeds}
@@ -1988,6 +2369,7 @@ const requestCheckOut = () => {
               onClearSelection={() => setSelectedPostId(null)}
             />
           )}
+
           {nextTab === 'ranking' && (
             <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} />
           )}
