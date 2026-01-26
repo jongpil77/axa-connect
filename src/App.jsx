@@ -1104,35 +1104,51 @@ const myActivity = useMemo(() => {
           </div>
         </div>
 
-        {/* [추가] 나의 활동 섹션(가로 배치/줄바꿈 방지) */}
+        {/* [추가] 나의 활동 섹션(카드 4개, 2x2) */}
         <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-black text-slate-800 flex items-center gap-2 whitespace-nowrap"><span>📌</span> 나의 활동</h3>
+            <h3 className="text-sm font-black text-slate-800 flex items-center gap-2 whitespace-nowrap">
+              <span>📌</span> 나의 활동
+            </h3>
             <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap">최근 기준</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 bg-slate-50 rounded-2xl px-3 py-2 border border-slate-100 flex items-center justify-center gap-2">
-              <span className="text-base">📝</span>
-              <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">내 글</span>
-              <span className="text-base font-black text-slate-800 whitespace-nowrap">{myActivity.posts}</span>
+
+          {/* 4개 항목을 각각 독립 카드로 구성 (2열 x 2행) */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 shadow-inner flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">📝</span>
+                <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">내 글</span>
+              </div>
+              <span className="text-xl font-black text-slate-800 whitespace-nowrap">{myActivity.posts}</span>
             </div>
-            <div className="flex-1 bg-slate-50 rounded-2xl px-3 py-2 border border-slate-100 flex items-center justify-center gap-2">
-              <span className="text-base">💬</span>
-              <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">댓글</span>
-              <span className="text-base font-black text-slate-800 whitespace-nowrap">{myActivity.comments}</span>
+
+            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 shadow-inner flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">💬</span>
+                <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">댓글</span>
+              </div>
+              <span className="text-xl font-black text-slate-800 whitespace-nowrap">{myActivity.comments}</span>
             </div>
-            <div className="flex-1 bg-slate-50 rounded-2xl px-3 py-2 border border-slate-100 flex items-center justify-center gap-2">
-              <span className="text-base">💚</span>
-              <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">칭찬</span>
-              <span className="text-base font-black text-slate-800 whitespace-nowrap">{myActivity.praises}</span>
+
+            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 shadow-inner flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">💚</span>
+                <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">칭찬</span>
+              </div>
+              <span className="text-xl font-black text-slate-800 whitespace-nowrap">{myActivity.praises}</span>
             </div>
-            <div className="flex-1 bg-slate-50 rounded-2xl px-3 py-2 border border-slate-100 flex items-center justify-center gap-2">
-              <span className="text-base">👍</span>
-              <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">내 좋아요</span>
-              <span className="text-base font-black text-slate-800 whitespace-nowrap">{myActivity.likesGiven}</span>
+
+            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 shadow-inner flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">👍</span>
+                <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">내 좋아요</span>
+              </div>
+              <span className="text-xl font-black text-slate-800 whitespace-nowrap">{myActivity.likesGiven}</span>
             </div>
           </div>
         </div>
+
 <div className="flex justify-between items-center px-1">
              <button 
                 onClick={() => onWriteClickWithCategory(null)} 
