@@ -353,7 +353,7 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
           {/* [수정] 커뮤니티 로고로 대체 */}
           <CommunityLogo className="w-16 h-16 mb-6 shadow-blue-200/50" />
           <h1 className="text-3xl font-black text-slate-800 tracking-tight mb-2">Connect Hub</h1>
-          <p className="text-slate-500 text-base font-medium">함께 만드는 스마트한 조직문화 🚀</p>
+          <p className="text-slate-500 text-base font-medium">함께 만드는 우리들의 커뮤니티 공간🚀</p>
         </div>
 
         {isSignupMode ? (
@@ -405,7 +405,7 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
               <div><label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">비밀번호</label><input name="password" type="password" placeholder="비밀번호 (숫자 6자리 이상)" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" required minLength="6" /></div>
               <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white p-4 rounded-2xl text-base font-bold hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all active:scale-[0.98] disabled:bg-blue-300 flex justify-center mt-2">{loading ? <Loader2 className="animate-spin w-6 h-6" /> : '🚀 로그인'}</button>
             </form>
-            <div className="text-center"><button onClick={() => setIsSignupMode(true)} className="text-slate-500 text-sm font-bold hover:text-blue-600 underline transition-colors">임직원 회원가입</button></div>
+            <div className="text-center"><button onClick={() => setIsSignupMode(true)} className="text-slate-500 text-sm font-bold hover:text-blue-600 underline transition-colors">회원가입</button></div>
           </div>
         )}
       </div>
