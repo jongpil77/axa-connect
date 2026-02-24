@@ -11,6 +11,17 @@ import {
 const SUPABASE_URL = 'https://clsvsqiikgnreqqvcrxj.supabase.co'; 
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsc3ZzcWlpa2ducmVxcXZjcnhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzcyNjAsImV4cCI6MjA4MDk1MzI2MH0.lsaycyp6tXjLwb-qB5PIQ0OqKweTWO3WaxZG5GYOUqk';
 
+// --- [신규] 커뮤니티 로고 컴포넌트 ---
+const CommunityLogo = ({ className = "w-12 h-12" }) => (
+  <div className={`relative flex items-center justify-center ${className}`}>
+    <div className="absolute inset-0 bg-blue-500/10 rounded-2xl rotate-6 animate-pulse"></div>
+    <div className="relative bg-gradient-to-br from-blue-600 to-indigo-600 p-2.5 rounded-2xl shadow-lg border border-white/20">
+      <Users className="text-white w-full h-full" />
+      <Sparkles className="absolute -top-1 -right-1 w-30 h-30 text-yellow-300 fill-yellow-300 animate-bounce" style={{ width: '40%', height: '40%' }} />
+    </div>
+  </div>
+);
+
 // --- 상수 데이터 ---
 const ORGANIZATION = {
   '본사': ['보상기획팀', '보상지원팀', 'A&H손해사정지원팀', '고객지원팀'],
@@ -45,7 +56,12 @@ const REGIONS = {
     '세종': ['세종시']
 };
 
+const INITIAL_POINTS = 1000;
+const AXA_RED = '#C60C30';
+
+// 365일 명언 데이터
 const MOTTO_365 = [
+  // 1월: 시작과 다짐
   '루틴을 시작해. 이것이 성공의 출발점이다.', '작은 습관을 지켜. 결국 큰 변화를 만든다.', '오늘을 기록해. 나를 단단하게 만든다.',
   '목표를 믿어. 너는 이미 반은 이겼다.', '실수를 정리해. 이것은 성장의 증거다.', '꾸준함을 유지해. 가장 빠른 지름길이다.',
   '준비를 철저히 해. 기회는 준비된 자에게 온다.', '태도를 점검해. 내일의 나를 만든다.', '반복을 즐겨. 이것이 진정한 실력이다.',
@@ -55,31 +71,158 @@ const MOTTO_365 = [
   '실행을 서둘러. 고민할 시간에 시작하라.', '확신을 가져. 너는 할 수 있다.', '침묵을 배워. 때론 말이 적을수록 강하다.',
   '비판을 수용해. 더 나은 나를 만든다.', '감사를 표현해. 긍정이 긍정을 부른다.', '휴식을 허락해. 멈춤도 전진의 일부다.',
   '배움을 지속해. 뇌는 늙지 않는다.', '거절을 연습해. 나를 지키는 힘이다.', '관점을 바꿔. 세상이 다르게 보인다.',
-  '독서를 시작해. 거인의 어깨에 올라타라.', '운동을 습관화해. 체력을 곧 정신력이다.', '청소를 해. 주변이 맑아야 머리가 맑다.',
-  '메모를 해. 천재보다 낫다.'
+  '독서를 시작해. 거인의 어깨에 올라타라.', '운동을 습관화해. 체력이 곧 정신력이다.', '청소를 해. 주변이 맑아야 머리가 맑다.',
+  '메모를 해. 천재보다 낫다.',
+  
+  // 2월 ~ 12월 (패턴 조합 데이터)
+  '루틴을 사랑해. 이 성공의 출발점이다.', '노력을 기록해. 이 나를 단단하게 만든다.', '습관을 개선해. 내일의 나를 만든다.',
+  '준비를 시작해. 결국 큰 변화를 만든다.', '꾸준함을 믿어. 답답해도 멈추지 않으면 된다.', '피드백을 해. 충분히 가치 있다.',
+  '실수를 인정해. 성장의 확실한 증거다.', '성실함을 믿어. 가장 빠른 길이다.', '지금을 즐겨. 기회를 만든다.',
+  '목표를 향해. 너는 이미 반은 이겼다.', '태도를 바꿔. 나를 단단하게 만든다.', '마음을 다잡아. 결과는 따라온다.',
+  '용기를 내. 지금이 기회다.', '변화를 만들어. 정체는 곧 후퇴다.', '약속을 지켜. 너를 증명하는 길이다.',
+  '하루를 채워. 빈틈없이 성장하라.', '열정을 태워. 후회 없는 하루를 위해.', '도전을 즐겨. 한계를 넘어서라.',
+  '과정을 믿어. 결과는 배신하지 않는다.', '확신을 가져. 흔들리지 않는 뿌리처럼.', '실행을 반복해. 탁월함은 습관이다.',
+  '인내를 배워. 꽃은 저절로 피지 않는다.', '몰입을 경험해. 시간의 주인이 되어라.', '배움을 찾아. 세상 모든 것이 스승이다.',
+  '성취를 기록해. 작은 승리가 전쟁을 이긴다.', '휴식을 취해. 더 멀리 가기 위함이다.', '자신을 믿어. 세상에서 가장 강한 힘이다.',
+  '동기를 부여해. 스스로 불을 지펴라.', '시간을 관리해. 인생을 관리하는 것이다.', '정직을 선택해. 떳떳함이 무기다.',
+  '단순함을 추구해. 복잡함은 적이다.', '본질을 꿰뚫어. 껍데기에 속지 마라.', '질문을 던져. 답은 네 안에 있다.',
+  '경청을 해. 지혜를 얻는 가장 빠른 길이다.', '미소를 지어. 가장 강력한 설득이다.', '사소함을 챙겨. 디테일이 명품을 만든다.',
+  '건강을 챙겨. 모든 것의 기본이다.', '가족을 사랑해. 최후의 안식처다.', '친구를 아껴. 인생의 동반자다.',
+  '자연을 느껴. 겸손함을 배운다.', '예술을 즐겨. 영혼이 풍요로워진다.', '여행을 떠나. 새로운 나를 만난다.',
+  '고독을 즐겨. 내면의 소리를 들어라.', '상상을 해. 현실이 된다.', '꿈을 꿔. 그리고 깨어나 실행하라.',
+  '남을 돕는 것. 결국 나를 돕는 것이다.', '나눔을 실천해. 마음이 부자가 된다.', '용서를 해. 내가 자유로워진다.',
+  '화해를 해. 마음의 짐을 내려놓아라.', '인사를 잘해. 모든 관계의 시작이다.', '칭찬을 해. 고래도 춤추게 한다.',
+  '약점을 인정해. 강점이 빛난다.', '강점을 키워. 대체 불가능한 존재가 되라.', '원칙을 세워. 흔들리지 않는 기준이다.',
+  '유연함을 가져. 부러지지 않는다.', '균형을 맞춰. 치우치면 넘어진다.', '절제를 해. 욕망의 주인이 되라.',
+  '겸손을 잃지 마. 벼는 익을수록 고개를 숙인다.', '자만하지 마. 추락하는 것엔 날개가 없다.', '비교하지 마. 어제의 나하고만 경쟁하라.',
+  '질투를 버려. 내 성장에 방해만 된다.', '분노를 다스려. 참는 자가 이긴다.', '욕심을 비워. 채울 공간이 생긴다.',
+  '현재에 집중해. 과거와 미래는 머릿속에만 있다.', '미래를 그려. 방향이 있어야 속도가 의미 있다.', '과거를 보내. 배울 것만 챙겨라.',
+  '오늘에 충실해. 내일은 선물이다.', '순간을 포착해. 기회는 찰나다.', '직관을 믿어. 논리보다 정확할 때가 있다.',
+  '논리를 세워. 감정에 휘둘리지 마라.', '감정을 존중해. 나를 이해하는 신호다.', '이성을 찾아. 냉철함이 필요하다.',
+  '열정을 전염시켜. 주변을 밝혀라.', '에너지를 아껴. 쓸 때 써야 한다.', '체력을 길러. 정신을 지배한다.',
+  '호기심을 가져. 늙지 않는 비결이다.', '모험을 떠나. 안전지대 밖으로.', '위험을 감수해. 큰 보상이 따른다.',
+  '안정을 경계해. 고인 물은 썩는다.', '혁신을 꿈꿔. 세상을 바꾼다.', '창의성을 발휘해. 남다름이 경쟁력이다.',
+  '꾸준함을 무기로. 천재를 이긴다.', '성실함을 방패로. 비난을 막아라.', '정직함을 갑옷으로. 두려울 게 없다.',
+  '친절함을 칼로. 적도 친구로 만든다.', '지혜를 등불로. 어둠을 밝혀라.', '사랑을 나침반으로. 길을 잃지 않는다.',
+  '희망을 닻으로. 폭풍우를 견뎌라.', '믿음을 기둥으로. 무너지지 않는다.', '용기를 날개로. 더 높이 날아라.',
+  '꿈을 연료로. 멈추지 않고 달린다.', '목표를 깃발로. 정상을 향해.', '계획을 지도로. 길을 찾아라.',
+  '실행을 발로. 한 걸음씩 나아가라.', '반성을 거울로. 나를 돌아보라.', '수정을 펜으로. 다시 써라.',
+  '완성을 액자로. 결과를 음미하라.', '시작을 문으로. 열고 나가라.', '끝을 매듭으로. 확실하게 묶어라.',
+  '도전을 계단으로. 한 층 더 올라가라.', '실패를 디딤돌로. 더 높이 뛰기 위해.', '성공을 이정표로. 방향을 확인하라.',
+  '나를 사랑해. 세상에서 유일한 존재다.', '너를 존중해. 우리는 연결되어 있다.', '우리를 생각해. 함께 가면 멀리 간다.',
+  '세상을 배워. 넓은 시야를 가져라.', '우주를 상상해. 나는 작은 존재다.', '먼지를 봐. 모든 것은 사라진다.',
+  '영원을 꿈꿔. 오늘을 영원처럼.', '죽음을 기억해. 삶이 소중해진다.', '삶을 사랑해. 단 한 번뿐인 기회다.',
+  '행복을 선택해. 조건이 아니라 태도다.', '불행을 거부해. 내 마음의 주인은 나다.', '기쁨을 나눠. 배가 된다.',
+  '슬픔을 덜어. 반이 된다.', '고통을 견뎌. 더 단단해진다.', '상처를 치유해. 새 살이 돋는다.',
+  '회복을 믿어. 다시 일어설 수 있다.', '재기를 노려. 끝날 때까지 끝난 게 아니다.', '역전을 꿈꿔. 드라마의 주인공처럼.',
+  '승리를 맛봐. 달콤한 보상이다.', '패배를 인정해. 깨끗하게 승복하라.', '다음 기회를 노려. 인생은 길다.',
+  '장기전을 준비해. 인생은 마라톤이다.', '단기전에 집중해. 스퍼트가 필요할 때도 있다.', '속도를 조절해. 완급 조절이 기술이다.',
+  '방향을 확인해. 속도보다 중요하다.', '목적지를 잊지 마. 왜 시작했는가?', '초심을 지켜. 처음 마음 그대로.',
+  '뒷심을 발휘해. 마무리가 좋아야 한다.', '중심을 잡어. 흔들리지 마라.', '진심을 다해. 통하게 되어 있다.',
+  '전력을 다해. 후회를 남기지 마라.', '최선을 선택해. 차선은 없다.', '최고를 지향해. 타협하지 마라.',
+  '일류가 되어라. 태도가 일류를 만든다.', '프로가 되어라. 핑계 대지 않는다.', '장인이 되어라. 혼을 담아라.',
+  '리더가 되어라. 길을 보여주어라.', '팔로워가 되어라. 잘 따르는 것도 능력이다.', '팀워크를 발휘해. 1+1은 무한대다.',
+  '협력을 구해. 혼자서는 한계가 있다.', '조언을 구해. 지름길을 알려준다.', '멘토를 찾아. 등대와 같다.',
+  '제자를 키워. 배움의 완성이다.', '라이벌을 만들어. 나를 뛰게 한다.', '파트너를 아껴. 성공의 반쪽이다.',
+  '고객을 섬겨. 왕이 아니라 신이다.', '가치를 만들어. 돈은 따라온다.', '신용을 쌓아. 무너뜨리지 마라.',
+  '명예를 지켜. 돈보다 중요하다.', '책임을 져. 회피하지 마라.', '권한을 위임해. 믿고 맡겨라.',
+  '결단을 내려. 우유부단함은 독이다.', '신속하게 처리해. 시간은 돈이다.', '정확하게 해. 두 번 일하지 마라.',
+  '효율을 높여. 똑똑하게 일하라.', '효과를 노려. 핵심을 찔러라.', '성과를 내. 과정도 중요하지만 결과다.',
+  '능력을 보여줘. 말이 아니라 행동으로.', '잠재력을 깨워. 너는 더 할 수 있다.', '한계를 깨. 마음속의 벽이다.',
+  '벽을 문으로 만들어. 나가면 된다.', '길을 만들어. 없으면 뚫어라.', '산을 옮겨. 한 삽씩 퍼내면 된다.',
+  '물을 건너. 다리를 놓아라.', '불을 피워. 열정을 태워라.', '바람을 타. 흐름을 읽어라.',
+  '땅을 다져. 기초가 튼튼해야 한다.', '씨를 뿌려. 거둘 날이 온다.', '물을 줘. 정성을 다해라.',
+  '잡초를 뽑아. 방해물을 제거하라.', '가지를 쳐. 선택과 집중이다.', '열매를 따. 노력의 결실이다.',
+  '나눔을 해. 풍요로워진다.', '비움을 해. 가벼워진다.', '채움을 해. 지식과 지혜로.',
+  '깨달음을 얻어. 한 단계 올라선다.', '성찰을 해. 깊어지는 시간이다.', '명상을 해. 마음의 평화다.',
+  '기도를 해. 간절함은 닿는다.', '소원을 빌어. 이루어진다.', '기적을 믿어. 일어난다.',
+  '운명을 사랑해. 아모르 파티.', '자유를 누려. 책임진 자의 특권이다.', '평등을 실천해. 우리는 하나다.',
+  '평화를 지켜. 갈등은 소모적이다.', '정의를 세워. 바르게 살아라.', '진리를 탐구해. 변하지 않는 가치다.',
+  '선을 행해. 복이 온다.', '덕을 쌓아. 향기가 난다.', '복을 나눠. 더 커진다.',
+  '운을 불러. 준비된 자에게 온다.', '기를 모아. 에너지가 필요하다.', '맥을 짚어. 흐름을 파악하라.',
+  '때를 기다려. 타이밍이 생명이다.', '감을 잡아. 감각을 익혀라.', '틀을 깨. 고정관념에서 벗어나라.',
+  '판을 바꿔. 주도권을 쥐어라.', '룰을 지켜. 정정당당하게.', '법을 준수해. 시민의 의무다.',
+  '예의를 갖춰. 사람의 도리다.', '도리를 다해. 부끄럽지 않게.', '효를 실천해. 근본이다.',
+  '충을 다해. 맡은 바 최선이다.', '신을 지켜. 믿음이다.', '의를 행해. 옳음이다.',
+  '지혜를 구해. 슬기롭게.', '인을 베풀어. 어질게.', '용기를 가져. 씩씩하게.',
+  '엄격하게 해. 나 자신에게.', '관대하게 해. 타인에게.', '냉정하게 봐. 현실을.',
+  '따뜻하게 해. 마음을.', '뜨겁게 살아. 인생을.', '차갑게 식혀. 머리를.',
+  '부드럽게 해. 태도를.', '강하게 해. 의지를.', '높게 잡아. 목표를.',
+  '낮게 임해. 자세를.', '넓게 봐. 세상을.', '깊게 파. 전문성을.',
+  '멀리 봐. 미래를.', '가까이 봐. 사람을.', '빠르게 해. 실행을.',
+  '느리게 해. 휴식을.', '바르게 해. 행동을.', '다르게 해. 생각을.',
+  '새롭게 해. 시도를.', '좋게 봐. 긍정을.', '나쁘게 보지 마. 부정을.',
+  '크게 생각해. 스케일을.', '작게 시작해. 스텝을.', '쉽게 해. 접근을.',
+  '어렵게 하지 마. 포기를.', '재밌게 해. 인생을.', '지루하게 살지 마. 하루를.',
+  '멋지게 살아. 나답게.', '예쁘게 말해. 고운 말.', '곱게 써. 마음을.',
+  '밝게 웃어. 스마일.', '맑게 살아. 영혼을.', '투명하게 해. 과정을.',
+  '깨끗하게 해. 마무리를.', '산뜻하게 해. 출발을.', '가볍게 해. 마음의 짐.',
+  '무겁게 해. 책임감.', '진지하게 해. 삶을.', '유쾌하게 해. 만남을.',
+  '상쾌하게 해. 아침을.', '통쾌하게 해. 승리를.', '명쾌하게 해. 답변을.',
+  '흔쾌하게 해. 수락을.', '불쾌하게 하지 마. 남을.', '유익하게 해. 시간을.',
+  '무익하게 보내지 마. 젊음을.', '강렬하게 남겨. 인상을.', '희미하게 하지 마. 기억을.',
+  '또렷하게 해. 목표를.', '흐릿하게 하지 마. 정신을.', '단단하게 해. 기반을.',
+  '무르게 하지 마. 마음을.', '확실하게 해. 의사를.', '모호하게 하지 마. 태도를.',
+  '꾸준히 해. 운동을.', '열심히 해. 공부를.', '잘 해. 일 처리를.',
+  '못하지 마. 인사를.', '더 해. 노력을.', '덜 해. 걱정을.',
+  '다 해. 최선을.', '안 하지 마. 후회를.', '꼭 해. 약속을.',
+  '늘 해. 감사를.', '자주 해. 연락을.', '가끔 해. 여행을.',
+  '매일 해. 기록을.', '항상 해. 웃음을.', '지금 해. 시작을.',
+  '나중에 하지 마. 미루기를.', '여기서 해. 승부를.', '거기서 하지 마. 포기를.',
+  '이대로 가. 쭉.', '그대로 해. 킵 고잉.', '제대로 해. 똑바로.',
+  '스스로 해. 자립.', '함께 해. 공생.', '모두 해. 행복.'
+  // 365개를 채우기 위한 패턴 반복 (실제 서비스에서는 위 Generator 함수 사용 권장)
 ];
 
-const INITIAL_POINTS = 1000;
-
-// --- [수정] 신규 N 배지 컴포넌트 ---
-const NewBadge = () => (
-  <div className="w-5 h-5 bg-red-600 rounded-full flex items-center justify-center shadow-sm">
-    <span className="text-[10px] text-white font-black leading-none">N</span>
-  </div>
-);
-
-// --- [수정] 커뮤니티 로고 컴포넌트 ---
-const CommunityLogo = ({ className = "w-12 h-12" }) => (
-  <div className={`relative flex items-center justify-center ${className}`}>
-    <div className="absolute inset-0 bg-blue-500/10 rounded-2xl rotate-6 animate-pulse"></div>
-    <div className="relative bg-gradient-to-br from-blue-600 to-indigo-600 p-2.5 rounded-2xl shadow-lg border border-white/20">
-      <Users className="text-white w-full h-full" />
-      <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-yellow-300 fill-yellow-300 animate-bounce" />
-    </div>
-  </div>
-);
 
 // --- Helper Functions ---
+const formatName = (name) => {
+  if (!name) return '';
+  if (/[가-힣]{2,}/.test(name)) return name.substring(1); 
+  return name; 
+};
+
+const getWeeklyBirthdays = (profiles) => {
+    if (!profiles || profiles.length === 0) return { current: [], next: [] };
+
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    
+    const normalizeDate = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const normalizedToday = normalizeDate(today);
+    
+    // 내일 날짜
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    const normalizedTomorrow = normalizeDate(tomorrow);
+
+    const todayBirthdays = []; 
+    const tomorrowBirthdays = [];
+
+    profiles.forEach(p => {
+        if (!p.birthdate) return;
+        const [_, m, d] = p.birthdate.split('-').map(Number);
+        const birthDate = new Date(currentYear, m - 1, d); 
+        let normalizedBirthDate = normalizeDate(birthDate);
+        
+        if (normalizedBirthDate < normalizedToday) {
+             const nextYearBirthDate = new Date(currentYear + 1, m - 1, d);
+             normalizedBirthDate = normalizeDate(nextYearBirthDate);
+        }
+        
+        const typeLabel = '(양력)'; 
+
+        if (normalizedBirthDate.getTime() === normalizedToday.getTime()) {
+             todayBirthdays.push({ name: p.name, date: `${m}/${d}`, typeLabel });
+        } 
+        else if (normalizedBirthDate.getTime() === normalizedTomorrow.getTime()) {
+             tomorrowBirthdays.push({ name: p.name, date: `${m}/${d}`, typeLabel });
+        }
+    });
+
+    return { current: todayBirthdays, next: tomorrowBirthdays };
+};
+
 const isToday = (timestamp) => {
     if (!timestamp) return false;
     const date = new Date(timestamp);
@@ -89,121 +232,180 @@ const isToday = (timestamp) => {
            date.getFullYear() === today.getFullYear();
 };
 
-const getWeeklyBirthdays = (profiles) => {
-    if (!profiles || profiles.length === 0) return { current: [], next: [] };
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const normalizeDate = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const normalizedToday = normalizeDate(today);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-    const normalizedTomorrow = normalizeDate(tomorrow);
-    const todayBirthdays = []; 
-    const tomorrowBirthdays = [];
-    profiles.forEach(p => {
-        if (!p.birthdate) return;
-        const [_, m, d] = p.birthdate.split('-').map(Number);
-        const birthDate = new Date(currentYear, m - 1, d); 
-        let normalizedBirthDate = normalizeDate(birthDate);
-        if (normalizedBirthDate < normalizedToday) {
-             const nextYearBirthDate = new Date(currentYear + 1, m - 1, d);
-             normalizedBirthDate = normalizeDate(nextYearBirthDate);
-        }
-        if (normalizedBirthDate.getTime() === normalizedToday.getTime()) todayBirthdays.push({ name: p.name, date: `${m}/${d}`, typeLabel: '(양력)' });
-        else if (normalizedBirthDate.getTime() === normalizedTomorrow.getTime()) tomorrowBirthdays.push({ name: p.name, date: `${m}/${d}`, typeLabel: '(양력)' });
+const getPrevMonthRankers = (feeds, profiles) => {
+    const now = new Date();
+    const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const pm = prevMonthDate.getMonth();
+    const py = prevMonthDate.getFullYear();
+
+    const isPrevMonth = (dateStr) => {
+        const d = new Date(dateStr);
+        return d.getMonth() === pm && d.getFullYear() === py;
+    };
+
+    const postCounts = {};
+    feeds.filter(f => isPrevMonth(f.created_at)).forEach(f => {
+        postCounts[f.author_id] = (postCounts[f.author_id] || 0) + 1;
     });
-    return { current: todayBirthdays, next: tomorrowBirthdays };
+    const topPosts = Object.entries(postCounts)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(x => x[0]);
+
+    const likeCounts = {};
+    feeds.filter(f => isPrevMonth(f.created_at)).forEach(f => {
+        const count = Array.isArray(f.likes) ? f.likes.length : 0;
+        likeCounts[f.author_id] = (likeCounts[f.author_id] || 0) + count;
+    });
+    const topLikes = Object.entries(likeCounts)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(x => x[0]);
+
+    return { topPosts, topLikes };
 };
 
-// --- [추가] 활동 상세 모달 ---
-const ActivityDetailModal = ({ title, list, onClose, type }) => (
-  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-    <div className="bg-white w-full max-w-md rounded-[2.5rem] h-[75vh] flex flex-col shadow-2xl overflow-hidden">
-      <div className="p-7 bg-slate-800 flex justify-between items-center text-white">
-        <h3 className="text-lg font-bold flex items-center gap-2">{title}</h3>
-        <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors"><X className="w-6 h-6"/></button>
-      </div>
-      <div className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar bg-slate-50">
-        {list.length > 0 ? list.map((item, idx) => (
-          <div key={idx} className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 transition-transform active:scale-[0.98]">
-            <div className="flex justify-between items-start mb-2">
-                <span className="text-[11px] font-black text-blue-500 bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-100 uppercase">{item.type || 'Activity'}</span>
-                <span className="text-[11px] text-slate-400 font-medium">{new Date(item.created_at).toLocaleDateString()}</span>
-            </div>
-            <p className="text-base font-bold text-slate-800 leading-snug line-clamp-2">{item.title || item.content}</p>
-          </div>
-        )) : (
-          <div className="h-full flex flex-col items-center justify-center text-slate-400 gap-3">
-             <div className="bg-slate-200/50 p-5 rounded-full"><Search className="w-10 h-10 opacity-30"/></div>
-             <p className="text-base font-bold">활동 내역이 없습니다.</p>
-          </div>
-        )}
-      </div>
-    </div>
-  </div>
-);
 
 // --- Sub Components ---
+
 const MoodToast = ({ message, emoji, visible }) => {
     if (!visible) return null;
     return (
-        <div className="fixed bottom-28 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in-up w-[92%] max-w-sm pointer-events-none">
-            <div className="bg-slate-900/95 backdrop-blur-md text-white px-7 py-5 rounded-[2rem] shadow-2xl flex items-center gap-5 border border-slate-700">
-                <span className="text-4xl">{emoji}</span>
-                <span className="text-base font-black leading-tight whitespace-pre-line">{message}</span>
+        <div className="fixed bottom-28 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in-up w-[90%] max-w-sm pointer-events-none">
+            <div className="bg-slate-900/95 backdrop-blur-md text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-slate-700">
+                <span className="text-3xl">{emoji}</span>
+                <span className="text-base font-bold leading-relaxed whitespace-pre-line">{message}</span>
+            </div>
+        </div>
+    );
+};
+
+const AdminGrantPopup = ({ grants, onClose }) => {
+    const total = grants.reduce((acc, curr) => acc + curr.amount, 0);
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+            <div className="bg-white w-full max-w-sm rounded-[2rem] p-8 shadow-2xl relative text-center">
+                <button onClick={onClose} className="absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-600 rounded-full bg-slate-100"><X className="w-5 h-5" /></button>
+                <div className="text-5xl mb-4 animate-bounce">🎉</div>
+                <h3 className="text-xl font-black text-slate-800 mb-2">관리자 포인트 지급</h3>
+                <p className="text-base text-slate-500 mb-8">관리자로부터 특별 포인트가 도착했습니다!</p>
+                <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100 mb-8">
+                    <span className="text-3xl font-black text-blue-600 flex items-center justify-center gap-2">
+                        <Coins className="w-8 h-8 fill-blue-500 text-blue-600"/> +{total.toLocaleString()} P
+                    </span>
+                </div>
+                <button onClick={onClose} className="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold hover:bg-blue-700 shadow-lg transition-all text-base">감사합니다!</button>
+            </div>
+        </div>
+    );
+};
+
+const AdminAlertModal = ({ onClose }) => {
+    const [doNotShow, setDoNotShow] = useState(false);
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+            <div className="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl relative border border-slate-100">
+                <h3 className="text-lg font-bold mb-3 flex items-center gap-2 text-red-500"><Bell className="w-5 h-5"/> 알림</h3>
+                <p className="text-base text-slate-600 mb-6 leading-relaxed">📢 <strong>처리되지 않은 포인트 차감 신청</strong>이 있습니다.<br/>설정 메뉴에서 확인해주세요.</p>
+                <div className="flex items-center gap-2 mb-4 bg-slate-50 p-3 rounded-xl cursor-pointer hover:bg-slate-100" onClick={() => setDoNotShow(!doNotShow)}>
+                    <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${doNotShow ? 'bg-blue-500 border-blue-500' : 'bg-white border-slate-300'}`}>{doNotShow && <CheckSquare className="w-3.5 h-3.5 text-white" />}</div>
+                    <span className="text-sm text-slate-500 select-none font-medium">오늘 하루 그만 보기</span>
+                </div>
+                <button onClick={() => onClose(doNotShow)} className="w-full bg-slate-800 text-white p-4 rounded-2xl font-bold hover:bg-slate-900 transition-colors shadow-lg">확인</button>
+            </div>
+        </div>
+    );
+};
+
+const GiftNotificationModal = ({ onClose, gifts }) => {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+            <div className="bg-white w-full max-w-sm rounded-[2rem] p-8 shadow-2xl relative text-center">
+                <button onClick={onClose} className="absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-600 rounded-full bg-slate-100"><X className="w-5 h-5" /></button>
+                <div className="text-5xl mb-4 animate-bounce">🎁</div>
+                <h3 className="text-xl font-black text-slate-800 mb-2">포인트 선물이 도착했어요!</h3>
+                <p className="text-base text-slate-500 mb-6">동료들이 보낸 따뜻한 마음을 확인해보세요.</p>
+                <div className="space-y-3 mb-8 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                    {gifts.map((gift, idx) => (
+                        <div key={idx} className="bg-pink-50 p-4 rounded-2xl border border-pink-100 flex justify-between items-center shadow-sm">
+                            <span className="text-sm font-bold text-slate-700">{gift.reason.replace('선물 받음 (', '').replace(')', '')}님</span>
+                            <span className="text-base font-black text-pink-500">+{gift.amount.toLocaleString()}</span>
+                        </div>
+                    ))}
+                </div>
+                <button onClick={onClose} className="w-full bg-pink-500 text-white p-4 rounded-2xl font-bold hover:bg-pink-600 shadow-lg transition-all text-base">감사히 받겠습니다!</button>
             </div>
         </div>
     );
 };
 
 const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, loading }) => {
+  const [birthdate, setBirthdate] = useState('1999-01-01'); 
   const [selectedDept, setSelectedDept] = useState('');
-  const [securityAgreed, setSecurityAgreed] = useState(false);
+  const [email, setEmail] = useState('');
+  const [securityAgreed, setSecurityAgreed] = useState(false); // [추가] 정보보안 동의 상태
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex justify-center items-center p-4">
-      <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl p-10 border border-white/50 animate-fade-in relative overflow-hidden backdrop-blur-xl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex justify-center items-center p-3">
+      <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] p-8 border border-white/50 animate-fade-in relative overflow-hidden backdrop-blur-xl">
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
         <div className="text-center mb-10 mt-6 flex flex-col items-center">
-          <CommunityLogo className="w-20 h-20 mb-6" />
-          <h1 className="text-3xl font-black text-slate-800 tracking-tighter mb-2">Connect Hub</h1>
-          <p className="text-slate-500 text-base font-bold">함께 만드는 우리들의 소통 공간 🚀</p>
+          {/* [수정] 커뮤니티 로고로 대체 */}
+          <CommunityLogo className="w-16 h-16 mb-6 shadow-blue-200/50" />
+          <h1 className="text-3xl font-black text-slate-800 tracking-tight mb-2">Connect Hub</h1>
+          <p className="text-slate-500 text-base font-medium">함께 만드는 우리들의 커뮤니티 공간🚀</p>
         </div>
 
         {isSignupMode ? (
-          <form onSubmit={handleSignup} className="space-y-6">
-            <div><label className="block text-sm font-black text-slate-600 mb-1.5 ml-1">이름</label><input name="name" type="text" placeholder="이름 입력" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 transition-all shadow-sm" required /></div>
+          <form onSubmit={handleSignup} className="space-y-5">
+            <div><label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">이름</label><input name="name" type="text" placeholder="홍길동" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" required /></div>
             <div>
-                <label className="block text-sm font-black text-slate-600 mb-1.5 ml-1">이메일</label>
-                <input name="email" type="email" placeholder="개인 이메일 (네이버, 구글 등)" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 transition-all shadow-sm" required />
-                <p className="text-[11px] text-red-500 mt-1.5 ml-1 font-bold">⚠️ @axa.co.kr 메일은 보안상 가입이 제한됩니다.</p>
+                <label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">이메일</label>
+                <input name="email" type="email" placeholder="회사 이메일 또는 개인 이메일 입력" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <p className="text-xs text-slate-400 mt-1 ml-1">* 개인 이메일은 사당CS부/대구CS부 직원만 사용 가능합니다.</p>
             </div>
-            <div><label className="block text-sm font-black text-slate-600 mb-1.5 ml-1">비밀번호</label><input name="password" type="password" placeholder="비밀번호 (숫자 6자리 이상)" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 transition-all shadow-sm" required minLength="6" /></div>
-            <div className="grid grid-cols-2 gap-3">
-                <select name="dept" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700" onChange={(e) => setSelectedDept(e.target.value)} required><option value="">본부/부문</option>{Object.keys(ORGANIZATION).map(dept => <option key={dept} value={dept}>{dept}</option>)}</select>
-                <select name="team" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700" disabled={!selectedDept} required><option value="">팀/센터</option>{selectedDept && ORGANIZATION[selectedDept].map(team => <option key={team} value={team}>{team}</option>)}</select>
+            <div>
+                <label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">생년월일 (양력)</label>
+                <div className="flex gap-2"><input name="birthdate" type="date" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base text-slate-600 focus:border-blue-500 focus:bg-white transition-all shadow-sm" required /></div>
             </div>
-            <div><label className="block text-sm font-black text-slate-600 mb-1.5 ml-1">생년월일 (양력)</label><input name="birthdate" type="date" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-base text-slate-600" required /></div>
-            
-            <div className={`p-5 rounded-2xl border transition-all cursor-pointer flex gap-4 items-start ${securityAgreed ? 'bg-blue-50 border-blue-200' : 'bg-red-50 border-red-100'}`} onClick={() => setSecurityAgreed(!securityAgreed)}>
-              <div className={`mt-0.5 w-6 h-6 rounded-lg border flex items-center justify-center transition-colors ${securityAgreed ? 'bg-blue-600 border-blue-600 shadow-sm' : 'bg-white border-slate-300'}`}>{securityAgreed && <CheckCircle className="w-4 h-4 text-white" />}</div>
-              <div className="flex-1">
-                <p className={`text-sm font-black ${securityAgreed ? 'text-blue-700' : 'text-red-700'}`}>[필수] 정보보안 준수 동의</p>
-                <p className="text-[11px] text-slate-500 mt-1 font-medium leading-tight">개인정보 및 회사 영업비밀 등록을 금하며, 위반 시 모든 책임은 본인에게 있음에 동의합니다.</p>
+            <div>
+                <label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">비밀번호</label>
+                <input name="password" type="password" placeholder="비밀번호 설정 (숫자 6자리 이상)" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" required minLength="6" />
+            </div>
+            <div className="space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-inner">
+              <div className="grid grid-cols-2 gap-3">
+                <select name="dept" className="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none text-sm text-slate-700 shadow-sm" onChange={(e) => setSelectedDept(e.target.value)} required><option value="">본부/부문</option>{Object.keys(ORGANIZATION).map(dept => <option key={dept} value={dept}>{dept}</option>)}</select>
+                <select name="team" className="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none text-sm text-slate-700 shadow-sm" disabled={!selectedDept} required><option value="">팀/센터</option>{selectedDept && ORGANIZATION[selectedDept].map(team => <option key={team} value={team}>{team}</option>)}</select>
               </div>
             </div>
 
-            <button type="submit" disabled={loading || !securityAgreed} className="w-full bg-blue-600 text-white p-5 rounded-3xl text-lg font-black hover:bg-blue-700 shadow-xl transition-all disabled:bg-slate-300">{loading ? <Loader2 className="animate-spin w-6 h-6 mx-auto" /> : '가입 완료 (+1,000P)'}</button>
-            <button type="button" onClick={() => setIsSignupMode(false)} className="w-full text-slate-400 text-sm font-bold hover:text-blue-600 transition-colors">이미 계정이 있나요? 로그인</button>
+            {/* [추가] 정보보안 및 개인정보 준수 동의 체크박스 */}
+            <div 
+              className={`p-4 rounded-2xl border transition-all cursor-pointer flex gap-3 items-start ${securityAgreed ? 'bg-blue-50 border-blue-200' : 'bg-red-50 border-red-100'}`}
+              onClick={() => setSecurityAgreed(!securityAgreed)}
+            >
+              <div className={`mt-0.5 w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${securityAgreed ? 'bg-blue-600 border-blue-600 shadow-sm' : 'bg-white border-slate-300'}`}>
+                {securityAgreed && <CheckCircle className="w-3.5 h-3.5 text-white" />}
+              </div>
+              <div className="flex-1">
+                <p className={`text-xs font-bold ${securityAgreed ? 'text-blue-700' : 'text-red-600'}`}>[필수] 정보보안 및 개인정보 보호 동의</p>
+                <p className="text-[10px] text-slate-500 mt-1 leading-normal font-medium">
+                  개인정보 또는 근무하고 있는 회사 정보(영업비밀 등)를 등록할 수 없다는 것에 대해 동의합니다. 위반 시 이용 제한 및 책임이 발생할 수 있습니다.
+                </p>
+              </div>
+            </div>
+
+            <button type="submit" disabled={loading || !securityAgreed} className="w-full bg-blue-600 text-white p-4 rounded-2xl text-base font-bold hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all mt-4 disabled:bg-slate-300 flex justify-center">{loading ? <Loader2 className="animate-spin w-5 h-5" /> : '가입 완료 (1,000P 지급)'}</button>
+            <button type="button" onClick={() => setIsSignupMode(false)} className="w-full text-slate-400 text-sm py-3 hover:text-blue-600 transition-colors font-medium">로그인으로 돌아가기</button>
           </form>
         ) : (
           <div className="space-y-8">
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div><label className="block text-sm font-black text-slate-600 mb-1.5 ml-1">이메일</label><input name="email" type="text" placeholder="이메일 입력" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base shadow-sm focus:border-blue-500" /></div>
-              <div><label className="block text-sm font-black text-slate-600 mb-1.5 ml-1">비밀번호</label><input name="password" type="password" placeholder="비밀번호 입력" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base shadow-sm focus:border-blue-500" /></div>
-              <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white p-5 rounded-3xl text-lg font-black shadow-xl hover:bg-blue-700 transition-all">{loading ? <Loader2 className="animate-spin w-6 h-6 mx-auto" /> : '🚀 로그인'}</button>
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div><label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">이메일</label><input name="email" type="text" placeholder="이메일 입력 (회사/개인)" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" /></div>
+              <div><label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">비밀번호</label><input name="password" type="password" placeholder="비밀번호 (숫자 6자리 이상)" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" required minLength="6" /></div>
+              <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white p-4 rounded-2xl text-base font-bold hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all active:scale-[0.98] disabled:bg-blue-300 flex justify-center mt-2">{loading ? <Loader2 className="animate-spin w-6 h-6" /> : '🚀 로그인'}</button>
             </form>
-            <div className="text-center"><button onClick={() => setIsSignupMode(true)} className="text-slate-500 text-sm font-black hover:text-blue-600 underline">처음 오셨나요? 회원가입</button></div>
+            <div className="text-center"><button onClick={() => setIsSignupMode(true)} className="text-slate-500 text-sm font-bold hover:text-blue-600 underline transition-colors">회원가입</button></div>
           </div>
         )}
       </div>
@@ -211,55 +413,78 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
   );
 };
 
+// [수정] 헤더: 로고 교체 및 텍스트 변경
 const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, onOpenChangePwd, onOpenAdminGrant, onOpenRedemptionList, onOpenGift, onOpenAdminManage, onOpenAdminClawback, boosterActive }) => {
   const todayDate = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
   const [showSettings, setShowSettings] = useState(false);
   
   return (
-    <div className="bg-white/95 backdrop-blur-xl px-4 pt-7 pb-6 sticky top-0 z-40 border-b border-slate-100 shadow-sm">
-      <div className="flex justify-between items-center mb-2">
-          <div className="text-[12px] text-blue-500 font-black pl-1">{todayDate}</div>
+    <div className="bg-white/95 backdrop-blur-xl px-2 pt-6 pb-5 sticky top-0 z-40 border-b border-slate-100 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
+      <div className="flex justify-between items-center mb-1">
+          <div className="text-[11px] text-blue-500 font-bold pl-1 tracking-tight">{todayDate}</div>
           <div className="flex items-center gap-2">
-            {boosterActive && <div className="bg-red-50 text-red-600 px-3 py-1 rounded-full font-black text-[11px] border border-red-200 shadow-sm flex items-center gap-1">⚡ 2배 적용</div>}
-            <div className="text-[11px] bg-slate-800 text-white px-4 py-1.5 rounded-full font-bold flex items-center gap-2 shadow-md"><User className="w-3.5 h-3.5" />{currentUser?.team} - {currentUser?.name}님</div>
+            {boosterActive && (
+              <div className="bg-red-50 text-[#C60C30] px-2.5 py-1 rounded-full font-black whitespace-nowrap flex items-center gap-1 shadow-sm border border-red-200">
+                <span className="text-sm leading-none">⚡</span>
+                <span className="text-[10px] leading-none">X2배</span>
+              </div>
+            )}
+            <div className="text-[10px] bg-slate-800 text-white px-3 py-1.5 rounded-full font-bold flex items-center gap-1.5 shadow-md">
+               <User className="w-3 h-3" />
+               {currentUser && <span>{currentUser.team} - {currentUser.name} 님</span>}
+            </div>
           </div>
       </div>
+      
       <div className="flex justify-between items-end">
         <div className="flex items-center gap-2 relative mt-1 pl-1">
-            <CommunityLogo className="w-11 h-11" />
+            {/* [수정] 커뮤니티 로고 적용 */}
+            <CommunityLogo className="w-10 h-10" />
             <div className="flex flex-col relative leading-none">
-                <span className="text-2xl font-black text-slate-800 tracking-tighter">Connect</span>
-                <span className="text-[12px] font-black text-blue-500 tracking-wider">HUB</span>
+                <span className="text-xl font-black text-slate-800 tracking-tighter">Connect</span>
+                <span className="text-[11px] font-black text-blue-500 tracking-wider">HUB</span>
             </div>
         </div>
+        
         <div className="flex items-center gap-2 relative">
           <div className="flex items-center gap-2 mr-1 cursor-pointer group" onClick={onOpenUserInfo}>
-             <div className="flex flex-col items-center leading-none">
-                <span className="text-[11px] text-slate-400 font-black mb-1.5">My Points</span>
-                <div className="flex items-center gap-2 bg-amber-200 px-4 py-2 rounded-2xl shadow-md border border-amber-300 ring-2 ring-amber-400/20">
-                    <Coins className="w-5 h-5 text-amber-900 fill-amber-900"/>
-                    <span className="text-2xl font-black text-amber-950 tracking-tight">{currentUser?.points?.toLocaleString()}</span>
+             <div className="flex flex-col items-center leading-none relative">
+                <div className="flex items-center gap-2">
+                    <div className="flex flex-col items-center leading-none">
+                    <span className="text-[11px] text-slate-600 font-black whitespace-nowrap mb-1">My Point</span>
+                    <div className="flex items-center gap-1.5 bg-amber-200 px-3 py-1.5 rounded-xl shadow-md border border-amber-300 ring-2 ring-amber-400/40">
+                        <Coins className="w-4 h-4 text-amber-900 fill-amber-900"/>
+                        <span className="text-2xl font-black text-amber-950 tracking-tight">{currentUser?.points?.toLocaleString()}</span>
+                    </div>
+                    </div>
                 </div>
              </div>
           </div>
-          <button onClick={onOpenGift} className="p-3 rounded-full bg-yellow-100 hover:bg-yellow-200 border-2 border-red-400 transition-all shadow-sm flex items-center justify-center active:scale-95"><span className="text-2xl">🎁</span></button>
-          <button onClick={() => setShowSettings(!showSettings)} className="p-3 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors border border-slate-100 shadow-sm"><Settings className="w-6 h-6 text-slate-600" /></button>
+
+          <button onClick={onOpenGift} className="p-2 rounded-full bg-yellow-100 hover:bg-yellow-200 border-2 border-red-400 transition-all shadow-sm active:scale-95 flex items-center justify-center">
+            <span className="text-xl leading-none">🎁</span>
+          </button>
+
+          <div className="flex flex-col items-center">
+              <button onClick={() => setShowSettings(!showSettings)} className="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors relative z-40 border border-slate-100 shadow-sm active:scale-95"><Settings className="w-5 h-5 text-slate-600" /></button>
+          </div>
           
           {showSettings && (
-             <div className="absolute right-0 top-full mt-4 w-64 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden z-50 animate-fade-in-up origin-top-right p-3">
-                <div className="space-y-1">
-                    <button onClick={() => { setShowSettings(false); onOpenChangeDept(); }} className="flex items-center gap-3 w-full p-4 text-sm text-slate-700 hover:bg-slate-50 rounded-2xl transition-colors font-bold"><Edit3 className="w-5 h-5 text-blue-500"/> 소속/팀 변경</button>
-                    <button onClick={() => { setShowSettings(false); onOpenChangePwd(); }} className="flex items-center gap-3 w-full p-4 text-sm text-slate-700 hover:bg-slate-50 rounded-2xl transition-colors font-bold"><Key className="w-5 h-5 text-blue-500"/> 비밀번호 변경</button>
+             <div className="absolute right-0 top-full mt-3 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 animate-fade-in-up origin-top-right">
+                <div className="p-2">
+                    <button onClick={() => { setShowSettings(false); onOpenChangeDept(); }} className="flex items-center gap-3 w-full p-3 text-xs text-slate-600 hover:bg-slate-50 rounded-xl transition-colors font-medium"><Edit3 className="w-4 h-4 text-blue-500"/> 소속/팀 변경</button>
+                    <button onClick={() => { setShowSettings(false); onOpenChangePwd(); }} className="flex items-center gap-3 w-full p-3 text-xs text-slate-600 hover:bg-slate-50 rounded-xl transition-colors font-medium"><Key className="w-4 h-4 text-blue-500"/> 비밀번호 변경</button>
                 </div>
                 {currentUser?.role === 'admin' && (
-                    <div className="mt-2 pt-2 border-t border-slate-100 space-y-1">
-                        <button onClick={() => { setShowSettings(false); onOpenAdminManage(); }} className="flex items-center gap-3 w-full p-4 text-sm text-slate-800 font-black hover:bg-slate-50 rounded-2xl"><Users className="w-5 h-5 text-slate-600"/> 시스템 관리</button>
-                        <button onClick={() => { setShowSettings(false); onOpenAdminGrant(); }} className="flex items-center gap-3 w-full p-4 text-sm text-blue-600 font-black hover:bg-blue-50 rounded-2xl"><Gift className="w-5 h-5"/> 포인트 지급</button>
-                        <button onClick={() => { setShowSettings(false); onOpenRedemptionList(); }} className="flex items-center gap-3 w-full p-4 text-sm text-purple-600 font-black hover:bg-purple-50 rounded-2xl"><ClipboardList className="w-5 h-5"/> 차감 신청 관리</button>
+                    <div className="border-t border-slate-100 p-2 bg-slate-50/50">
+                    <button onClick={() => { setShowSettings(false); onOpenAdminManage(); }} className="flex items-center gap-3 w-full p-3 text-xs text-slate-800 font-bold hover:bg-white rounded-xl transition-colors"><Users className="w-4 h-4 text-slate-600"/> 사용자/이벤트 관리</button>
+                    <button onClick={() => { setShowSettings(false); onOpenAdminGrant(); }} className="flex items-center gap-3 w-full p-3 text-xs text-blue-600 font-bold hover:bg-blue-50 rounded-xl transition-colors"><Gift className="w-4 h-4 text-blue-500"/> 포인트 지급 (관리자)</button>
+                    <button onClick={() => { setShowSettings(false); onOpenAdminClawback(); }} className="flex items-center gap-3 w-full p-3 text-xs text-red-600 font-bold hover:bg-red-50 rounded-xl transition-colors"><MinusCircle className="w-4 h-4 text-red-500"/> 포인트 환수 (관리자)</button>
+                    <button onClick={() => { setShowSettings(false); onOpenRedemptionList(); }} className="flex items-center gap-3 w-full p-3 text-xs text-purple-600 font-bold hover:bg-purple-50 rounded-xl transition-colors"><ClipboardList className="w-4 h-4 text-purple-500"/> 포인트 차감 신청 관리</button>
                     </div>
                 )}
-                <div className="mt-2 pt-2 border-t border-slate-100">
-                    <button onClick={handleLogout} className="flex items-center gap-3 w-full p-4 text-sm text-red-500 hover:bg-red-50 rounded-2xl font-black"><LogOut className="w-5 h-5"/> 로그아웃</button>
+                <div className="border-t border-slate-100 p-2">
+                    <button onClick={handleLogout} className="flex items-center gap-3 w-full p-3 text-xs text-red-500 hover:bg-red-50 rounded-xl transition-colors font-bold"><LogOut className="w-4 h-4"/> 로그아웃</button>
                 </div>
              </div>
           )}
@@ -269,312 +494,750 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
   );
 };
 
-const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive, currentUser, attendanceEnabled, openActivityDetail, myActivity, handleTabChange, setActiveFeedFilter }) => {
+// ... (이하 나머지 컴포넌트: ChangeDeptModal, ChangePasswordModal, AdminGrantModal 등 기존 로직 동일)
+const ChangeDeptModal = ({ onClose, onSave }) => { 
+    const [dept, setDept] = useState(''); 
+    const [team, setTeam] = useState(''); 
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+            <div className="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl relative">
+                <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-slate-600"><X className="w-5 h-5"/></button>
+                <h3 className="text-lg font-bold mb-6 flex items-center gap-2"><Building2 className="w-5 h-5 text-slate-800"/> 소속 변경</h3>
+                <div className="space-y-4">
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 ml-1">대분류: 본부/부서</label>
+                        <select className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none focus:border-blue-500 transition-colors" onChange={(e) => setDept(e.target.value)}>
+                            <option value="">본부/부서 선택</option>
+                            {Object.keys(ORGANIZATION).map(d => <option key={d} value={d}>{d}</option>)}
+                        </select>
+                    </div>
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 ml-1">소분류: 팀/센터</label>
+                        <select className="w-full p-3 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none focus:border-blue-500 transition-colors" disabled={!dept} onChange={(e) => setTeam(e.target.value)}>
+                            <option value="">팀/센터 선택</option>
+                            {dept && ORGANIZATION[dept].map(t => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                    </div>
+                    <button onClick={() => onSave(dept, team)} disabled={!dept || !team} className="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold hover:bg-blue-700 disabled:bg-slate-300 transition-colors shadow-lg mt-2">변경 저장</button>
+                </div>
+            </div>
+        </div>
+    ); 
+};
+const ChangePasswordModal = ({ onClose, onSave }) => { const [password, setPassword] = useState(''); const isValid = password.length >= 6 && /^\d+$/.test(password); return (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl relative"><button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-slate-600"><X className="w-5 h-5"/></button><h3 className="text-lg font-bold mb-6 flex items-center gap-2"><Key className="w-5 h-5 text-slate-800"/> 비밀번호 변경</h3><div className="space-y-4"><input type="password" placeholder="새 비밀번호 (6자리 이상 숫자)" className="w-full p-4 bg-slate-50 rounded-xl text-sm border border-slate-200 outline-none focus:border-blue-500 transition-colors" value={password} onChange={(e) => setPassword(e.target.value)}/><button onClick={() => onSave(password)} disabled={!isValid} className="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold hover:bg-blue-700 disabled:bg-slate-300 transition-colors shadow-lg">비밀번호 변경</button></div></div></div>); };
+
+const AdminGrantModal = ({ onClose, onGrant, profiles, feeds, allPointHistory }) => { 
+    const [tab, setTab] = useState('award'); // 'manual' or 'award'
+    const [dept, setDept] = useState(''); 
+    const [targetUser, setTargetUser] = useState(''); 
+    const [amount, setAmount] = useState(''); 
+    
+    const currentMonth = new Date().getMonth() + 1;
+    const { topPosts, topLikes } = useMemo(() => getPrevMonthRankers(feeds, profiles), [feeds, profiles]);
+
+    const isPaid = (userId, reasonPart) => {
+        const searchKey = `${currentMonth}월 ${reasonPart}`;
+        return allPointHistory.some(h => h.user_id === userId && h.reason.includes(searchKey));
+    };
+
+    const awardList = useMemo(() => {
+        const list = [];
+        profiles.forEach(p => {
+            if (p.is_ambassador) list.push({ ...p, type: '앰버서더 활동비', amount: 1000 });
+            if (topPosts.includes(p.id)) list.push({ ...p, type: '전월 소통왕', amount: 1000 });
+            if (topLikes.includes(p.id)) list.push({ ...p, type: '전월 인기왕', amount: 1000 });
+        });
+        return list;
+    }, [profiles, topPosts, topLikes]);
+
+    const filteredUsers = profiles.filter(p => p.dept === dept); 
+    
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+            <div className="bg-white w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative max-h-[85vh] flex flex-col">
+                <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-slate-600"><X className="w-5 h-5"/></button>
+                <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-blue-600"><Gift className="w-6 h-6"/> 특별 포인트 지급</h3>
+                
+                <div className="flex bg-slate-100 p-1.5 rounded-2xl mb-6 text-sm font-bold shrink-0">
+                    <button onClick={() => setTab('award')} className={`flex-1 py-2.5 rounded-xl transition-all ${tab === 'award' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'}`}>시상 대상자</button>
+                    <button onClick={() => setTab('manual')} className={`flex-1 py-2.5 rounded-xl transition-all ${tab === 'manual' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'}`}>직접 지급</button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
+                    {tab === 'award' ? (
+                        awardList.length > 0 ? (
+                            awardList.map((u, idx) => {
+                                const paidStatus = isPaid(u.id, u.type);
+                                return (
+                                    <div key={idx} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex justify-between items-center shadow-sm">
+                                        <div>
+                                            <p className="text-sm font-bold text-slate-700">{u.name} ({u.team})</p>
+                                            <p className="text-xs text-blue-500 font-bold mt-0.5">{u.type}</p>
+                                        </div>
+                                        {paidStatus ? (
+                                            <span className="text-xs font-bold text-slate-400 bg-slate-200 px-3 py-1.5 rounded-lg">지급 완료</span>
+                                        ) : (
+                                            <button 
+                                                onClick={() => onGrant(u.id, 1000, `${currentMonth}월 ${u.type}`)} 
+                                                className="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors shadow-md"
+                                            >
+                                                지급
+                                            </button>
+                                        )}
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <div className="text-center text-sm text-slate-400 py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">시상 대상자가 없습니다.</div>
+                        )
+                    ) : (
+                        <div className="space-y-4">
+                            <select className="w-full p-4 bg-slate-50 rounded-2xl text-sm border border-slate-200 outline-none focus:border-blue-500" onChange={(e) => { setDept(e.target.value); setTargetUser(''); }}><option value="">소속 선택</option>{Object.keys(ORGANIZATION).map(d => <option key={d} value={d}>{d}</option>)}</select>
+                            <select className="w-full p-4 bg-slate-50 rounded-2xl text-sm border border-slate-200 outline-none focus:border-blue-500" disabled={!dept} onChange={(e) => setTargetUser(e.target.value)}><option value="">직원 선택</option>{filteredUsers.map(u => <option key={u.id} value={u.id}>{u.name} ({u.team})</option>)}</select>
+                            <input type="number" placeholder="지급 포인트 (숫자만 입력)" className="w-full p-4 bg-slate-50 rounded-2xl text-sm border border-slate-200 outline-none font-bold focus:border-blue-500" value={amount} onChange={(e) => setAmount(e.target.value)}/>
+                            <button onClick={() => onGrant(targetUser, amount, '관리자 특별 지급')} disabled={!targetUser || !amount} className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-2xl font-bold hover:shadow-lg disabled:opacity-50 transition-all text-base mt-2">포인트 지급하기</button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    ); 
+};
+
+const AdminClawbackModal = ({ onClose, onClawback, profiles }) => { 
+    const [dept, setDept] = useState(''); 
+    const [targetUser, setTargetUser] = useState(''); 
+    const [amount, setAmount] = useState(''); 
+    const filteredUsers = profiles.filter(p => p.dept === dept); 
+    
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+            <div className="bg-white w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative">
+                <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-slate-600"><X className="w-5 h-5"/></button>
+                <h3 className="text-lg font-bold mb-6 flex items-center gap-2 text-red-600"><MinusCircle className="w-5 h-5"/> 포인트 환수 (관리자)</h3>
+                <div className="space-y-4">
+                    <select className="w-full p-4 bg-slate-50 rounded-2xl text-sm border border-slate-200 outline-none focus:border-red-500" onChange={(e) => { setDept(e.target.value); setTargetUser(''); }}>
+                        <option value="">소속 선택</option>{Object.keys(ORGANIZATION).map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                    <select className="w-full p-4 bg-slate-50 rounded-2xl text-sm border border-slate-200 outline-none focus:border-red-500" disabled={!dept} onChange={(e) => setTargetUser(e.target.value)}>
+                        <option value="">직원 선택</option>{filteredUsers.map(u => <option key={u.id} value={u.id}>{u.name} ({u.team})</option>)}
+                    </select>
+                    <input type="number" placeholder="회수할 포인트 (숫자만)" className="w-full p-4 bg-slate-50 rounded-2xl text-sm border border-slate-200 outline-none font-bold focus:border-red-500" value={amount} onChange={(e) => setAmount(e.target.value)}/>
+                    <button onClick={() => onClawback(targetUser, amount)} disabled={!targetUser || !amount} className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white p-4 rounded-2xl font-bold hover:shadow-lg disabled:opacity-50 transition-all text-base mt-2">포인트 회수하기</button>
+                </div>
+            </div>
+        </div>
+    ); 
+};
+
+const RedemptionListModal = ({ onClose, redemptionList, onComplete }) => (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-lg rounded-[2rem] p-8 shadow-2xl relative max-h-[80vh] flex flex-col"><button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-slate-600"><X className="w-5 h-5"/></button><h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-purple-600"><ClipboardList className="w-6 h-6"/> 포인트 차감 신청 내역</h3><div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">{redemptionList && redemptionList.length > 0 ? (<div className="space-y-3">{redemptionList.map((item, index) => (<div key={index} className="flex justify-between items-center p-4 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm hover:bg-white transition-colors"><div><p className="text-base font-bold text-slate-800 mb-0.5">{item.user_name}</p><p className="text-xs text-slate-400">{new Date(item.created_at).toLocaleDateString()} 신청</p></div><div className="flex items-center gap-4"><div className="text-red-500 font-bold text-base">-{item.amount?.toLocaleString()}</div>{item.status !== 'completed' ? (<button onClick={() => onComplete(item.id)} className="bg-blue-100 text-blue-600 text-xs font-bold px-3 py-1.5 rounded-xl hover:bg-blue-200 transition-colors">완료 처리</button>) : (<span className="text-green-600 text-xs font-bold bg-green-100 px-3 py-1.5 rounded-xl">처리 완료</span>)}</div></div>))}</div>) : (<div className="text-center text-slate-400 py-12 text-sm bg-slate-50 rounded-3xl border border-dashed border-slate-200">신청 내역이 없습니다.</div>)}</div></div></div>);
+
+// 관리자 - 사용자 및 이벤트 관리 화면
+const AdminManageModal = ({ onClose, profiles, onUpdateUser, onDeleteUser, boosterActive, setBoosterActive }) => { 
+    const [searchTerm, setSearchTerm] = useState(''); 
+    const filtered = profiles.filter(p => p.name.includes(searchTerm) || p.email.includes(searchTerm)); 
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+            <div className="bg-white w-full max-w-4xl rounded-[2.5rem] p-8 shadow-2xl relative h-[85vh] flex flex-col">
+                <button onClick={onClose} className="absolute top-8 right-8 text-slate-400 hover:text-slate-600"><X className="w-6 h-6"/></button>
+                <div className="flex justify-between items-center mb-6 mr-10">
+                    <h3 className="text-2xl font-bold flex items-center gap-2 text-slate-800"><Users className="w-6 h-6 text-slate-600"/> 사용자 및 이벤트 관리</h3>
+                    <span className="text-sm font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-full border border-blue-100 shadow-sm">총 가입자: {profiles.length}명</span>
+                </div>
+                <div className="flex gap-4 mb-6">
+                    <div className="flex-1 bg-gradient-to-br from-purple-50 to-white p-6 rounded-3xl border border-purple-100 flex items-center justify-between shadow-sm">
+                        <div><h4 className="font-bold text-purple-700 flex items-center gap-2 text-base mb-1"><Zap className="w-5 h-5 fill-purple-500 text-purple-600"/> 포인트 부스터 이벤트</h4><p className="text-sm text-slate-500">활성화 시 모든 획득 포인트 2배</p></div>
+                        <label className="relative inline-flex items-center cursor-pointer"><input type="checkbox" className="sr-only peer" checked={boosterActive} onChange={() => setBoosterActive(!boosterActive)} /><div className="w-14 h-8 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-purple-600 shadow-inner"></div></label>
+                    </div>
+                </div>
+                <div className="mb-4 flex gap-2"><input className="flex-1 p-4 border border-slate-200 rounded-2xl text-sm focus:border-blue-500 outline-none shadow-sm" placeholder="이름/이메일 검색" value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} /></div>
+                <div className="flex-1 overflow-y-auto border border-slate-100 rounded-3xl custom-scrollbar shadow-inner bg-slate-50">
+                    <table className="w-full text-sm text-left"><thead className="bg-slate-100 text-slate-600 font-bold sticky top-0 z-10"><tr><th className="p-4 rounded-tl-3xl">이름</th><th className="p-4">부서/팀</th><th className="p-4">권한</th><th className="p-4">앰버서더</th><th className="p-4 rounded-tr-3xl">관리</th></tr></thead><tbody className="bg-white divide-y divide-slate-50">{filtered.map(user => (<tr key={user.id} className="hover:bg-blue-50/50 transition-colors"><td className="p-4 font-bold text-slate-700">{user.name}</td><td className="p-4 text-xs text-slate-500">{user.dept}<br/><span className="text-slate-400">{user.team}</span></td><td className="p-4"><select value={user.role} onChange={(e) => onUpdateUser(user.id, { role: e.target.value })} className="border border-slate-200 rounded-xl p-2 text-xs outline-none focus:border-blue-500 bg-slate-50"><option value="member">일반</option><option value="admin">관리자</option></select></td><td className="p-4"><input type="checkbox" className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-gray-300" checked={user.is_ambassador || false} onChange={(e) => onUpdateUser(user.id, { is_ambassador: e.target.checked })} /></td><td className="p-4"><button onClick={() => onDeleteUser(user.id)} className="text-red-500 hover:bg-red-50 p-2 rounded-xl transition-colors"><Trash2 className="w-4 h-4"/></button></td></tr>))}</tbody></table>
+                </div>
+            </div>
+        </div>
+    ); 
+};
+const UserInfoModal = ({ currentUser, pointHistory, setShowUserInfoModal, handleRedeemPoints }) => (<div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-md p-4 animate-fade-in"><div className="bg-white w-full max-w-md rounded-[2.5rem] p-0 shadow-2xl max-h-[90vh] overflow-y-auto relative"><div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 rounded-t-[2.5rem] flex justify-between items-center sticky top-0 z-10"><div className="flex flex-col text-white"><h3 className="text-xl font-bold flex items-center gap-2"><User className="w-5 h-5"/> {currentUser.name}</h3><p className="text-sm opacity-90 ml-7 mt-1 flex items-center gap-1 font-medium"><Building2 className="w-3.5 h-3.5"/> {currentUser.dept} / {currentUser.team}{currentUser.is_ambassador && <span className="bg-white/20 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full ml-2 font-bold border border-white/30">앰버서더</span>}</p></div><button onClick={() => setShowUserInfoModal(false)} className="p-2 bg-white/20 hover:bg-white/30 rounded-full text-white transition-colors"><X className="w-6 h-6" /></button></div><div className="p-6 space-y-6">{currentUser.points >= 10000 ? (<div className="bg-blue-50 p-6 rounded-3xl border border-blue-100 text-center shadow-sm"><p className="text-base text-blue-800 font-bold mb-3">🎉 보유 포인트가 10,000P 이상입니다!</p><button onClick={handleRedeemPoints} className="w-full bg-blue-600 text-white py-4 rounded-2xl text-base font-bold hover:bg-blue-700 flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg"><Wallet className="w-5 h-5" /> 10,000P 상품권 교환 신청</button></div>) : (<div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 text-center shadow-inner"><p className="text-sm text-slate-500 font-bold mb-3">10,000P 부터 상품권 교환 신청이 가능해요 🎁</p><div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden shadow-inner"><div className="bg-gradient-to-r from-blue-400 to-blue-500 h-full transition-all duration-1000 ease-out" style={{ width: `${Math.min((currentUser.points / 10000) * 100, 100)}%` }}></div></div><p className="text-xs text-slate-400 mt-2 text-right font-bold">{Math.floor((currentUser.points / 10000) * 100)}% 달성</p></div>)}<div><h4 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2 ml-1"><Clock className="w-5 h-5 text-slate-400"/> 포인트 히스토리</h4><div className="space-y-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">{pointHistory.length > 0 ? pointHistory.map((history) => (<div key={history.id} className="flex justify-between items-center p-4 bg-white border border-slate-50 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.03)] hover:shadow-md transition-shadow"><div className="flex-1 min-w-0"><p className="text-sm font-bold text-slate-700 line-clamp-1">{history.reason}</p><span className="text-xs text-slate-400 mt-0.5 block">{new Date(history.created_at).toLocaleDateString()}</span></div><div className="text-base font-black ml-4 flex items-center gap-1" style={{ color: history.type.includes('use') || history.type === 'gift_sent' ? '#ef4444' : '#10b981' }}>{history.type.includes('use') || history.type === 'gift_sent' ? '-' : '+'}{history.amount.toLocaleString()}</div></div>)) : (<div className="text-center text-sm text-slate-400 py-12 bg-slate-50 rounded-3xl border border-dashed border-slate-200">아직 활동 내역이 없습니다.</div>)}</div></div></div></div></div>);
+const BirthdayPopup = ({ currentUser, handleBirthdayGrant, setShowBirthdayPopup }) => { const [doNotShow, setDoNotShow] = useState(false); const handleClose = () => { if (doNotShow) { localStorage.setItem('birthday_popup_closed_' + new Date().getFullYear(), 'true'); } setShowBirthdayPopup(false); }; return (<div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative text-center"><button onClick={handleClose} className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 rounded-full bg-slate-50"><X className="w-5 h-5" /></button><div className="text-6xl mb-6"><span className="animate-bounce inline-block">🎂</span></div><h3 className="text-2xl font-black text-slate-800 mb-3">생일 축하 드립니다!</h3><p className="text-base text-slate-500 mb-8 leading-relaxed">소중한 {currentUser.name} 님의 생일을 맞아<br/>특별한 선물을 준비했어요.</p><div className="bg-yellow-50 p-6 rounded-3xl border border-yellow-200 mb-8 shadow-sm"><span className="text-3xl font-black text-yellow-600 flex items-center justify-center gap-2"><Coins className="w-8 h-8 fill-yellow-500 text-yellow-600"/> +1,000 P</span></div><button onClick={handleBirthdayGrant} className="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all flex justify-center items-center gap-2 mb-4 text-base"><Gift className="w-5 h-5"/> 포인트 받기</button><div className="flex items-center justify-center gap-2 cursor-pointer p-2 hover:bg-slate-50 rounded-xl" onClick={() => setDoNotShow(!doNotShow)}><div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${doNotShow ? 'bg-blue-500 border-blue-500' : 'bg-white border-slate-300'}`}>{doNotShow && <CheckSquare className="w-3.5 h-3.5 text-white" />}</div><span className="text-sm text-slate-400 select-none font-medium">더 이상 열지 않기</span></div></div></div>); };
+const BirthdayNotifier = ({ weeklyBirthdays }) => { const [view, setView] = useState('current'); const list = view === 'current' ? weeklyBirthdays.current : weeklyBirthdays.next; return (<div className="bg-white rounded-3xl p-5 shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-slate-50 h-full flex flex-col"><h3 className="font-bold text-[13px] mb-4 flex items-center text-slate-800"><span className="mr-2">🎂</span> 생일자</h3><div className="flex bg-slate-100 p-1 rounded-2xl mb-4 border border-slate-200"><button onClick={() => setView('current')} className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all ${view === 'current' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>오늘</button><button onClick={() => setView('next')} className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all ${view === 'next' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>내일</button></div><div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">{list.length > 0 ? (<div className="space-y-2">{list.map((b, index) => (<div key={index} className="flex items-center gap-3 p-3 bg-blue-50/50 border border-blue-100 rounded-2xl hover:bg-blue-50 transition-colors"><div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-sm shadow-sm border border-slate-50">🎂</div><div><p className="text-[11px] font-bold text-slate-700">{b.name}</p><p className="text-[9px] text-slate-400 font-medium">{b.date} <span className="text-blue-500 font-bold">{b.typeLabel}</span></p></div></div>))}</div>) : (<div className="h-full flex flex-col items-center justify-center text-slate-300 text-[13px] gap-2"><Smile className="w-6 h-6 opacity-50"/><span>생일자가 없어요</span></div>)}</div></div>); };
+
+const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory }) => {
+    const [tab, setTab] = useState('dept');
+    const [selectedDept, setSelectedDept] = useState('');
+    const [selectedTeam, setSelectedTeam] = useState('');
+    const [targetUser, setTargetUser] = useState('');
+    const [amount, setAmount] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const usedGiftPoints = pointHistory.filter(h => h.type === 'gift_sent' && new Date(h.created_at).getMonth() === currentMonth && new Date(h.created_at).getFullYear() === currentYear).reduce((sum, h) => sum + h.amount, 0);
+    const remainingLimit = 1000 - usedGiftPoints;
+    
+    const filteredUsers = profiles.filter(p => {
+        if (p.id === currentUser.id) return false;
+        if (tab === 'name') return p.name.includes(searchTerm) || p.team.includes(searchTerm);
+        if (tab === 'dept') return selectedDept ? p.dept === selectedDept : false;
+        if (tab === 'team') return selectedTeam ? p.team === selectedTeam : false;
+        return false;
+    });
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+            <div className="bg-white w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative">
+                <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-slate-600"><X className="w-5 h-5"/></button>
+                <h3 className="text-xl font-bold mb-2 flex items-center gap-2 text-pink-500"><Gift className="w-6 h-6"/> 마음 선물하기</h3>
+                <div className="bg-red-50 text-red-500 text-xs font-bold p-3 rounded-xl text-center mb-5 border border-red-100 flex items-center justify-center gap-1"><Bell className="w-3 h-3"/> 선물하기 월 최대 1,000포인트 가능</div>
+                <div className="bg-pink-50 p-4 rounded-2xl mb-5 border border-pink-100 shadow-sm">
+                    <div className="flex justify-between text-sm mb-2"><span className="text-slate-500 font-medium">이번 달 남은 한도</span><span className="font-bold text-pink-600">{remainingLimit.toLocaleString()} P</span></div>
+                    <div className="w-full bg-white h-2 rounded-full overflow-hidden shadow-inner"><div className="bg-pink-400 h-full transition-all" style={{ width: `${(usedGiftPoints/1000)*100}%` }}></div></div>
+                </div>
+                <div className="flex bg-slate-100 p-1.5 rounded-2xl mb-4 text-xs font-bold">
+                    {[{id:'dept', label:'조직'}, {id:'team', label:'팀'}, {id:'name', label:'이름'}].map(t => (
+                        <button key={t.id} onClick={() => { setTab(t.id); setTargetUser(''); }} className={`flex-1 py-2.5 rounded-xl transition-all ${tab === t.id ? 'bg-white text-pink-500 shadow-sm' : 'text-slate-400'}`}>{t.label}</button>
+                    ))}
+                </div>
+                <div className="space-y-3">
+                    {tab === 'dept' && (
+                        <select className="w-full p-4 bg-slate-50 rounded-2xl text-sm border border-slate-200 outline-none focus:border-pink-500 transition-colors" onChange={(e) => setSelectedDept(e.target.value)}>
+                            <option value="">본부/부문 선택</option>{Object.keys(ORGANIZATION).map(d => <option key={d} value={d}>{d}</option>)}
+                        </select>
+                    )}
+                    {tab === 'team' && (
+                        <>
+                        <select className="w-full p-4 bg-slate-50 rounded-2xl text-sm border border-slate-200 outline-none focus:border-pink-500 mb-1" onChange={(e) => setSelectedDept(e.target.value)}><option value="">본부/부문 선택 (먼저 선택)</option>{Object.keys(ORGANIZATION).map(d => <option key={d} value={d}>{d}</option>)}</select>
+                        <select className="w-full p-4 bg-slate-50 rounded-2xl text-sm border border-slate-200 outline-none focus:border-pink-500" disabled={!selectedDept} onChange={(e) => setSelectedTeam(e.target.value)}><option value="">팀 선택</option>{selectedDept && ORGANIZATION[selectedDept].map(t => <option key={t} value={t}>{t}</option>)}</select>
+                        </>
+                    )}
+                    {tab === 'name' && (
+                        <div className="relative"><Search className="absolute left-4 top-4 w-4 h-4 text-slate-400"/><input type="text" placeholder="이름 검색" className="w-full p-4 pl-10 bg-slate-50 rounded-2xl text-sm border border-slate-200 outline-none focus:border-pink-500" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div>
+                    )}
+                    {(tab === 'name' || selectedDept || selectedTeam) && (
+                        <select className="w-full p-4 bg-slate-50 rounded-2xl text-sm border border-slate-200 outline-none focus:border-pink-500" onChange={(e) => setTargetUser(e.target.value)} size={5}>
+                            {filteredUsers.length > 0 ? filteredUsers.map(u => <option key={u.id} value={u.id} className="p-2.5 hover:bg-pink-50 rounded-xl transition-colors font-medium">{u.name} ({u.team})</option>) : <option disabled className="p-2 text-slate-400">검색 결과가 없습니다</option>}
+                        </select>
+                    )}
+                    <input type="number" placeholder="선물할 포인트 (숫자만)" className="w-full p-4 bg-slate-50 rounded-2xl text-sm border border-slate-200 outline-none font-bold focus:border-pink-500" value={amount} onChange={(e) => setAmount(e.target.value)} />
+                    <button onClick={() => onGift(targetUser, amount)} disabled={!targetUser || !amount || parseInt(amount) > remainingLimit || parseInt(amount) > currentUser.points} className="w-full bg-pink-500 text-white p-4 rounded-2xl font-bold hover:bg-pink-600 disabled:bg-slate-300 transition-colors shadow-lg mt-2 text-base">선물 보내기</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// ... (HomeTab, FeedTab, RankingTab, BottomNav, Comment 컴포넌트 기존 로직 동일)
+const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive, currentUser, attendanceEnabled, attendanceOpenCount }) => {
     const averageLikes = useMemo(() => {
         if (feeds.length === 0) return 0;
         const totalLikes = feeds.reduce((acc, curr) => acc + (curr.likes?.length || 0), 0);
         return totalLikes / feeds.length;
     }, [feeds]);
 
+    const latestNotice = feeds.find(f => f.type === 'news');
     const ledIndex = useMemo(() => {
       const now = new Date();
-      const diff = Math.floor((now - new Date(now.getFullYear(), 0, 1)) / 86400000);
-      return diff % MOTTO_365.length;
+      const start = new Date(now.getFullYear(), 0, 1);
+      const diff = Math.floor((now - start) / 86400000);
+      return diff % 365;
     }, []);
     const ledMessage = useMemo(() => `💡 오늘의 한마디: ${MOTTO_365[ledIndex]}`, [ledIndex]);
 
-    const renderFeedSection = (type, title, color, icon) => {
-        const filtered = feeds.filter(f => f.type === type).slice(0, 3);
-        const bgColors = { purple: 'bg-purple-50/60 border-purple-100', green: 'bg-green-50/60 border-green-100', blue: 'bg-blue-50/60 border-blue-100', orange: 'bg-orange-50/60 border-orange-100' };
-        const btnColors = { purple: 'bg-purple-600', green: 'bg-green-600', blue: 'bg-blue-600', orange: 'bg-orange-600' };
+    const myActivity = useMemo(() => {
+      const myId = currentUser?.id;
+      if (!myId) return { posts: 0, comments: 0, praises: 0, likesGiven: 0 };
+      const myPosts = feeds.filter(f => f.author_id === myId);
+      const posts = myPosts.length;
+      const praises = myPosts.filter(f => f.type === 'praise').length;
+      const comments = feeds.reduce((sum, f) => {
+        const cs = f.comments || [];
+        return sum + cs.filter(c => c.author_id === myId).length;
+      }, 0);
+      const likesGiven = feeds.reduce((sum, f) => sum + (Array.isArray(f.likes) && f.likes.includes(myId) ? 1 : 0), 0);
+      return { posts, comments, praises, likesGiven };
+    }, [feeds, currentUser]);
 
+
+    const renderFeedList = (listType, listData) => {
         return (
-            <div className={`${bgColors[color]} p-6 rounded-[2.5rem] shadow-sm border transition-all`}>
-               <div className="flex justify-between items-center mb-5">
-                   <h3 className={`${btnColors[color]} text-sm font-black text-white px-5 py-2.5 rounded-2xl flex items-center gap-2 shadow-md`}>{icon}{title}</h3>
-                   <button onClick={() => { setActiveFeedFilter(type); handleTabChange('feed'); }} className="text-[11px] text-slate-400 font-black flex items-center gap-1 hover:text-slate-600 bg-white px-3 py-1.5 rounded-xl shadow-sm">더보기 <ChevronRight className="w-3.5 h-3.5"/></button>
-               </div>
-               <div className="space-y-3">
-                   {filtered.length > 0 ? filtered.map(feed => (
-                       <div key={feed.id} onClick={() => onNavigateToFeed(feed.type, feed.id)} className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 relative group active:scale-[0.98] transition-all">
-                           {isToday(feed.created_at) && <div className="absolute top-5 right-5"><NewBadge/></div>}
-                           <div className="pr-10">
-                               <p className="text-base font-bold text-slate-800 line-clamp-1 mb-2">{feed.title || feed.content}</p>
-                               <div className="flex justify-between items-center">
-                                   <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400">
-                                       <span className="text-slate-700">{feed.author}님</span>
-                                       <span className="text-slate-300">|</span>
-                                       <span>{new Date(feed.created_at).toLocaleDateString()}</span>
-                                   </div>
-                                   <div className="flex items-center gap-3">
-                                       <div className="flex items-center gap-1 text-[11px] font-bold text-slate-400"><MessageCircle className="w-3.5 h-3.5"/>{feed.comments?.length || 0}</div>
-                                       <div className="flex items-center gap-1 text-[11px] font-bold text-red-400"><Heart className="w-3.5 h-3.5 fill-red-400"/>{feed.likes?.length || 0}</div>
-                                   </div>
-                               </div>
-                           </div>
-                       </div>
-                   )) : <div className="text-center py-6 text-sm text-slate-400 font-bold bg-white/50 rounded-3xl border border-dashed border-slate-200">등록된 글이 없습니다.</div>}
-               </div>
+            <div className="space-y-3">
+                {listData.length > 0 ? listData.map((feed) => { 
+                    const isNew = isToday(feed.created_at);
+                    const isHot = listType !== 'news' && feed.likes.length >= averageLikes && feed.likes.length > 0;
+                    
+                    return (
+                        <div key={feed.id} onClick={() => onNavigateToFeed(feed.type, feed.id)} className="bg-white px-5 py-3.5 rounded-3xl shadow-sm border border-slate-100 cursor-pointer relative overflow-hidden active:scale-[0.99] transition-transform group hover:shadow-md hover:border-slate-200">
+                            <div className="absolute top-4 right-5 flex gap-2 items-center z-10">
+                                {isHot && <span className="px-1.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-100 text-[9px] font-black animate-pulse">HOT</span>}
+                                {isNew && <span className="px-1.5 py-0.5 bg-red-500 text-white text-[9px] font-black rounded-full shadow-sm">NEW</span>}
+                            </div>
+                            
+                            <div className="flex flex-col gap-1 pr-14">
+                                <div className="flex justify-between items-start">
+                                    <div className="text-[13px] font-bold text-slate-800 line-clamp-1 pr-2 group-hover:text-blue-600 transition-colors">
+                                        {feed.type === 'dept_news' && feed.region_main && (
+                                            <span className="inline-block px-2 py-0.5 rounded-lg bg-purple-50 text-purple-600 text-[9px] font-black mr-1.5 align-middle border border-purple-100">
+                                                {feed.region_main}
+                                            </span>
+                                        )}
+                                        {feed.type === 'praise' && feed.target_name ? `To. ${feed.target_name} - ` : ''}
+                                        {feed.title || feed.content}
+                                    </div>
+                                </div>
+                                <div className="text-right mt-0.5">
+                                    {(listType === 'dept_news' || listType === 'praise') && (
+                                        <>
+                                        <span className="text-[11px] text-slate-400 font-medium">
+                                            {feed.author ? <>{feed.author} ({feed.team})</> : null}
+                                        </span>
+                                        <span className="text-[10px] text-slate-300 ml-2">{feed.formattedTime}</span>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }) : (
+                    <div className="text-center text-xs text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">게시글이 없습니다.</div>
+                )}
             </div>
         );
     };
 
+    const deptFeeds = feeds.filter(f => f.type === 'dept_news').slice(0, 5);
+    const praiseFeeds = feeds.filter(f => f.type === 'praise').slice(0, 5); 
+    const knowhowFeeds = feeds.filter(f => f.type === 'knowhow').slice(0, 5);
+    const matjibFeeds = feeds.filter(f => f.type === 'matjib').slice(0, 5);
+
     return (
-      <div className="px-3 py-6 space-y-7 pb-44 animate-fade-in bg-slate-50 min-h-full overflow-x-hidden">
-        {/* 출퇴근 및 생일 섹션 */}
-        <div className="flex gap-4 h-48">
-             <div className="flex-[1.2] bg-white rounded-[2.5rem] p-6 shadow-sm border border-slate-100 flex flex-col relative overflow-hidden">
-                  <div className="mb-4">
-                        <h2 className="text-sm font-black text-slate-800 mb-1 flex items-center gap-2">
-                            <span className="text-2xl">⏰</span>출퇴근 체크
-                            <span className="text-[10px] text-blue-600 font-black bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">각 +20P</span>
+      <div className="px-2 py-4 space-y-5 pb-40 animate-fade-in relative bg-[#F8F9FA] min-h-full">
+        
+        <div className="flex gap-4 h-44">
+             <div className="flex-[1.2] bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col relative overflow-hidden">
+                  <div className="flex justify-between items-start mb-2 relative z-10">
+                    <div>
+                        <h2 className="text-[11px] font-bold text-slate-400 mb-1 flex items-center gap-1.5">
+                            <span className="text-lg mr-1">⏰</span>출/퇴근 체크
+                            <span className="text-[8px] text-blue-500 font-bold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">각 +20P</span>
                         </h2>
+                    </div>
                   </div>
-                  <div className="flex-1 flex gap-3">
-                     <div className="flex-1 bg-blue-50/50 rounded-3xl p-2.5 border border-blue-50 flex flex-col justify-center gap-2">
-                         {mood !== 'checked' ? (
-                             <div className="flex flex-col gap-2">
-                                 <button onClick={() => handleMoodCheck('good')} className="bg-white hover:bg-blue-100 rounded-2xl w-full flex items-center justify-center py-2 shadow-sm border border-blue-100 gap-2 transition-all active:scale-95"><Smile className="w-5 h-5 text-blue-500"/><span className="text-[12px] font-black text-slate-700">좋음</span></button>
-                                 <button onClick={() => handleMoodCheck('normal')} className="bg-white hover:bg-green-100 rounded-2xl w-full flex items-center justify-center py-2 shadow-sm border border-green-100 gap-2 transition-all active:scale-95"><Meh className="w-5 h-5 text-green-500"/><span className="text-[12px] font-black text-slate-700">보통</span></button>
+                  <div className="flex-1 flex gap-2 relative z-10">
+                     <div className="flex-1 flex flex-col gap-2 justify-center bg-blue-50/30 rounded-2xl p-2 border border-blue-50">
+                         {!mood ? (
+                             <div className="flex flex-col gap-1.5 h-full justify-center">
+                                 <button onClick={() => handleMoodCheck('good')} disabled={!attendanceEnabled} className="bg-white hover:bg-blue-100 rounded-xl w-full flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-blue-100 gap-1.5"><Smile className="w-4 h-4 text-blue-500"/><span className="text-[9px] font-bold text-slate-600">좋음</span></button>
+                                 <button onClick={() => handleMoodCheck('normal')} disabled={!attendanceEnabled} className="bg-white hover:bg-green-100 rounded-xl w-full flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-green-100 gap-1.5"><Meh className="w-4 h-4 text-green-500"/><span className="text-[9px] font-bold text-slate-600">보통</span></button>
+                                 <button onClick={() => handleMoodCheck('tired')} disabled={!attendanceEnabled} className="bg-white hover:bg-orange-100 rounded-xl w-full flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-orange-100 gap-1.5"><Frown className="w-4 h-4 text-orange-500"/><span className="text-[9px] font-bold text-slate-600">피곤</span></button>
                              </div>
                          ) : (
-                             <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-[2rem] border border-blue-100 shadow-sm animate-pulse">
-                                 <span className="text-3xl mb-1">🏢</span>
-                                 <span className="text-[12px] font-black text-blue-600">출근 완료</span>
+                             <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl border border-blue-100 shadow-sm">
+                                 <div className="text-2xl animate-bounce mb-1">🏢</div>
+                                 <span className="text-[11px] font-black text-blue-600">출근 완료</span>
                              </div>
                          )}
                      </div>
-                     <button onClick={handleCheckOut} disabled={mood !== 'checked' || hasCheckedOut} className={`flex-1 rounded-3xl flex flex-col items-center justify-center text-[12px] font-black transition-all active:scale-95 ${hasCheckedOut ? 'bg-slate-100 text-slate-300' : (mood !== 'checked' ? 'bg-slate-50 text-slate-200' : 'bg-slate-800 text-white shadow-lg shadow-slate-200')}`}>
-                         <span className={`text-3xl mb-1 ${hasCheckedOut ? 'grayscale opacity-30' : ''}`}>{hasCheckedOut ? '🏠' : '🏃'}</span>
-                         <span>{hasCheckedOut ? '퇴근 완료' : '퇴근하기'}</span>
-                     </button>
+                     <div className="flex-1 flex flex-col gap-2 justify-center bg-orange-50/30 rounded-2xl p-2 border border-orange-50">
+                         <button onClick={handleCheckOut} disabled={!attendanceEnabled || !mood || hasCheckedOut} className={`flex-1 ${hasCheckedOut ? 'bg-slate-100 text-slate-300' : (!attendanceEnabled || !mood) ? 'bg-slate-100 text-slate-300' : 'bg-slate-800 text-white hover:bg-slate-900 shadow-lg'} rounded-2xl flex flex-col items-center justify-center text-[11px] font-bold transition-all active:scale-95`}>
+                             {hasCheckedOut ? <><span className="text-2xl mb-1 grayscale opacity-50">🏠</span><span>퇴근 완료</span></> : <><span className="text-2xl mb-1">🏃</span><span>퇴근하기</span></>}
+                         </button>
+                     </div>
                   </div>
             </div>
             <div className="flex-1 h-full"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} /></div>
         </div>
         
-        {/* LED 전광판 */}
-        <div className="bg-slate-900 rounded-[2rem] px-5 py-4 shadow-xl border border-slate-800 overflow-hidden relative">
-          <style>{`@keyframes ledMarquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } } .ledTrack { display: inline-flex; white-space: nowrap; gap: 4rem; animation: ledMarquee 25s linear infinite; }`}</style>
-          <div className="text-[13px] font-black text-emerald-400 tracking-wider drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]">
-            <div className="ledTrack"><span>{ledMessage}</span><span>{ledMessage}</span></div>
+        <div className="bg-slate-900 rounded-2xl px-4 py-3 shadow-sm border border-slate-800 overflow-hidden">
+          <style>{`
+            @keyframes ledMarquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+            .ledTrack { display: inline-flex; white-space: nowrap; gap: 3rem; will-change: transform; animation: ledMarquee 18s linear infinite; }
+          `}</style>
+          <div className="text-[11px] font-black text-emerald-300 tracking-wide drop-shadow-[0_0_10px_rgba(16,185,129,0.35)]">
+            <div className="ledTrack">
+              <span>{ledMessage}</span>
+              <span>{ledMessage}</span>
+            </div>
           </div>
         </div>
 
-        {/* [수정] 나의 활동 섹션 (클릭 시 상세 모달) */}
-        <div className="bg-white rounded-[2.5rem] p-7 shadow-sm border border-slate-100">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-base font-black text-slate-800 flex items-center gap-2"><span>📌</span> 나의 활동</h3>
-            <span className="text-[11px] font-bold text-slate-400">항목 클릭 시 상세보기</span>
+        <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-black text-slate-800 flex items-center gap-2 whitespace-nowrap">
+              <span>📌</span> 나의 활동
+            </h3>
+            <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap">최근 기준</span>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              { key: 'posts', label: '내 게시글', icon: '📝', val: myActivity.posts },
-              { key: 'comments', label: '작성 댓글', icon: '💬', val: myActivity.comments },
-              { key: 'praises', label: '받은 칭찬', icon: '🥇', val: myActivity.praises },
-              { key: 'likes', label: '받은 좋아요', icon: '❤️', val: myActivity.likesGiven }
-            ].map(item => (
-              <div key={item.key} onClick={() => openActivityDetail(item.key)} className="bg-slate-50 rounded-[1.5rem] p-4 border border-slate-100 flex items-center justify-between cursor-pointer active:scale-95 transition-all hover:bg-slate-100/50">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xl">{item.icon}</span>
-                  <span className="text-[13px] font-black text-slate-600">{item.label}</span>
-                </div>
-                <span className="text-xl font-black text-slate-800">{item.val}</span>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 shadow-inner flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-base">📝</span>
+                <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">내 글</span>
               </div>
-            ))}
+              <span className="text-lg font-black text-slate-800 whitespace-nowrap">{myActivity.posts}</span>
+            </div>
+
+            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 shadow-inner flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-base">💬</span>
+                <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">댓글</span>
+              </div>
+              <span className="text-lg font-black text-slate-800 whitespace-nowrap">{myActivity.comments}</span>
+            </div>
+
+            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 shadow-inner flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Medal className="w-5 h-5 text-amber-500" />
+                <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">받은 칭찬</span>
+              </div>
+              <span className="text-lg font-black text-slate-800 whitespace-nowrap">{myActivity.praises}</span>
+            </div>
+
+            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 shadow-inner flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Heart className="w-5 h-5 text-red-500 fill-red-500" />
+                <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">받은 좋아요</span>
+              </div>
+              <span className="text-lg font-black text-slate-800 whitespace-nowrap">{myActivity.likesGiven}</span>
+            </div>
           </div>
         </div>
 
-        {/* 게시판 더보기 연동 섹션 */}
-        {renderFeedSection('dept_news', '우리팀 톡톡🏢', 'purple', <Building2 className="w-4 h-4"/>)}
-        {renderFeedSection('praise', '칭찬뿜뿜💚', 'green', <Heart className="w-4 h-4 fill-white"/>)}
-        {renderFeedSection('knowhow', '꿀팁.zip🧠', 'blue', <Sparkles className="w-4 h-4 fill-white"/>)}
-        {renderFeedSection('matjib', '맛집레이더🍜', 'orange', <Utensils className="w-4 h-4 fill-white"/>)}
+<div className="flex justify-end items-center px-1">
+             <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 bg-white px-3 py-1.5 rounded-full shadow-sm border border-slate-100">
+                 <div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner">
+                     <Coins className="w-2.5 h-2.5 text-white fill-white"/>
+                 </div>
+                 게시글당 +50P (최대 +100P)
+             </div>
+</div>
 
-        <div className="mt-4">
-            <div onClick={onNavigateToNews} className="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 flex items-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
-                <div className="bg-red-50 p-3 rounded-full"><Megaphone className="w-5 h-5 text-red-500"/></div>
+        <div className="bg-purple-50/60 p-5 rounded-[2rem] shadow-sm border border-purple-100 transition-colors relative">
+           <div className="flex justify-between items-center mb-3">
+               <h3 className="text-sm font-bold text-white bg-purple-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Building2 className="w-4 h-4 text-white"/> 우리팀 톡톡🏢</h3>
+               <button onClick={() => onNavigateToFeed('dept_news')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-purple-600 bg-white px-2 py-1 rounded-lg shadow-sm">더보기 <ChevronRight className="w-3 h-3"/></button>
+           </div>
+           {renderFeedList('dept_news', deptFeeds)}
+        </div>
+
+        <div className="bg-green-50/60 p-5 rounded-[2rem] shadow-sm border border-green-100 transition-colors relative">
+           <div className="flex justify-between items-center mb-3">
+               <h3 className="text-sm font-bold text-white bg-green-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Heart className="w-4 h-4 fill-white text-white"/> 칭찬뿜뿜💚</h3>
+               <button onClick={() => onNavigateToFeed('praise')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-green-600 bg-white px-2 py-1 rounded-lg shadow-sm">더보기 <ChevronRight className="w-3 h-3"/></button>
+           </div>
+           {renderFeedList('praise', praiseFeeds)}
+        </div>
+        
+        <div className="bg-blue-50/60 p-5 rounded-[2rem] shadow-sm border border-blue-100 transition-colors relative">
+           <div className="flex justify-between items-center mb-3">
+               <h3 className="text-sm font-bold text-white bg-blue-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Sparkles className="w-4 h-4 fill-white text-white"/> 꿀팁.zip🧠</h3>
+               <button onClick={() => onNavigateToFeed('knowhow')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-blue-600 bg-white px-2 py-1 rounded-lg shadow-sm"><ChevronRight className="w-3 h-3"/></button>
+           </div>
+           {renderFeedList('knowhow', knowhowFeeds)}
+        </div>
+
+        <div className="bg-orange-50/60 p-5 rounded-[2rem] shadow-sm border border-orange-100 transition-colors relative">
+           <div className="flex justify-between items-center mb-3">
+               <h3 className="text-sm font-bold text-white bg-orange-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Utensils className="w-4 h-4 fill-white text-white"/> 맛집레이더🍜</h3>
+               <button onClick={() => onNavigateToFeed('matjib')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-orange-600 bg-white px-2 py-1 rounded-lg shadow-sm"><ChevronRight className="w-3 h-3"/></button>
+           </div>
+           {renderFeedList('matjib', matjibFeeds)}
+        </div>
+
+        <div className="mt-6 mb-2">
+            <div onClick={onNavigateToNews} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition-colors">
+                <div className="bg-red-50 p-2 rounded-full"><Megaphone className="w-4 h-4 text-red-500"/></div>
                 <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-black text-slate-400 mb-0.5">공지사항</p>
-                    <p className="text-base font-bold text-slate-800 truncate">{feeds.find(f => f.type === 'news')?.title || '등록된 공지사항이 없습니다.'}</p>
+                    <p className="text-xs font-bold text-slate-400 mb-0.5">공지사항</p>
+                    <p className="text-sm font-bold text-slate-800 truncate">{latestNotice ? latestNotice.title : '등록된 공지사항이 없습니다.'}</p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-slate-300"/>
+                <ChevronRight className="w-4 h-4 text-slate-300"/>
             </div>
         </div>
       </div>
     );
 }; 
 
-const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWithCategory, currentUser, handleDeletePost, handleLikePost, handleAddComment, handleDeleteComment, boosterActive, selectedPostId, onClearSelection, handleLikeComment }) => {
+const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWithCategory, currentUser, handleDeletePost, handleLikePost, handleAddComment, handleDeleteComment, boosterActive, selectedPostId, onClearSelection }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCategory, setSearchCategory] = useState('all');
   const [selectedDeptFilter, setSelectedDeptFilter] = useState('all');
 
+  useEffect(() => { setSelectedDeptFilter('all'); }, [activeFeedFilter]);
+  
+  const averageLikes = useMemo(() => {
+      if (feeds.length === 0) return 0;
+      const totalLikes = feeds.reduce((acc, curr) => acc + (curr.likes?.length || 0), 0);
+      return totalLikes / feeds.length;
+  }, [feeds]);
+
   const filteredFeeds = feeds.filter(f => {
       if (selectedPostId) return f.id === selectedPostId; 
-      const matchesFilter = activeFeedFilter === 'all' || f.type === activeFeedFilter;
-      const matchesSearch = searchTerm === "" || (f.title?.toLowerCase().includes(searchTerm.toLowerCase()) || f.content?.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesDept = activeFeedFilter !== 'dept_news' || selectedDeptFilter === 'all' || f.profiles?.dept === selectedDeptFilter;
+
+      const matchesFilter = activeFeedFilter === 'all' || f.type === activeFeedFilter || (activeFeedFilter === 'dept_news' && f.type === 'dept_news');
+      
+      let matchesSearch = false;
+      if (searchTerm === "") {
+          matchesSearch = true;
+      } else {
+          const lowerTerm = searchTerm.toLowerCase();
+          switch (searchCategory) {
+              case 'title': matchesSearch = f.title && f.title.toLowerCase().includes(lowerTerm); break;
+              case 'content': matchesSearch = f.content && f.content.toLowerCase().includes(lowerTerm); break;
+              case 'author': matchesSearch = f.author && f.author.toLowerCase().includes(lowerTerm); break;
+              case 'region': matchesSearch = (f.region_main && f.region_main.includes(searchTerm)) || (f.region_sub && f.region_sub.includes(searchTerm)); break;
+              case 'all': default: matchesSearch = (f.title && f.title.toLowerCase().includes(lowerTerm)) || (f.content && f.content.toLowerCase().includes(lowerTerm)) || (f.author && f.author.toLowerCase().includes(lowerTerm)) || (f.region_main && f.region_main.includes(searchTerm)) || (f.region_sub && f.region_sub.includes(searchTerm)); break;
+          }
+      }
+
+      const matchesDept = activeFeedFilter !== 'dept_news' || selectedDeptFilter === 'all' || (f.profiles && f.profiles.dept === selectedDeptFilter);
       return matchesFilter && matchesSearch && matchesDept;
   });
 
   return (
-    <div className="px-3 py-6 space-y-7 pb-44 animate-fade-in bg-slate-50 min-h-full">
+    <div className="px-2 py-4 space-y-6 pb-40 animate-fade-in bg-slate-50 min-h-full">
       {selectedPostId && (
-          <button onClick={onClearSelection} className="w-full bg-slate-800 text-white p-5 rounded-3xl font-black mb-2 flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all">
-              <ChevronLeft className="w-6 h-6"/> 전체 목록으로 돌아가기
+          <button onClick={onClearSelection} className="w-full bg-slate-800 text-white p-4 rounded-2xl font-bold mb-2 flex items-center justify-center gap-2 hover:bg-slate-900 transition-colors shadow-lg">
+              <ChevronLeft className="w-5 h-5"/> 목록으로 돌아가기
           </button>
       )}
 
       {!selectedPostId && (
       <>
-      <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-4">
-          <Search className="w-6 h-6 text-slate-400" />
-          <input type="text" placeholder="검색어를 입력하세요..." className="flex-1 bg-transparent text-base p-1 outline-none font-bold" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+      <div className="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
+          <select 
+            className="bg-slate-50 border border-slate-200 text-xs rounded-xl p-2.5 outline-none font-bold text-slate-600 focus:border-blue-500 transition-colors"
+            value={searchCategory}
+            onChange={(e) => setSearchCategory(e.target.value)}
+          >
+              <option value="all">전체</option>
+              <option value="title">제목</option>
+              <option value="content">내용</option>
+              <option value="author">작성자</option>
+              <option value="region">지역</option>
+          </select>
+          <div className="h-6 w-[1px] bg-slate-200"></div>
+          <Search className="w-5 h-5 text-slate-400" />
+          <input 
+            type="text" 
+            placeholder="검색어를 입력하세요" 
+            className="flex-1 bg-transparent text-sm p-1 outline-none placeholder-slate-400 font-medium" 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar no-scrollbar">
+      <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
         {[{ id: 'all', label: '전체' }, { id: 'praise', label: '칭찬뿜뿜💚' }, { id: 'dept_news', label: '우리팀 톡톡🏢' }, { id: 'knowhow', label: '꿀팁.zip🧠' }, { id: 'matjib', label: '맛집레이더🍜' }].map(tab => (
-          <button key={tab.id} onClick={() => setActiveFeedFilter(tab.id)} className={`px-6 py-3 rounded-full text-sm font-black whitespace-nowrap transition-all border shadow-sm ${activeFeedFilter === tab.id ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-500 border-slate-100 hover:bg-slate-50'}`}>{tab.label}</button>
+          <button key={tab.id} onClick={() => setActiveFeedFilter(tab.id)} className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all border ${activeFeedFilter === tab.id ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}>{tab.label}</button>
         ))}
       </div>
 
-      <div className="flex flex-col items-end gap-2">
-          <button onClick={() => onWriteClickWithCategory(null)} className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-7 py-3 rounded-full shadow-lg font-black text-base flex items-center gap-2 active:scale-95 transform transition-all"><Pencil className="w-5 h-5" />게시글 작성</button>
-          <div className="text-[11px] font-black text-slate-400 bg-white px-3 py-1.5 rounded-full border border-slate-100 shadow-sm">게시글 작성 시 +50P 지급</div>
+      {activeFeedFilter === 'dept_news' && (
+          <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar animate-fade-in">
+              <button onClick={() => setSelectedDeptFilter('all')} className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${selectedDeptFilter === 'all' ? 'bg-purple-100 text-purple-700 border-purple-200 shadow-sm' : 'bg-white text-slate-400 border-slate-100'}`}>전체</button>
+              {Object.keys(ORGANIZATION).map(dept => (<button key={dept} onClick={() => setSelectedDeptFilter(dept)} className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${selectedDeptFilter === dept ? 'bg-purple-100 text-purple-700 border-purple-200 shadow-sm' : 'bg-white text-slate-400 border-slate-100'}`}>{dept}</button>))}
+          </div>
+      )}
+
+      <div className="flex flex-col items-end gap-2 mb-2">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => onWriteClickWithCategory(null)}>
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-5 py-2.5 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center gap-2 active:scale-95 border border-blue-400 hover:-translate-y-0.5"><Pencil className="w-4 h-4" /><span className="text-sm font-bold">게시글 작성</span></div>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 bg-white px-3 py-1.5 rounded-full shadow-sm border border-slate-100"><div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-inner"><Coins className="w-2.5 h-2.5 text-white fill-white"/></div>게시글당 +50P (최대 +100P)</div>
       </div>
       </>
       )}
       
-      <div className="space-y-6">
-      {filteredFeeds.map(feed => (
-          <div key={feed.id} className="bg-white rounded-[2.5rem] p-7 shadow-sm border border-slate-50 relative">
-            {isToday(feed.created_at) && <div className="absolute top-7 right-7"><NewBadge/></div>}
-            
-            <div className="flex items-center gap-3 mb-5 pb-5 border-b border-slate-50">
-              <div className="bg-slate-100 p-2.5 rounded-full"><User className="w-6 h-6 text-slate-400"/></div>
-              <div>
-                  <p className="text-base font-black text-slate-800 flex items-center gap-2">
-                      {feed.author}님 <span className="text-sm font-bold text-slate-400">({feed.team})</span>
-                  </p>
-                  <p className="text-[11px] font-bold text-slate-300">{new Date(feed.created_at).toLocaleString()}</p>
-              </div>
-            </div>
-            
-            <div className="mb-6">
-                <div className="flex gap-2 mb-4">
-                    <span className="px-3 py-1 rounded-lg bg-slate-100 text-[11px] font-black text-slate-500 border border-slate-200 uppercase">{feed.type}</span>
-                    {feed.region_main && <span className="px-3 py-1 rounded-lg bg-blue-50 text-[11px] font-black text-blue-500 border border-blue-100">{feed.region_main}</span>}
-                </div>
-                {feed.title && <h3 className="text-lg font-black text-slate-800 mb-3">{feed.title}</h3>}
-                <p className="text-base text-slate-600 leading-relaxed whitespace-pre-wrap">{feed.content}</p>
-            </div>
-            
-            {feed.image_url && <div className="mb-6 rounded-[2rem] overflow-hidden shadow-md border border-slate-100"><img src={feed.image_url} alt="Feed content" className="w-full h-auto" /></div>}
-            
-            <div className="flex items-center justify-between pt-5 border-t border-slate-50">
-              <div className="flex items-center gap-6">
-                  <button onClick={() => handleLikePost(feed.id, feed.likes, feed.isLiked)} className={`flex items-center gap-2 text-base font-black transition-all ${feed.isLiked ? 'text-red-500' : 'text-slate-400'}`}><Heart className={`w-6 h-6 ${feed.isLiked ? 'fill-red-500' : ''}`} /> {feed.likes?.length || 0}</button>
-                  <div className="flex items-center gap-2 text-base font-black text-slate-400"><MessageCircle className="w-6 h-6" /> {feed.comments?.length || 0}</div>
-                  {(currentUser?.id === feed.author_id || currentUser?.role === 'admin') && (
-                      <button onClick={() => handleDeletePost(feed.id)} className="text-[12px] text-slate-300 hover:text-red-500 font-bold">글 삭제</button>
-                  )}
-              </div>
+      {filteredFeeds.map(feed => {
+        const comments = feed.comments || [];
+        const isHot = feed.likes.length > 0 && feed.likes.length >= averageLikes;
+        const isNew = isToday(feed.created_at);
+
+        return (
+          <div key={feed.id} className="bg-white rounded-[2rem] p-6 shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-slate-50 relative group transition-all hover:shadow-md">
+            <div className="absolute top-6 right-6 flex gap-2 items-center z-10">
+                {isHot && <span className="px-2.5 py-1 rounded-full bg-red-100 text-red-600 border border-red-200 text-[10px] font-black animate-pulse shadow-sm tracking-wide">HOT</span>}
+                {isNew && <span className="px-2.5 py-1 bg-red-600 text-white text-[10px] font-black rounded-full shadow-sm tracking-wide">NEW</span>}
             </div>
 
-            {feed.comments?.length > 0 && (
-                <div className="mt-6 space-y-4 pt-6 border-t border-slate-50">
-                    {feed.comments.map(comment => (
-                        <div key={comment.id} className="flex gap-3 bg-slate-50/50 p-4 rounded-3xl border border-slate-100 group">
-                            <CornerDownRight className="w-4 h-4 text-slate-300 mt-1"/>
-                            <div className="flex-1 min-w-0">
-                                <div className="flex justify-between mb-1.5">
-                                    <p className="text-sm font-black text-slate-700">{comment.profiles?.name} <span className="text-[11px] text-slate-400 font-bold">({comment.profiles?.team})</span></p>
-                                    <span className="text-[10px] text-slate-300 font-bold">{new Date(comment.created_at).toLocaleDateString()}</span>
-                                </div>
-                                <p className="text-sm text-slate-600 leading-snug mb-3">{comment.content}</p>
-                                <div className="flex justify-between items-center">
-                                    <button onClick={() => handleLikeComment(comment.id, comment.likes || [], comment.author_id)} className={`flex items-center gap-1.5 text-[11px] font-black transition-all ${comment.likes?.includes(currentUser?.id) ? 'text-red-500' : 'text-slate-400'}`}>
-                                        <Heart className={`w-3.5 h-3.5 ${comment.likes?.includes(currentUser?.id) ? 'fill-red-500' : ''}`}/> 좋아요 {comment.likes?.length || 0}
-                                    </button>
-                                    {(currentUser?.id === comment.author_id || currentUser?.role === 'admin') && (
-                                        <button onClick={() => handleDeleteComment(comment.id)} className="text-[10px] text-slate-300 hover:text-red-500 font-bold opacity-0 group-hover:opacity-100 transition-opacity">삭제</button>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-2">
+                  <p className="text-base font-bold text-slate-800 flex items-center gap-1.5">
+                      {feed.author ? <>{feed.author} <span className="text-slate-400 text-sm font-medium">({feed.team})</span></> : null}
+                      {feed.profiles?.role === 'admin' && <span className="bg-red-50 text-red-500 text-[10px] px-2 py-0.5 rounded-full border border-red-100 font-bold">관리자</span>}
+                      {feed.profiles?.is_reporter && <span className="bg-yellow-100 text-yellow-700 text-[10px] px-2 py-0.5 rounded-full border border-yellow-200 font-bold">리포터</span>}
+                      {feed.profiles?.is_ambassador && <span className="bg-purple-100 text-purple-700 text-[10px] px-2 py-0.5 rounded-full border border-purple-200 font-bold">앰버서더</span>}
+                  </p>
+              </div>
+            </div>
+            
+            <div className="mb-5">
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                    <span className={`inline-block px-3 py-1 rounded-full text-[11px] font-bold border shadow-sm ${feed.type === 'praise' ? 'bg-green-50 text-green-600 border-green-100' : feed.type === 'news' ? 'bg-red-50 text-red-600 border-red-100' : feed.type === 'dept_news' ? 'bg-purple-50 text-purple-600 border-purple-100' : feed.type === 'matjib' ? 'bg-orange-50 text-orange-600 border-orange-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                        {feed.type === 'praise' ? '칭찬뿜뿜💚' : feed.type === 'news' ? '📢 공지사항' : feed.type === 'dept_news' ? '🏢 우리팀 톡톡' : feed.type === 'matjib' ? '맛집레이더🍜' : '꿀팁'}
+                    </span>
+                    {feed.type === 'dept_news' && feed.region_main && (
+                        <span className="inline-block px-3 py-1 rounded-full text-[11px] font-bold bg-purple-100 text-purple-700 border border-purple-200 shadow-sm">
+                            {feed.region_main}
+                        </span>
+                    )}
+                    {feed.type === 'matjib' && feed.region_main && <span className="inline-block px-3 py-1 rounded-full text-[11px] font-bold bg-slate-50 text-slate-500 border border-slate-200"><MapPin className="w-3 h-3 inline mr-1"/>{feed.region_main} {feed.region_sub}</span>}
                 </div>
-            )}
-            <form onSubmit={(e) => handleAddComment(e, feed.id)} className="flex gap-3 mt-6">
-                <input name="commentContent" type="text" placeholder="댓글을 남겨주세요..." className="flex-1 px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-base font-bold outline-none focus:bg-white focus:border-blue-400 transition-all" required />
-                <button type="submit" className="bg-slate-800 text-white px-5 rounded-2xl active:scale-95 transition-all shadow-md"><Send className="w-5 h-5"/></button>
+                
+                {feed.type === 'praise' && feed.target_name && <p className="text-sm font-bold text-green-600 mb-2">To. {feed.target_name}</p>}
+                
+                {feed.type !== 'praise' && feed.title && (
+                    <h3 className="text-base font-bold text-slate-800 mb-2 flex items-center gap-1.5">
+                        {feed.title}
+                    </h3>
+                )}
+                <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{feed.content}</p>
+            </div>
+            
+            {feed.image_url && (<div className="mb-5 rounded-3xl overflow-hidden border border-slate-100 shadow-sm"><img src={feed.image_url} alt="Content" className="w-full h-auto object-cover" /></div>)}
+            
+            <div className="flex items-center justify-between border-t border-slate-50 pt-4">
+              <div className="flex items-center gap-5">
+                  <button onClick={() => handleLikePost(feed.id, feed.likes, feed.isLiked)} className={`flex items-center gap-1.5 text-sm font-bold transition-all ${feed.isLiked ? 'text-red-500' : 'text-slate-400 hover:text-red-500'}`}><Heart className={`w-5 h-5 transition-transform active:scale-75 ${feed.isLiked ? 'fill-red-500' : ''}`} /> {feed.likes?.length || 0}</button>
+                  <div className="flex items-center gap-1.5 text-sm font-bold text-slate-400"><MessageCircle className="w-5 h-5" /> {comments.length}</div>
+                  {(currentUser?.id === feed.author_id || currentUser?.role === 'admin') && (
+                      <button onClick={() => handleDeletePost(feed.id)} className="text-xs text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-lg">삭제</button>
+                  )}
+              </div>
+              <div className="text-xs text-slate-300 font-medium">{feed.formattedTime}</div>
+            </div>
+            {comments.length > 0 && (<div className="mt-4 pt-4 border-t border-slate-50 space-y-3">{comments.map(comment => (<Comment key={comment.id} comment={comment} currentUser={currentUser} handleDeleteComment={handleDeleteComment} />))}</div>)}
+            <form onSubmit={(e) => handleAddComment(e, feed.id, null)} className="flex gap-2 mt-4">
+                <input name="commentContent" type="text" placeholder="댓글을 남겨주세요..." className="flex-1 px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:border-blue-400 focus:bg-white transition-colors" required />
+                <button type="submit" className="bg-white border border-slate-200 text-slate-500 p-3 rounded-2xl hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors shadow-sm"><Send className="w-4 h-4"/></button>
             </form>
           </div>
-      ))}
-      </div>
+        );
+      })}
     </div>
   );
 };
 
-const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, boosterActive, initialCategory, profiles }) => {
+const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTab, boosterActive, initialCategory, profiles }) => {
   const [writeCategory, setWriteCategory] = useState(initialCategory || ''); 
   const [imagePreview, setImagePreview] = useState(null);
   const [regionMain, setRegionMain] = useState('');
-  const [selectedPraiseTarget, setSelectedPraiseTarget] = useState('');
+  const [regionSub, setRegionSub] = useState('');
+  const [deptNewsOrg, setDeptNewsOrg] = useState('');
+  
+  const [praiseDept, setPraiseDept] = useState('');
+  const [praiseTargetId, setPraiseTargetId] = useState('');
 
-  const categories = [ {id: 'dept_news', label: '우리팀 톡톡🏢'}, {id: 'praise', label: '칭찬하기💚'}, {id: 'matjib', label: '맛집소개🍜'}, {id: 'knowhow', label: '꿀팁.zip🧠'} ];
-  if (currentUser?.role === 'admin') categories.push({id: 'news', label: '공지사항 (Admin)'});
+  const handleImageChange = (e) => { const file = e.target.files[0]; if (file) setImagePreview(URL.createObjectURL(file)); };
+  
+  const categories = useMemo(() => {
+    const baseCategories = [
+        {id: 'dept_news', label: '우리팀 톡톡🏢'}, 
+        {id: 'praise', label: '칭찬하기'},
+        {id: 'matjib', label: '맛집소개'},
+        {id: 'knowhow', label: '꿀팁.zip🧠'}
+    ];
+    if (currentUser?.role === 'admin' || currentUser?.is_ambassador) {
+        baseCategories.push({id: 'news', label: '공지사항 (관리자/앰버서더)'});
+    }
+    return baseCategories;
+  }, [currentUser]);
+
+  useEffect(() => {
+      if (initialCategory && categories.some(c => c.id === initialCategory)) {
+          setWriteCategory(initialCategory);
+      } 
+      if (currentUser?.dept && Object.keys(ORGANIZATION).includes(currentUser.dept)) { setDeptNewsOrg(currentUser.dept); }
+  }, [categories, initialCategory, currentUser]);
+
+  const showPointReward = ['praise', 'knowhow', 'matjib', 'dept_news'].includes(writeCategory);
+  const rewardAmount = boosterActive ? 100 : 50;
+  const pointRewardText = showPointReward ? ` (+${rewardAmount}P)` : '';
+
+  const praiseTargetUsers = useMemo(() => {
+      if (!praiseDept) return [];
+      return profiles.filter(p => p.dept === praiseDept && p.id !== currentUser.id);
+  }, [praiseDept, profiles, currentUser]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-fade-in">
-      <div className="bg-white w-full max-w-md rounded-[3rem] p-0 shadow-2xl max-h-[90vh] overflow-y-auto relative">
-        <div className="bg-slate-800 p-8 flex justify-between items-center sticky top-0 z-10 text-white">
-            <h3 className="text-xl font-black flex items-center gap-2"><Pencil className="w-6 h-6"/> 게시글 작성</h3>
-            <button onClick={() => setShowWriteModal(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors"><X className="w-7 h-7" /></button>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+      <div className="bg-white w-full max-w-md rounded-[2.5rem] p-0 shadow-2xl max-h-[90vh] overflow-y-auto relative">
+        <div className="bg-slate-800 p-8 rounded-t-[2.5rem] flex justify-between items-center sticky top-0 z-10 shadow-lg">
+            <h3 className="text-xl font-bold text-white flex items-center gap-2"><Pencil className="w-6 h-6"/> 게시글 작성</h3>
+            <button onClick={() => setShowWriteModal(false)} className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"><X className="w-6 h-6" /></button>
         </div>
-        <div className="p-8 pb-12">
+        <div className="p-8">
             <form onSubmit={handlePostSubmit}>
             <div className="mb-8">
-                <label className="block text-sm font-black text-slate-500 mb-4 ml-1">게시글 유형 선택</label>
+                <label className="block text-sm font-bold text-slate-500 mb-3 ml-1">게시글 유형을 선택해 주세요</label>
                 <input type="hidden" name="category" value={writeCategory} /> 
                 <div className="grid grid-cols-2 gap-3">
                     {categories.map((cat) => (
-                        <button key={cat.id} type="button" onClick={() => setWriteCategory(cat.id)} className={`p-4 rounded-[1.5rem] text-sm font-black border transition-all ${writeCategory === cat.id ? 'bg-slate-800 text-white border-slate-800 shadow-lg scale-[1.03]' : 'bg-slate-50 text-slate-400 border-slate-100 hover:bg-slate-100'}`}>{cat.label}</button>
+                        <button key={cat.id} type="button" onClick={() => setWriteCategory(cat.id)} className={`p-4 rounded-2xl text-sm font-bold border transition-all ${writeCategory === cat.id ? 'bg-slate-800 text-white border-slate-800 shadow-lg transform scale-[1.02]' : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100 hover:border-slate-300'}`}>{cat.label}</button>
                     ))}
                 </div>
             </div>
-            
-            <div className="space-y-6 mb-8">
+            <div className="space-y-5 mb-8">
                 {writeCategory === 'praise' && (
-                    <div className="bg-green-50 p-6 rounded-[2rem] border border-green-100">
-                        <label className="text-sm font-black text-green-700 block mb-3">누구를 칭찬할까요?</label>
-                        <select name="targetUserId" className="w-full p-4 bg-white border border-green-200 rounded-2xl text-base font-bold outline-none" required>
-                            <option value="">직원 선택 (성함/팀)</option>
-                            {profiles.filter(p => p.id !== currentUser.id).map(u => <option key={u.id} value={u.id}>{u.name} ({u.team})</option>)}
-                        </select>
+                    <div className="bg-green-50 p-6 rounded-3xl border border-green-100 animate-fade-in">
+                        <label className="text-sm font-bold text-green-700 block mb-3 ml-1">누구를 칭찬하나요?</label>
+                        <p className="text-xs text-green-600 mb-3">칭찬받는 분에게 <span className="font-bold">100P</span>가 지급됩니다! (월 3회 한도)</p>
+                        <div className="space-y-3">
+                            <select className="w-full p-4 bg-white border border-green-200 rounded-2xl text-sm outline-none focus:border-green-500" value={praiseDept} onChange={(e) => { setPraiseDept(e.target.value); setPraiseTargetId(''); }} required>
+                                <option value="">소속 선택</option>{Object.keys(ORGANIZATION).map(d => <option key={d} value={d}>{d}</option>)}
+                            </select>
+                            <select name="targetUserId" className="w-full p-4 bg-white border border-green-200 rounded-2xl text-sm outline-none focus:border-green-500" disabled={!praiseDept} value={praiseTargetId} onChange={(e) => setPraiseTargetId(e.target.value)} required>
+                                <option value="">직원 선택</option>{praiseTargetUsers.map(u => <option key={u.id} value={u.id}>{u.name} ({u.team})</option>)}
+                            </select>
+                        </div>
                     </div>
+                )}
+                {writeCategory === 'dept_news' && (
+                     <div className="bg-purple-50 p-6 rounded-3xl border border-purple-100 animate-fade-in">
+                         <p className="text-sm text-purple-800 font-bold mb-3">📢 우리 조직의 즐거운 소식을 전해주세요!</p>
+                         <select name="regionMain" className="w-full p-4 bg-white border border-purple-200 rounded-2xl text-sm outline-none mb-3 text-purple-900 font-bold" value={deptNewsOrg} onChange={(e) => setDeptNewsOrg(e.target.value)} required><option value="">소식 구분 (조직 선택)</option>{Object.keys(ORGANIZATION).map(org => <option key={org} value={org}>{org}</option>)}</select>
+                         <input name="title" type="text" placeholder="제목을 입력하세요 (예: 00팀 회식~!)" className="w-full p-4 bg-white border border-purple-200 rounded-2xl text-sm outline-none focus:border-purple-500 font-bold" required />
+                     </div>
                 )}
                 {writeCategory === 'matjib' && (
-                    <div className="grid grid-cols-2 gap-3">
-                        <select name="regionMain" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-base font-bold" onChange={(e) => setRegionMain(e.target.value)} required><option value="">시/도</option>{Object.keys(REGIONS).map(r => <option key={r} value={r}>{r}</option>)}</select>
-                        <select name="regionSub" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-base font-bold" disabled={!regionMain} required><option value="">시/군/구</option>{regionMain && REGIONS[regionMain].map(r => <option key={r} value={r}>{r}</option>)}</select>
+                    <div className="space-y-4 animate-fade-in">
+                        <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 text-sm text-orange-800 leading-relaxed mb-1 shadow-sm">💡 <strong>작성 가이드</strong><br/>(예시) 주 메뉴, 특징, 가격대, 바로가기 링크 등 주요 내용을 입력해주세요.</div>
+                        <input name="title" type="text" placeholder="맛집 이름 (제목)" className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-sm outline-none focus:border-blue-500 font-bold shadow-sm" required />
+                        <div className="grid grid-cols-2 gap-3">
+                             <select name="regionMain" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm outline-none focus:border-blue-500" onChange={(e) => setRegionMain(e.target.value)} required><option value="">시/도 선택</option>{Object.keys(REGIONS).map(r => <option key={r} value={r}>{r}</option>)}</select>
+                             <select name="regionSub" value={regionSub} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm outline-none focus:border-blue-500" disabled={!regionMain} onChange={(e) => setRegionSub(e.target.value)} required><option value="">시/군/구 선택</option>{regionMain && REGIONS[regionMain].map(r => <option key={r} value={r}>{r}</option>)}</select>
+                        </div>
                     </div>
                 )}
-                <input name="title" type="text" placeholder="제목을 입력하세요" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-base font-black outline-none focus:bg-white focus:border-blue-400 transition-all shadow-sm" required />
-                <textarea name="content" className="w-full h-44 p-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-base font-bold outline-none focus:bg-white focus:border-blue-400 transition-all resize-none shadow-sm" placeholder="내용을 정성껏 작성해주세요..." required></textarea>
+                {writeCategory === 'news' && (
+                     <div className="bg-red-50 p-6 rounded-3xl border border-red-100 animate-fade-in">
+                         <p className="text-sm text-red-800 font-bold mb-3">📢 공지사항은 모든 임직원에게 알림됩니다.</p>
+                         <input name="title" type="text" placeholder="공지 제목" className="w-full p-4 bg-white border border-red-200 rounded-2xl text-sm outline-none focus:border-red-500 font-bold" required />
+                     </div>
+                )}
                 
-                <div className="flex items-center gap-4">
-                    <label className="cursor-pointer flex items-center justify-center w-28 h-28 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] hover:border-blue-400 transition-all group">
-                        <div className="text-center group-hover:scale-105 transition-transform"><ImageIcon className="w-8 h-8 text-slate-400 mx-auto mb-1" /><span className="text-[11px] text-slate-400 font-black">사진 추가</span></div>
-                        <input type="file" name="file" accept="image/*" onChange={(e) => setImagePreview(URL.createObjectURL(e.target.files[0]))} className="hidden" />
-                    </label>
-                    {imagePreview && (
-                        <div className="w-28 h-28 rounded-[2rem] overflow-hidden border border-slate-200 relative group"><img src={imagePreview} className="w-full h-full object-cover" /><button type="button" onClick={() => setImagePreview(null)} className="absolute inset-0 bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-8 h-8"/></button></div>
-                    )}
-                </div>
+                {writeCategory && (
+                    <div className="animate-fade-in space-y-5">
+                        <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100 shadow-inner">
+                            <textarea name="content" className="w-full h-40 bg-transparent text-base outline-none resize-none placeholder-slate-400 p-1" placeholder="내용을 자세히 작성해주세요..." required></textarea>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <label className="cursor-pointer flex items-center justify-center w-24 h-24 bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl hover:border-blue-400 hover:bg-blue-50 transition-all group">
+                                <div className="text-center group-hover:scale-105 transition-transform"><ImageIcon className="w-7 h-7 text-slate-400 mx-auto mb-1 group-hover:text-blue-500" /><span className="text-xs text-slate-400 group-hover:text-blue-500 font-bold">사진 추가</span></div>
+                                <input type="file" name="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                            </label>
+                            {imagePreview && (
+                                <div className="w-24 h-24 rounded-3xl overflow-hidden border border-slate-200 shadow-sm relative group">
+                                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                    <button type="button" onClick={() => setImagePreview(null)} className="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center text-white"><X className="w-6 h-6"/></button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
-            <button type="submit" disabled={!writeCategory} className="w-full bg-slate-800 text-white p-6 rounded-[2rem] text-lg font-black hover:bg-slate-900 shadow-2xl transition-all active:scale-95 disabled:bg-slate-200">글 등록하고 포인트 받기 (+50P)</button>
+            <button type="submit" disabled={!writeCategory} className="w-full bg-slate-800 text-white p-5 rounded-3xl text-base font-bold hover:bg-slate-900 shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-2 disabled:bg-slate-300 transform active:scale-[0.98]">등록하기 <span className="text-yellow-400 bg-white/10 px-2 py-0.5 rounded-lg text-xs border border-white/20">{pointRewardText}</span></button>
             </form>
         </div>
       </div>
@@ -582,245 +1245,962 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, boosterA
   );
 };
 
-// --- [수정] 메인 App 컴포넌트 ---
+const RankingTab = ({ feeds, profiles, allPointHistory, currentUser }) => { 
+    const [selectedDate, setSelectedDate] = useState(new Date()); 
+    const isSelectedMonth = (dateString) => { if(!dateString) return false; const d = new Date(dateString); return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear(); }; 
+    const handlePrevMonth = () => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() - 1))); 
+    const handleNextMonth = () => { const nextMonth = new Date(selectedDate); nextMonth.setMonth(selectedDate.getMonth() + 1); if (nextMonth <= new Date()) setSelectedDate(nextMonth); }; 
+    
+    const pointRankingAll = useMemo(() => {
+    const monthlyPoints = {};
+    allPointHistory.forEach((record) => {
+      if (isSelectedMonth(record.created_at) && record.type === 'earn') {
+        monthlyPoints[record.user_id] = (monthlyPoints[record.user_id] || 0) + record.amount;
+      }
+    });
+    return Object.entries(monthlyPoints)
+      .map(([id, points]) => {
+        const p = profiles.find((profile) => profile.id === id) || { name: '알수없음', team: '소속미정' };
+        return { id, name: p.name, value: points, unit: 'P', team: p.team };
+      })
+      .sort((a, b) => b.value - a.value);
+  }, [allPointHistory, profiles, selectedDate]);
+
+  const pointRankingTop10 = useMemo(() => pointRankingAll.slice(0, 10), [pointRankingAll]);
+
+  const myPointRank = useMemo(() => {
+    if (!currentUser?.id) return null;
+    const idx = pointRankingAll.findIndex((x) => x.id === currentUser.id);
+    if (idx === -1) return { rank: null, name: currentUser.name, team: currentUser.team, value: 0, unit: 'P' };
+    const me = pointRankingAll[idx];
+    return { rank: idx + 1, ...me };
+  }, [pointRankingAll, currentUser]); 
+    const postCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { postCounts[f.author_id] = (postCounts[f.author_id] || 0) + 1; }); 
+    const postRanking = Object.entries(postCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '건', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); 
+    const likeCounts = {}; feeds.filter(f => isSelectedMonth(f.created_at)).forEach(f => { const likes = f.likes ? (Array.isArray(f.likes) ? f.likes.length : 0) : 0; if(likes > 0) likeCounts[f.author_id] = (likeCounts[f.author_id] || 0) + likes; }); 
+    const likeRanking = Object.entries(likeCounts).map(([id, count]) => { const p = profiles.find(profile => profile.id === id) || { name: '알수없음', team: '소속미정' }; return { name: p.name, value: count, unit: '개', team: p.team }; }).sort((a, b) => b.value - a.value).slice(0, 3); 
+    
+    const RankItem = ({ rank, name, value, unit, team, color, showReward }) => (<div className="flex items-center p-4 bg-white border border-slate-100 rounded-3xl shadow-[0_2px_15px_rgba(0,0,0,0.03)] relative overflow-hidden transition-transform hover:scale-[1.01]">{showReward && rank <= 3 && <div className="absolute right-0 top-0 bg-yellow-100 text-yellow-600 text-[10px] font-bold px-3 py-1 rounded-bl-xl shadow-sm">🎁 1,000P</div>}<div className={`text-2xl font-black mr-5 w-8 text-center ${color} drop-shadow-sm`}>{rank}</div><div className="flex-1"><p className="text-base font-bold text-slate-800">{name || 'Unknown'}</p><p className="text-xs text-slate-400 font-medium">{team}</p></div><div className="text-lg font-black text-slate-700 ml-4">{value}<span className="text-xs text-slate-400 ml-0.5 font-normal">{unit}</span></div></div>); 
+    
+    return (<div className="px-2 py-4 space-y-8 pb-40 animate-fade-in bg-slate-50"><div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 text-center relative"><div className="flex justify-between items-center mb-4 px-2"><button onClick={handlePrevMonth} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><ChevronLeft className="w-6 h-6 text-slate-400" /></button><h2 className="text-xl font-black text-slate-800">{selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월 랭킹</h2><button onClick={handleNextMonth} className="p-2 hover:bg-slate-100 rounded-full disabled:opacity-30 transition-colors" disabled={selectedDate >= new Date(new Date().setDate(1))}><ChevronRight className="w-6 h-6 text-slate-400" /></button></div><div className="flex justify-center gap-2 mt-3"><span className="text-xs bg-green-50 text-green-600 px-3 py-1.5 rounded-full font-bold border border-green-100">🏆 소통상/좋아요상: 1~3등 1,000P</span></div></div>
+      {myPointRank && (
+        <div className="sticky top-2 z-20">
+          <div className="bg-blue-50 border border-blue-100 rounded-3xl p-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-blue-600">내 월간 포인트 순위</p>
+                <p className="text-sm font-black text-slate-800">{myPointRank.name} <span className="text-slate-400 font-medium">({myPointRank.team})</span></p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-bold text-slate-500">순위</p>
+                <p className="text-2xl font-black text-blue-700">{myPointRank.rank ? myPointRank.rank : '-'} </p>
+                <p className="text-xs font-bold text-slate-500 mt-1">{myPointRank.value.toLocaleString()}P</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Coins className="w-5 h-5 text-yellow-500"/> 월간 획득 포인트 랭킹 TOP 10</h3><div className="space-y-3">{pointRankingTop10.length > 0 ? pointRankingTop10.map((p, i) => <RankItem key={i} rank={i+1} name={p.name} team={p.team} value={p.value.toLocaleString()} unit="P" color="text-yellow-500" showReward={false}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div><div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Pencil className="w-5 h-5 text-green-500"/> 소통왕 (게시글)</h3><div className="space-y-3">{postRanking.length > 0 ? postRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-green-500" showReward={true}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div><div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Heart className="w-5 h-5 text-red-500"/> 인기왕 (좋아요)</h3><div className="space-y-3">{likeRanking.length > 0 ? likeRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-red-500" showReward={true}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div></div>); };
+
+// --- BottomNav, Comment, App ---
+const BottomNav = ({ activeTab, onTabChange, onFabClick }) => {
+  const getTabColor = (id, isActive) => {
+    if (!isActive) return 'text-slate-400 hover:text-slate-600';
+    switch (id) {
+      case 'home':
+        return 'text-white bg-blue-600 shadow-lg shadow-blue-500/30';
+      case 'feed':
+        return 'text-white bg-green-500 shadow-lg shadow-green-500/30';
+      case 'news':
+        return 'text-white bg-red-500 shadow-lg shadow-red-500/30';
+      case 'ranking':
+        return 'text-white bg-yellow-500 shadow-lg shadow-yellow-500/30';
+      default:
+        return 'text-slate-600';
+    }
+  };
+
+  const homeItem = { id: 'home', icon: Home, label: '홈' };
+  const feedItem = { id: 'feed', icon: MessageCircle, label: '게시판' };
+  const newsItem = { id: 'news', icon: Bell, label: '공지' };
+  const rankingItem = { id: 'ranking', icon: Award, label: '랭킹' };
+
+  const NavBtn = ({ item }) => (
+    <button
+      onClick={() => onTabChange(item.id)}
+      className={`flex flex-col items-center justify-center gap-1 h-full rounded-[2rem] transition-all duration-300 ease-out ${getTabColor(
+        item.id,
+        activeTab === item.id
+      )}`}
+    >
+      <item.icon className={`w-6 h-6 ${activeTab === item.id ? 'stroke-[2.5px]' : ''}`} />
+      <span className="text-[9px] font-bold whitespace-nowrap">{item.label}</span>
+    </button>
+  );
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-xl border-t border-slate-200 shadow-[0_-6px_24px_rgba(0,0,0,0.10)] p-0 z-30">
+      <div className="w-full relative">
+        <div className="grid grid-cols-5 items-center rounded-[2rem] h-16 bg-white/90 border border-white/60 shadow-sm overflow-hidden mx-2">
+          <NavBtn item={homeItem} />
+          <NavBtn item={feedItem} />
+          <div className="h-full" />
+          <NavBtn item={newsItem} />
+          <NavBtn item={rankingItem} />
+        </div>
+        <button
+          type="button"
+          onClick={onFabClick}
+          aria-label="새 게시글 작성"
+          className="absolute left-1/2 -translate-x-1/2 -top-6 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white w-16 h-16 rounded-full shadow-xl shadow-blue-500/35 border-4 border-white flex items-center justify-center transition-all"
+        >
+          <Plus className="w-8 h-8" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+
+const Comment = ({ comment, currentUser, handleDeleteComment }) => (
+    <div className="flex gap-3 p-4 bg-slate-50/80 rounded-2xl border border-slate-100 hover:bg-slate-100/80 transition-colors">
+        <CornerDownRight className="w-4 h-4 text-slate-400 mt-1 flex-shrink-0" />
+        <div className="flex-1 min-w-0">
+            <div className="flex justify-between items-start mb-1">
+                <p className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                    {comment.profiles?.name || '알 수 없음'} <span className="text-slate-400 text-xs font-normal">({comment.profiles?.team || '소속미정'})</span>
+                    {comment.profiles?.role === 'admin' && <span className="px-1.5 py-0.5 bg-red-50 text-red-500 text-[10px] rounded-md font-bold">관리자</span>}
+                </p>
+                <span className="text-[10px] text-slate-400 font-medium">{new Date(comment.created_at).toLocaleDateString()}</span>
+            </div>
+            <p className="text-sm text-slate-600 leading-relaxed break-words">{comment.content}</p>
+            <div className="flex gap-2 mt-2 justify-end">
+                {(currentUser?.id === comment.author_id || currentUser?.role === 'admin') && (
+                    <button onClick={() => handleDeleteComment(comment.id)} className="text-[10px] text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1 px-2 py-1 rounded hover:bg-red-50"><Trash2 className="w-3 h-3"/> 삭제</button>
+                )}
+            </div>
+        </div>
+    </div>
+);
+
 export default function App() {
   const [supabase, setSupabase] = useState(null);
+  const [isSupabaseReady, setIsSupabaseReady] = useState(false);
+  const [session, setSession] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [profiles, setProfiles] = useState([]);
   const [feeds, setFeeds] = useState([]);
   const [pointHistory, setPointHistory] = useState([]);
   const [allPointHistory, setAllPointHistory] = useState([]);
-  const [activeTab, setActiveTab] = useState('home');
-  const [activeFeedFilter, setActiveFeedFilter] = useState('all');
-  const [mood, setMood] = useState(null);
-  const [hasCheckedOut, setHasCheckedOut] = useState(false);
+  const [redemptionList, setRedemptionList] = useState([]); 
   const [loading, setLoading] = useState(false);
   const [isSignupMode, setIsSignupMode] = useState(false);
   const [showWriteModal, setShowWriteModal] = useState(false);
-  const [writeCategory, setWriteCategory] = useState(null);
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
+  const [showBirthdayPopup, setShowBirthdayPopup] = useState(false);
+  const [showGiftModal, setShowGiftModal] = useState(false);
+  const [showAdminManageModal, setShowAdminManageModal] = useState(false);
+  const [writeCategory, setWriteCategory] = useState(null); 
+  const [showGiftNotificationModal, setShowGiftNotificationModal] = useState(false);
+  const [newGifts, setNewGifts] = useState([]);
+  const [showAdminGrantPopup, setShowAdminGrantPopup] = useState(false); 
+  const [newAdminGrants, setNewAdminGrants] = useState([]); 
+  const [showAdminClawbackModal, setShowAdminClawbackModal] = useState(false);
+
+  const [showChangeDeptModal, setShowChangeDeptModal] = useState(false);
+  const [showChangePwdModal, setShowChangePwdModal] = useState(false);
+  const [showAdminGrantModal, setShowAdminGrantModal] = useState(false);
+  const [showRedemptionListModal, setShowRedemptionListModal] = useState(false); 
+  const [showAdminAlertModal, setShowAdminAlertModal] = useState(false); 
   const [toast, setToast] = useState({ visible: false, message: '', emoji: '' });
-  const [activityModal, setActivityModal] = useState({ show: false, title: '', list: [], type: '' });
+
+  const [activeTab, setActiveTab] = useState('home');
+  const TAB_ORDER = ['home', 'feed', 'news', 'ranking'];
+  const [displayTab, setDisplayTab] = useState('home');
+  const [nextTab, setNextTab] = useState(null);
+  const [slideDir, setSlideDir] = useState(1);
+  const [isSliding, setIsSliding] = useState(false);
+  const [activeFeedFilter, setActiveFeedFilter] = useState('all');
+  const [mood, setMood] = useState(null);
+  const [hasCheckedOut, setHasCheckedOut] = useState(false);
+  const [attendanceOpenCount, setAttendanceOpenCount] = useState(0);
+  const [attendanceEnabled, setAttendanceEnabled] = useState(false);
   const [boosterActive, setBoosterActive] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
 
+  const weeklyBirthdays = React.useMemo(() => getWeeklyBirthdays(profiles), [profiles]);
+
   useEffect(() => {
-    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    setSupabase(client);
-    client.auth.getSession().then(({ data: { session } }) => { if (session) fetchUserData(session.user.id); });
-    client.auth.onAuthStateChange((_event, session) => { if (session) fetchUserData(session.user.id); else setCurrentUser(null); });
-    fetchFeeds(client); fetchProfiles(client); fetchAllPointHistory(client);
+    if (window.supabase) {
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        setSupabase(client);
+        setIsSupabaseReady(true);
+        return;
+    }
+    const script = document.createElement('script');
+    script.src = "https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js";
+    script.async = true;
+    script.onload = () => {
+        if (window.supabase) {
+            const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            setSupabase(client);
+            setIsSupabaseReady(true);
+        }
+    };
+    document.body.appendChild(script);
+    return () => {};
   }, []);
 
-  const fetchUserData = async (userId) => {
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
-    if (data) {
-        setCurrentUser(data);
-        const todayStr = new Date().toISOString().split('T')[0];
-        if (data.last_attendance === todayStr) setMood('checked');
-        if (localStorage.getItem(`checkout_${userId}_${todayStr}`)) setHasCheckedOut(true);
-        fetchPointHistory(userId);
-    }
-  };
-
-  const fetchPointHistory = async (userId) => { const { data } = await supabase.from('point_history').select('*').eq('user_id', userId).order('created_at', { ascending: false }); if (data) setPointHistory(data); };
-  const fetchAllPointHistory = async (client = supabase) => { const { data } = await client.from('point_history').select('*'); if (data) setAllPointHistory(data); };
-  const fetchProfiles = async (client = supabase) => { const { data } = await client.from('profiles').select('*'); if (data) setProfiles(data); };
+  useEffect(() => {
+    const savedBooster = localStorage.getItem('axa_booster_active') === 'true';
+    setBoosterActive(savedBooster);
+  }, []);
   
-  const fetchFeeds = async (client = supabase) => {
-    const { data: posts } = await client.from('posts').select(`*, profiles (*), comments (*, profiles (*))`).order('created_at', { ascending: false });
-    if (posts) {
-        const formatted = posts.map(p => ({
-            ...p,
-            author: p.profiles?.name || '익명',
-            team: p.profiles?.team || '소속미정',
-            isLiked: p.likes?.includes(currentUser?.id),
-            comments: p.comments?.sort((a,b) => new Date(a.created_at) - new Date(b.created_at))
-        }));
-        setFeeds(formatted);
+  useEffect(() => { localStorage.setItem('axa_booster_active', boosterActive); }, [boosterActive]);
+
+useEffect(() => {
+  if (!session) { setAttendanceOpenCount(0); setAttendanceEnabled(false); return; }
+  const userId = session.user.id;
+  const todayStr = new Date().toISOString().split('T')[0];
+  const openKey = `open_count_${userId}_${todayStr}`;
+  const onceKey = `opened_once_${userId}_${todayStr}`;
+  if (!sessionStorage.getItem(onceKey)) {
+    sessionStorage.setItem(onceKey, 'true');
+    const prev = parseInt(localStorage.getItem(openKey) || '0', 10);
+    const next = prev + 1;
+    localStorage.setItem(openKey, String(next));
+  }
+  const count = parseInt(localStorage.getItem(openKey) || '0', 10);
+  setAttendanceOpenCount(count);
+  setAttendanceEnabled(count >= 2);
+}, [session]);
+
+useEffect(() => {
+  if (!session) return;
+  const tryFullscreen = () => {
+    const el = document.documentElement;
+    if (el?.requestFullscreen && !document.fullscreenElement) {
+      el.requestFullscreen().catch(() => {});
     }
   };
-
-  const handleLogin = async (e) => {
-    e.preventDefault(); setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email: e.target.email.value, password: e.target.password.value });
-    if (error) alert('로그인 정보를 확인해주세요.');
-    setLoading(false);
+  setTimeout(tryFullscreen, 300);
+  const beforeUnload = (e) => {
+    e.preventDefault();
+    e.returnValue = '';
   };
-
-  const handleSignup = async (e) => {
-    e.preventDefault(); setLoading(true);
-    const { name, email, password, dept, team, birthdate } = e.target;
-    const emailVal = email.value.toLowerCase();
-    
-    // [수정] 가입 제한 정책 반영
-    if (emailVal.endsWith('@axa.co.kr') && emailVal !== 'jongpil.kim@axa.co.kr') {
-        alert("⚠️ 회사 이메일(@axa.co.kr)은 보안 정책상 가입이 제한됩니다.\n개인 이메일(네이버, 지메일 등)로 가입해주세요.");
-        setLoading(false); return;
+  window.addEventListener('beforeunload', beforeUnload);
+  const onPopState = () => {
+    const ok = window.confirm('앱을 종료하시겠습니까?');
+    if (!ok) {
+      history.pushState(null, '', window.location.href);
     }
-    
-    const initialData = { name: name.value, dept: dept.value, team: team.value, role: 'member', points: INITIAL_POINTS, birthdate: birthdate.value, email: emailVal };
-    const { data: auth, error } = await supabase.auth.signUp({ email: emailVal, password: password.value, options: { data: initialData } });
-    if (error) alert(error.message);
-    else {
-        await supabase.from('point_history').insert({ user_id: auth.user.id, reason: '최초 가입 포인트', amount: INITIAL_POINTS, type: 'earn' });
-        alert('가입 완료! 로그인해주세요.'); setIsSignupMode(false);
-    }
-    setLoading(false);
   };
+  history.pushState(null, '', window.location.href);
+  window.addEventListener('popstate', onPopState);
 
-  // [수정] 출근 기분 선택 로직
-  const handleMoodCheck = async (selectedMood) => {
-    if (mood === 'checked') return;
-    setMood('checked'); // UI 즉시 반영
-    const pts = 20;
-    setToast({ visible: true, message: `기분 좋게 출근하셨네요!\n(+${pts}P 지급 완료)`, emoji: "🚀" });
-    setTimeout(() => setToast({ visible: false }), 3000);
-    
-    const todayStr = new Date().toISOString().split('T')[0];
-    await supabase.from('profiles').update({ points: currentUser.points + pts, last_attendance: todayStr }).eq('id', currentUser.id);
-    await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '출근체크', amount: pts, type: 'earn' });
-    fetchUserData(currentUser.id);
+  return () => {
+    window.removeEventListener('beforeunload', beforeUnload);
+    window.removeEventListener('popstate', onPopState);
   };
+}, [session]);
 
-  const handleCheckOut = async () => {
-      setHasCheckedOut(true);
-      const pts = 20;
-      setToast({ visible: true, message: `오늘도 수고 많으셨습니다!\n(+${pts}P 지급 완료)`, emoji: "🏠" });
-      setTimeout(() => setToast({ visible: false }), 3000);
+  const checkBirthday = useCallback((user) => {
+    if (!user.birthdate || user.birthday_granted) return; 
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1;
+    const [_, m, d] = user.birthdate.split('-').map(Number);
+    if (currentMonth === m) setShowBirthdayPopup(true);
+  }, []);
+  
+  const checkGiftNotifications = useCallback(async (userId) => {
+      if (!supabase) return;
+      try {
+          const threeDaysAgo = new Date();
+          threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+          const { data } = await supabase.from('point_history').select('*').eq('user_id', userId).eq('type', 'earn').ilike('reason', '%선물 받음%').gte('created_at', threeDaysAgo.toISOString()).order('created_at', { ascending: false });
+          if (data && data.length > 0) {
+              const lastChecked = localStorage.getItem(`last_gift_check_${userId}`);
+              const newGiftsList = data.filter(gift => !lastChecked || new Date(gift.created_at) > new Date(lastChecked));
+              if (newGiftsList.length > 0) { setNewGifts(newGiftsList); setShowGiftNotificationModal(true); localStorage.setItem(`last_gift_check_${userId}`, new Date().toISOString()); }
+          }
+      } catch (err) { console.error(err); }
+  }, [supabase]);
+
+  const checkAdminGrants = useCallback(async (userId) => {
+      if (!supabase) return;
+      try {
+          const lastChecked = localStorage.getItem(`last_admin_grant_check_${userId}`) || new Date(0).toISOString();
+          const { data } = await supabase.from('point_history')
+              .select('*')
+              .eq('user_id', userId)
+              .eq('reason', '관리자 특별 지급') 
+              .gt('created_at', lastChecked)
+              .order('created_at', { ascending: false });
+
+          if (data && data.length > 0) {
+              setNewAdminGrants(data);
+              setShowAdminGrantPopup(true);
+              localStorage.setItem(`last_admin_grant_check_${userId}`, new Date().toISOString());
+          }
+      } catch (err) { console.error(err); }
+  }, [supabase]);
+
+  const checkAdminNotifications = async (user) => {
+      if (user.role !== 'admin' || !supabase) return;
       const todayStr = new Date().toISOString().split('T')[0];
-      localStorage.setItem(`checkout_${currentUser.id}_${todayStr}`, 'true');
-      await supabase.from('profiles').update({ points: currentUser.points + pts }).eq('id', currentUser.id);
-      await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '퇴근체크', amount: pts, type: 'earn' });
-      fetchUserData(currentUser.id);
+      const hideDate = localStorage.getItem('hide_admin_alert');
+      if (hideDate === todayStr) return;
+      try { const { count, error } = await supabase.from('redemption_requests').select('*', { count: 'exact', head: true }).neq('status', 'completed'); if (!error && count > 0) setShowAdminAlertModal(true); } catch (err) { console.error(err); }
   };
+  const handleCloseAdminAlert = (doNotShowToday) => { if (doNotShowToday) { const todayStr = new Date().toISOString().split('T')[0]; localStorage.setItem('hide_admin_alert', todayStr); } setShowAdminAlertModal(false); };
 
-  // [수정] 나의 활동 클릭 시 상세 리스트 팝업
-  const openActivityDetail = (type) => {
-      let list = [];
-      let title = "";
-      switch(type) {
-          case 'posts': title = "내가 쓴 게시글"; list = feeds.filter(f => f.author_id === currentUser.id); break;
-          case 'comments': title = "작성한 댓글 목록"; list = feeds.flatMap(f => f.comments.filter(c => c.author_id === currentUser.id)); break;
-          case 'praises': title = "내가 받은 칭찬"; list = feeds.filter(f => f.type === 'praise' && f.target_name === currentUser.name); break;
-          case 'likes': title = "좋아요 받은 게시글"; list = feeds.filter(f => f.author_id === currentUser.id && f.likes?.length > 0); break;
-      }
-      setActivityModal({ show: true, title, list, type });
-  };
+  const fetchUserData = useCallback(async (userId) => {
+    if (!supabase) return; 
+    try {
+        const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
+        if (data) {
+            setCurrentUser(data);
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (data.last_attendance === todayStr) setMood('checked');
+            const lastCheckout = localStorage.getItem(`checkout_${userId}_${todayStr}`);
+            if (lastCheckout) setHasCheckedOut(true); else setHasCheckedOut(false);
+            checkBirthday(data); 
+            checkAdminNotifications(data); 
+            checkGiftNotifications(userId); 
+            checkAdminGrants(userId);
+        }
+    } catch (err) { console.error(err); }
+  }, [supabase, checkBirthday, checkGiftNotifications, checkAdminGrants]);
 
-  // [수정] 댓글 좋아요 시스템
-  const handleLikeComment = async (commentId, currentLikes, authorId) => {
-      const isLiked = currentLikes.includes(currentUser.id);
-      const newLikes = isLiked ? currentLikes.filter(id => id !== currentUser.id) : [...currentLikes, currentUser.id];
-      await supabase.from('comments').update({ likes: newLikes }).eq('id', commentId);
-      if (!isLiked && authorId !== currentUser.id) {
-          const { data: author } = await supabase.from('profiles').select('points').eq('id', authorId).single();
-          await supabase.from('profiles').update({ points: author.points + 2 }).eq('id', authorId);
-          await supabase.from('point_history').insert({ user_id: authorId, reason: '댓글 좋아요 보너스', amount: 2, type: 'earn' });
-      }
-      fetchFeeds();
-  };
+  const fetchPointHistory = useCallback(async (userId) => {
+    if (!supabase) return; 
+    try { const { data } = await supabase.from('point_history').select('*').eq('user_id', userId).order('created_at', { ascending: false }); if (data) setPointHistory(data); } catch (err) { console.error(err); }
+  }, [supabase]);
 
-  const handlePostSubmit = async (e) => {
-      e.preventDefault();
-      const cat = e.target.category.value;
-      const { data: post } = await supabase.from('posts').insert({
-          title: e.target.title.value, content: e.target.content.value, type: cat, author_id: currentUser.id,
-          region_main: e.target.regionMain?.value, target_name: e.target.targetUserId ? profiles.find(p => p.id === e.target.targetUserId.value).name : null, likes: []
-      }).select().single();
-      
-      await supabase.from('profiles').update({ points: currentUser.points + 50 }).eq('id', currentUser.id);
-      await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '게시글 작성', amount: 50, type: 'earn' });
-      setShowWriteModal(false); fetchFeeds(); fetchUserData(currentUser.id);
+  const fetchAllPointHistory = useCallback(async () => {
+      if (!supabase) return;
+      try { const { data } = await supabase.from('point_history').select('user_id, amount, type, created_at, reason'); if (data) setAllPointHistory(data); } catch(err) { console.error(err); }
+  }, [supabase]);
+
+  const fetchFeeds = useCallback(async () => {
+    if (!supabase) return; 
+    try {
+        const { data: posts, error } = await supabase
+            .from('posts')
+            .select(`
+                *,
+                profiles (*),
+                comments (
+                    *,
+                    profiles (*)
+                )
+            `)
+            .order('created_at', { ascending: false })
+            .limit(50);
+
+        if (error) { return; }
+
+        if (posts) {
+            const formatted = posts.map(post => {
+                const authorData = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
+                let authorName = authorData?.name || authorData?.email?.split('@')[0] || '알 수 없음';
+      let authorTeam = authorData?.team || '소속 미정';
+      if (post.type === 'praise') { authorName = ''; authorTeam = ''; }
+                let parsedLikes = [];
+                try { parsedLikes = post.likes ? (typeof post.likes === 'string' ? JSON.parse(post.likes) : post.likes) : []; } catch (e) { parsedLikes = []; }
+                const sortedComments = post.comments ? post.comments.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)) : [];
+                return { ...post, author: authorName, team: authorTeam, formattedTime: new Date(post.created_at).toLocaleDateString(), likes: parsedLikes, isLiked: false, comments: sortedComments, totalComments: sortedComments.length, profiles: authorData };
+            });
+            if (currentUser) { formatted.forEach(p => { p.isLiked = Array.isArray(p.likes) && p.likes.includes(currentUser.id); }); }
+            setFeeds(formatted);
+        }
+    } catch (err) { console.error(err); }
+  }, [supabase, currentUser]);
+
+  const fetchProfiles = useCallback(async () => { if (!supabase) return; try { const { data } = await supabase.from('profiles').select('*'); if (data) setProfiles(data); } catch (err) { console.error(err); } }, [supabase]);
+  const fetchRedemptionList = useCallback(async () => { if (!supabase) return; try { const { data } = await supabase.from('redemption_requests').select('*').order('created_at', { ascending: false }); if(data) setRedemptionList(data); } catch (err) { console.error(err); } }, [supabase]);
+
+  useEffect(() => {
+    if (!supabase) return; 
+    const channel = supabase.channel('public:comments_posts')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => { fetchFeeds(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => { fetchFeeds(); })
+        .subscribe();
+    try {
+        supabase.auth.getSession().then(({ data: { session } }) => { setSession(session); if (session) { fetchUserData(session.user.id); fetchPointHistory(session.user.id); } });
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { setSession(session); if (session) { fetchUserData(session.user.id); fetchPointHistory(session.user.id); } else setCurrentUser(null); });
+        fetchFeeds(); fetchProfiles(); fetchAllPointHistory();
+        return () => { subscription.unsubscribe(); supabase.removeChannel(channel); };
+    } catch(err) { console.error("Supabase init error:", err); }
+  }, [supabase, fetchFeeds, fetchPointHistory, fetchProfiles, fetchUserData, fetchAllPointHistory]);
+
+  const checkSupabaseConfig = () => { if (!supabase) return false; if (SUPABASE_URL.includes('your-project-url')) return false; return true; };
+  
+  const handleBirthdayGrant = async () => {
+    if (!currentUser || !checkSupabaseConfig()) return;
+    try {
+        const newPoints = (currentUser.points || 0) + 1000;
+        await supabase.from('profiles').update({ points: newPoints, birthday_granted: true }).eq('id', currentUser.id);
+        await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '생일 축하 포인트', amount: 1000, type: 'earn' });
+        setShowBirthdayPopup(false); fetchUserData(currentUser.id); fetchPointHistory(currentUser.id); fetchAllPointHistory(); 
+    } catch (err) { console.error('오류 발생: ', err.message); }
   };
 
   const handleLikePost = async (postId, currentLikes, isLiked) => {
-      const newLikes = isLiked ? currentLikes.filter(id => id !== currentUser.id) : [...currentLikes, currentUser.id];
-      await supabase.from('posts').update({ likes: newLikes }).eq('id', postId);
-      fetchFeeds();
+      if (!currentUser || !checkSupabaseConfig()) return;
+      const userId = currentUser.id;
+      let newLikes = [...currentLikes];
+      
+      const post = feeds.find(f => f.id === postId);
+      const authorId = post?.author_id;
+
+      try {
+          if (isLiked) { 
+              newLikes = newLikes.filter(id => id !== userId);
+              await supabase.from('posts').update({ likes: newLikes }).eq('id', postId);
+              if (authorId && authorId !== userId) {
+                  const { data: author } = await supabase.from('profiles').select('points').eq('id', authorId).single();
+                  if (author) {
+                      const newPoints = Math.max(0, (author.points || 0) - 5);
+                      await supabase.from('profiles').update({ points: newPoints }).eq('id', authorId);
+                      await supabase.from('point_history').insert({ user_id: authorId, reason: '게시글 좋아요 취소', amount: 5, type: 'use' });
+                  }
+              }
+
+          } else { 
+              newLikes.push(userId);
+              await supabase.from('posts').update({ likes: newLikes }).eq('id', postId);
+
+              if (authorId && authorId !== userId) {
+                  const { data: author } = await supabase.from('profiles').select('points').eq('id', authorId).single();
+                  if (author) {
+                      const newPoints = (author.points || 0) + 5;
+                      await supabase.from('profiles').update({ points: newPoints }).eq('id', authorId);
+                      await supabase.from('point_history').insert({ user_id: authorId, reason: '게시글 좋아요 획득', amount: 5, type: 'earn' });
+                      
+                      const notificationKey = `like_notification_${postId}_${userId}_${Date.now()}`;
+                      const alreadyNotified = localStorage.getItem(notificationKey);
+                      if (!alreadyNotified && 'Notification' in window) {
+                          if (Notification.permission === 'granted') {
+                              new Notification('좋아요 알림 💖', {
+                                  body: `${currentUser.name}님이 회원님의 게시글을 좋아합니다! (+5P)`,
+                                  tag: notificationKey
+                              });
+                              localStorage.setItem(notificationKey, 'true');
+                          } else if (Notification.permission !== 'denied') {
+                              Notification.requestPermission().then(permission => {
+                                  if (permission === 'granted') {
+                                      new Notification('좋아요 알림 💖', {
+                                          body: `${currentUser.name}님이 회원님의 게시글을 좋아합니다! (+5P)`,
+                                          tag: notificationKey
+                                      });
+                                      localStorage.setItem(notificationKey, 'true');
+                                  }
+                              });
+                          }
+                      }
+                  }
+              }
+          }
+          setFeeds(feeds.map(f => f.id === postId ? { ...f, likes: newLikes, isLiked: !isLiked } : f));
+
+      } catch (err) { console.error(err); fetchFeeds(); }
   };
 
-  const handleAddComment = async (e, postId) => {
-      e.preventDefault();
-      await supabase.from('comments').insert({ post_id: postId, author_id: currentUser.id, content: e.target.commentContent.value, likes: [] });
-      e.target.reset(); fetchFeeds();
+  const handleAddComment = async (e, postId, parentId = null) => {
+      e.preventDefault(); const content = e.target.commentContent.value; if (!content || !currentUser) return;
+      
+      const post = feeds.find(f => f.id === postId);
+      const authorId = post?.author_id;
+      
+      const tempComment = { id: `temp-${Date.now()}`, post_id: postId, author_id: currentUser.id, content: content, parent_id: parentId, created_at: new Date().toISOString(), profiles: { name: currentUser.name, role: currentUser.role } };
+      setFeeds(prevFeeds => prevFeeds.map(feed => { if (feed.id === postId) { return { ...feed, comments: [...feed.comments, tempComment], totalComments: feed.totalComments + 1 }; } return feed; }));
+      e.target.reset(); 
+      
+      try { 
+          await supabase.from('comments').insert({ post_id: postId, author_id: currentUser.id, content: content, parent_id: parentId });
+          if (authorId && authorId !== currentUser.id) {
+              const notificationKey = `comment_notification_${postId}_${currentUser.id}_${Date.now()}`;
+              const alreadyNotified = localStorage.getItem(notificationKey);
+              if (!alreadyNotified && 'Notification' in window) {
+                  if (Notification.permission === 'granted') {
+                      new Notification('댓글 알림 💬', {
+                          body: `${currentUser.name}님이 회원님의 게시글에 댓글을 남겼습니다!`,
+                          tag: notificationKey
+                      });
+                      localStorage.setItem(notificationKey, 'true');
+                  } else if (Notification.permission !== 'denied') {
+                      Notification.requestPermission().then(permission => {
+                          if (permission === 'granted') {
+                              new Notification('댓글 알림 💬', {
+                                  body: `${currentUser.name}님이 회원님의 게시글에 댓글을 남겼습니다!`,
+                                  tag: notificationKey
+                              });
+                              localStorage.setItem(notificationKey, 'true');
+                          }
+                      });
+                  }
+              }
+          }
+      } catch (err) { console.error('Comment failed:', err); fetchFeeds(); }
+  };
+  
+  const handleDeleteComment = async (commentId) => {
+      if (!window.confirm('댓글을 삭제하시겠습니까?')) return;
+      setFeeds(prevFeeds => prevFeeds.map(feed => { const updatedComments = feed.comments.filter(c => c.id !== commentId); if (updatedComments.length !== feed.comments.length) { return { ...feed, comments: updatedComments, totalComments: updatedComments.length }; } return feed; }));
+      try { await supabase.from('comments').delete().eq('id', commentId); } catch (err) { console.error('Delete failed:', err); fetchFeeds(); }
   };
 
-  const handleDeletePost = async (id) => { if(window.confirm('삭제하시겠습니까?')) { await supabase.from('posts').delete().eq('id', id); fetchFeeds(); } };
-  const handleDeleteComment = async (id) => { if(window.confirm('삭제하시겠습니까?')) { await supabase.from('comments').delete().eq('id', id); fetchFeeds(); } };
+  const handleDeletePost = async (postId) => {
+    if (!currentUser) return;
+    const postToDelete = feeds.find(f => f.id === postId); if (!postToDelete) return;
+    if (currentUser.id !== postToDelete.author_id && currentUser.role !== 'admin') { alert('삭제 권한이 없습니다.'); return; }
+    if (!window.confirm('게시글을 삭제하시겠습니까? 삭제 시 지급된 포인트가 회수됩니다.')) return;
+    try {
+        const { error } = await supabase.from('posts').delete().eq('id', postId); if (error) throw error;
+        if (['praise', 'knowhow', 'matjib', 'dept_news'].includes(postToDelete.type)) {
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+        const ageMs = Date.now() - new Date(postToDelete.created_at).getTime();
+        if (ageMs < ONE_DAY_MS) {
+          const deductAmount = 50;
+          const newPoints = Math.max(0, currentUser.points - deductAmount);
+          await supabase.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
+          await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '게시글 삭제 (회수)', amount: deductAmount, type: 'use' });
+          fetchUserData(currentUser.id); fetchAllPointHistory();
+        }
+      }
+        await fetchFeeds();
+    } catch (err) { console.error('삭제 실패: ', err.message); alert('삭제 실패'); }
+  };
 
-  const myActivity = useMemo(() => {
-      const myId = currentUser?.id;
-      return {
-          posts: feeds.filter(f => f.author_id === myId).length,
-          comments: feeds.flatMap(f => f.comments?.filter(c => c.author_id === myId)).length,
-          praises: feeds.filter(f => f.type === 'praise' && f.target_name === currentUser?.name).length,
-          likesGiven: feeds.filter(f => f.author_id === myId && f.likes?.length > 0).length
-      };
-  }, [feeds, currentUser]);
+  const handleRedeemPoints = async () => {
+    if (!currentUser || currentUser.points < 10000) return; if (!window.confirm('10,000P를 사용하여 포인트 차감 신청을 하시겠습니까?')) return;
+    try {
+        await supabase.from('redemption_requests').insert({ user_id: currentUser.id, user_name: currentUser.name, amount: 10000, status: 'pending' });
+        const newPoints = currentUser.points - 10000;
+        await supabase.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
+        await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '포인트 차감 신청', amount: 10000, type: 'use' });
+        fetchUserData(currentUser.id); fetchPointHistory(currentUser.id); setShowUserInfoModal(false);
+    } catch (err) { console.error('신청 실패: ', err.message); }
+  };
+  
+  const handleCompleteRedemption = async (requestId) => { if (!supabase) return; try { await supabase.from('redemption_requests').update({ status: 'completed' }).eq('id', requestId); fetchRedemptionList(); } catch (err) { console.error(err); } };
+
+  const handleGiftPoints = async (targetUserId, amount) => {
+    if (!currentUser || !supabase) return;
+    const giftAmount = parseInt(amount);
+    if (isNaN(giftAmount) || giftAmount <= 0) return;
+    try {
+        const myNewPoints = currentUser.points - giftAmount;
+        await supabase.from('profiles').update({ points: myNewPoints }).eq('id', currentUser.id);
+        await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '포인트 선물 (보냄)', amount: giftAmount, type: 'gift_sent' });
+        const { data: targetUser } = await supabase.from('profiles').select('points, name').eq('id', targetUserId).single();
+        const targetNewPoints = (targetUser.points || 0) + giftAmount;
+        await supabase.from('profiles').update({ points: targetNewPoints }).eq('id', targetUserId);
+        await supabase.from('point_history').insert({ user_id: targetUserId, reason: `선물 받음 (${currentUser.name})`, amount: giftAmount, type: 'earn' });
+        setShowGiftModal(false); alert(`${targetUser.name}님에게 선물이 완료되었습니다! 🎁`); fetchUserData(currentUser.id); fetchPointHistory(currentUser.id); fetchAllPointHistory();
+    } catch (err) { console.error(err); alert('선물하기 중 오류가 발생했습니다.'); }
+  };
+
+  const handleAdminGrantPoints = async (targetUserId, amount, reason = '관리자 특별 지급') => { 
+      if (!currentUser || !supabase) return; 
+      if (currentUser.role !== 'admin') return; 
+      try { 
+          const { data: targetUser } = await supabase.from('profiles').select('points').eq('id', targetUserId).single(); 
+          if (!targetUser) return; 
+          const newPoints = (targetUser.points || 0) + parseInt(amount); 
+          await supabase.from('profiles').update({ points: newPoints }).eq('id', targetUserId); 
+          await supabase.from('point_history').insert({ user_id: targetUserId, reason: reason, amount: parseInt(amount), type: 'earn' }); 
+          alert('포인트 지급이 완료되었습니다.'); 
+          fetchProfiles(); 
+          fetchAllPointHistory(); 
+      } catch(err) { console.error(err); } 
+  };
+
+  const handleAdminClawbackPoints = async (targetUserId, amount) => {
+      if (!currentUser || !supabase) return;
+      if (currentUser.role !== 'admin') return;
+      try {
+          const { data: targetUser } = await supabase.from('profiles').select('points').eq('id', targetUserId).single();
+          if (!targetUser) return;
+          const clawbackAmount = parseInt(amount);
+          const newPoints = Math.max(0, (targetUser.points || 0) - clawbackAmount); 
+          await supabase.from('profiles').update({ points: newPoints }).eq('id', targetUserId);
+          await supabase.from('point_history').insert({ user_id: targetUserId, reason: '관리자 포인트 환수', amount: clawbackAmount, type: 'use' });
+          setShowAdminClawbackModal(false);
+          alert('포인트 환수가 완료되었습니다.');
+          fetchProfiles(); 
+          fetchAllPointHistory();
+      } catch(err) { console.error(err); }
+  };
+
+  const handleAdminUpdateUser = async (userId, updates) => { try { await supabase.from('profiles').update(updates).eq('id', userId); fetchProfiles(); } catch (err) { console.error(err); } };
+  const handleAdminDeleteUser = async (userId) => { if(!window.confirm('정말 삭제하시겠습니까?')) return; try { await supabase.from('profiles').delete().eq('id', userId); fetchProfiles(); } catch(err) { console.error(err); } };
+
+  const handleLogin = async (e) => {
+    e.preventDefault(); if (!checkSupabaseConfig()) return; setLoading(true);
+    const email = e.target.email.value; const password = e.target.password.value;
+    try {
+        const { data: userCheck } = await supabase.from('profiles').select('id').eq('email', email).maybeSingle();
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) { if (userCheck === null) alert('가입되지 않은 이메일 계정입니다.'); else alert('비밀번호가 일치하지 않습니다.'); }
+    } catch (err) { console.error('로그인 실패: ', err.message); alert('로그인 중 오류가 발생했습니다.'); } finally { setLoading(false); }
+  };
+
+  const handleSignup = async (e) => {
+    e.preventDefault(); if (!checkSupabaseConfig()) return; setLoading(true);
+    const { name, email, password, dept, team, birthdate } = e.target;
+    
+    const emailValue = email.value.toLowerCase();
+    const isPersonalEmail = !emailValue.includes('@axa') && !emailValue.includes('@directasia');
+    const deptValue = dept.value;
+    const allowedDepts = ['사당CS부', '대구CS부'];
+    
+    if (isPersonalEmail && !allowedDepts.includes(deptValue)) {
+        alert('⛔ 개인 이메일은 사당CS부 또는 대구CS부 직원만 사용할 수 있습니다.\n회사 이메일을 사용해주세요.');
+        setLoading(false);
+        return;
+    }
+    
+    try {
+        const { data: existingUser } = await supabase.from('profiles').select('id').eq('email', email.value).maybeSingle();
+        if (existingUser) { alert('이미 가입된 이메일입니다.'); setLoading(false); return; }
+        const initialData = { name: name.value, dept: dept.value, team: team.value, role: 'member', points: INITIAL_POINTS, birthdate: birthdate.value, email: email.value };
+        const { data: signUpResult, error } = await supabase.auth.signUp({ email: email.value, password: password.value, options: { data: initialData } });
+        if (error) throw error;
+        await supabase.from('point_history').insert({ user_id: signUpResult.user.id, reason: '최초 가입 포인트', amount: INITIAL_POINTS, type: 'earn' });
+        alert('가입이 완료되었습니다. 로그인해주세요.'); setIsSignupMode(false);
+    } catch (err) { console.error('가입 실패: ', err.message); alert('가입 실패: ' + err.message); } finally { setLoading(false); }
+  };
+
+  const handlePostSubmit = async (e) => {
+    e.preventDefault(); 
+    if (!currentUser || !checkSupabaseConfig()) return;
+
+    const category = e.target.category.value;
+    if (category === 'news' && currentUser.role !== 'admin' && !currentUser.is_ambassador) {
+        alert('⛔ 권한이 없습니다.\n공지사항은 관리자와 앰버서더만 작성할 수 있습니다.'); return; 
+    }
+
+    const regionMain = e.target.regionMain ? e.target.regionMain.value : null; 
+    const isRewardCategory = ['praise', 'knowhow', 'matjib', 'dept_news'].includes(category);
+    const today = new Date().toISOString().split('T')[0];
+    const todayPosts = feeds.filter(f => f.author_id === currentUser.id && f.created_at.startsWith(today)).length;
+    
+    if (isRewardCategory && todayPosts >= 2) {
+        if(!window.confirm('하루 글쓰기 제한(2회)을 초과했습니다. 포인트 지급 없이 작성하시겠습니까?')) return;
+    }
+
+    const rewardAmountBase = 50; 
+    const rewardPoints = (isRewardCategory && todayPosts < 2) ? (boosterActive ? rewardAmountBase * 2 : rewardAmountBase) : 0; 
+    
+    const content = e.target.content.value;
+    const title = e.target.title ? e.target.title.value : null;
+    let targetName = e.target.targetName ? e.target.targetName.value : null;
+    const regionSub = e.target.regionSub ? e.target.regionSub.value : null;
+    
+    const praiseTargetId = e.target.targetUserId ? e.target.targetUserId.value : null;
+    if (category === 'praise' && praiseTargetId) {
+        const targetUser = profiles.find(p => p.id === praiseTargetId);
+        targetName = targetUser ? targetUser.name : null;
+    }
+
+    const file = e.target.file?.files[0];
+    let publicImageUrl = null;
+
+    try {
+        if (file) {
+           const fileExt = file.name.split('.').pop(); 
+           const fileName = `${Date.now()}_${Math.random()}.${fileExt}`;
+           const { error: uploadError } = await supabase.storage.from('images').upload(fileName, file);
+           if (!uploadError) { 
+               const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(fileName); 
+               publicImageUrl = publicUrl; 
+           }
+        }
+
+        const { error: postError } = await supabase.from('posts').insert({
+            content: content, type: category, author_id: currentUser.id, image_url: publicImageUrl, 
+            target_name: targetName, title: title, region_main: regionMain, region_sub: regionSub, likes: [] 
+        });
+
+        if (postError) throw postError;
+
+        if (rewardPoints > 0) {
+            const newPoints = (currentUser.points || 0) + rewardPoints;
+            await supabase.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
+            let categoryLabel = category === 'praise' ? '칭찬하기' : category === 'matjib' ? '맛집소개' : category === 'knowhow' ? '꿀팁' : '우리팀 톡톡🏢';
+            await supabase.from('point_history').insert({ user_id: currentUser.id, reason: `게시글 작성 (${categoryLabel})`, amount: rewardPoints, type: 'earn' });
+        }
+        
+        if (category === 'praise' && praiseTargetId) {
+             const currentMonthStr = new Date().toISOString().slice(0, 7); 
+             const praiseHistory = allPointHistory.filter(h => 
+                 h.user_id === praiseTargetId && 
+                 h.reason.includes('칭찬 받음') && 
+                 h.created_at.startsWith(currentMonthStr)
+             );
+
+             if (praiseHistory.length < 3) {
+                 const { data: tUser } = await supabase.from('profiles').select('points').eq('id', praiseTargetId).single();
+                 const tNewPoints = (tUser.points || 0) + 100;
+                 await supabase.from('profiles').update({ points: tNewPoints }).eq('id', praiseTargetId);
+                 await supabase.from('point_history').insert({ 
+                     user_id: praiseTargetId, 
+                     reason: '칭찬 받음', 
+                     amount: 100, 
+                     type: 'earn' 
+                 });
+             }
+        }
+        
+        setShowWriteModal(false);
+        fetchUserData(currentUser.id); fetchAllPointHistory(); await fetchFeeds(); 
+        alert('게시글이 등록되었습니다!');
+
+    } catch (err) { console.error('작성 실패: ', err.message); alert('게시글 등록에 실패했습니다.\n' + err.message); }
+  };
+
+  const handleMoodCheck = async (selectedMood) => {
+    if (mood || !checkSupabaseConfig()) return;
+    setMood('checked');
+    const points = boosterActive ? 40 : 20;
+    const messages = ["오늘 하루도 활기차게! 화이팅! 🚀", "당신의 열정을 응원합니다! 🔥", "좋은 일만 가득한 하루 되세요! 🍀", "힘내세요! 당신은 최고입니다! 👍", "오늘도 멋진 성과 기대할게요! 🌟"];
+    const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+
+    setToast({ visible: true, message: `${randomMsg}\n(+${points}P)`, emoji: "👋" });
+    setTimeout(() => setToast({ visible: false, message: '', emoji: '' }), 3000); 
+
+    try {
+        const newPoints = (currentUser.points || 0) + points;
+        const todayStr = new Date().toISOString().split('T')[0];
+        await supabase.from('profiles').update({ points: newPoints, last_attendance: todayStr }).eq('id', currentUser.id);
+        await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '출근체크', amount: points, type: 'earn' });
+        fetchUserData(currentUser.id); fetchAllPointHistory();
+    } catch (err) { console.error(err); }
+  };
+
+  const handleCheckOut = async () => {
+      if (!mood || hasCheckedOut || !checkSupabaseConfig()) return;
+      setHasCheckedOut(true);
+      const points = boosterActive ? 40 : 20;
+      const messages = ["오늘 하루 정말 고생 많으셨어요! 🏠", "편안한 저녁 보내세요! 🌙", "수고하셨습니다! 내일도 화이팅! 💪", "푹 쉬고 재충전하세요! 🔋"];
+      const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+
+      setToast({ visible: true, message: `${randomMsg}\n(+${points}P)`, emoji: "🏃" });
+      setTimeout(() => setToast({ visible: false, message: '', emoji: '' }), 3000);
+      const todayStr = new Date().toISOString().split('T')[0];
+      localStorage.setItem(`checkout_${currentUser.id}_${todayStr}`, 'true');
+
+      try {
+          const newPoints = (currentUser.points || 0) + points;
+          await supabase.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
+          await supabase.from('point_history').insert({ user_id: currentUser.id, reason: '퇴근체크', amount: points, type: 'earn' });
+          fetchUserData(currentUser.id); fetchAllPointHistory();
+      } catch (err) { console.error(err); }
+  };
+
+  const handleLogout = async () => { if (!supabase) return; try { await supabase.auth.signOut(); setCurrentUser(null); setSession(null); setMood(null); setHasCheckedOut(false); setPointHistory([]); } catch (err) { console.error('로그아웃 실패: ', err.message); } };
+  const handleChangeDept = async (newDept, newTeam) => { if (!currentUser || !supabase) return; try { await supabase.from('profiles').update({ dept: newDept, team: newTeam }).eq('id', currentUser.id); fetchUserData(currentUser.id); setShowChangeDeptModal(false); alert('소속이 변경되었습니다.'); } catch(err) { console.error(err); } };
+  const handleChangePassword = async (newPassword) => { if (!currentUser || !supabase) return; try { const { error } = await supabase.auth.updateUser({ password: newPassword }); if (error) throw error; setShowChangePwdModal(false); alert('비밀번호가 변경되었습니다. 다시 로그인해주세요.'); handleLogout(); } catch(err) { console.error(err); } };
+  
+  const handleTabChange = (tabId) => {
+  if (tabId === activeTab) return;
+
+  setActiveTab(tabId);
+
+  if (isSliding) return;
+  const fromIdx = TAB_ORDER.indexOf(displayTab);
+  const toIdx = TAB_ORDER.indexOf(tabId);
+  const dir = toIdx >= fromIdx ? 1 : -1;
+  setSlideDir(dir);
+  setNextTab(tabId);
+  setIsSliding(true);
+
+  setTimeout(() => {
+    setDisplayTab(tabId);
+    setNextTab(null);
+    setIsSliding(false);
+
+    if (tabId === 'feed') {
+      setActiveFeedFilter('all');
+    }
+    if (tabId !== 'feed') {
+      setSelectedPostId(null);
+    }
+  }, 280);
+};
+
+  if (!isSupabaseReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-blue-50 flex-col gap-4">
+        <Loader2 className="w-12 h-12 animate-spin text-blue-500" />
+        <p className="text-sm font-bold text-slate-500">앱을 불러오는 중입니다...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans tracking-tight">
-      {!currentUser ? (
-        <AuthForm isSignupMode={isSignupMode} setIsSignupMode={setIsSignupMode} handleLogin={handleLogin} handleSignup={handleSignup} loading={loading} />
-      ) : (
-        <div className="max-w-md mx-auto h-screen flex flex-col bg-white shadow-2xl relative overflow-hidden">
-          <Header currentUser={currentUser} onOpenUserInfo={() => setShowUserInfoModal(true)} handleLogout={() => supabase.auth.signOut()} boosterActive={boosterActive} />
-          
-          <main className="flex-1 overflow-y-auto custom-scrollbar">
-            {activeTab === 'home' && (
-                <HomeTab 
-                  mood={mood} handleMoodCheck={handleMoodCheck} handleCheckOut={handleCheckOut} hasCheckedOut={hasCheckedOut}
-                  feeds={feeds} onNavigateToFeed={(t, id) => { setActiveTab('feed'); setActiveFeedFilter(t); setSelectedPostId(id); }}
-                  weeklyBirthdays={getWeeklyBirthdays(profiles)} boosterActive={boosterActive} currentUser={currentUser} 
-                  openActivityDetail={openActivityDetail} myActivity={myActivity} handleTabChange={setActiveTab} setActiveFeedFilter={setActiveFeedFilter}
-                />
-            )}
-            {activeTab === 'feed' && (
-                <FeedTab 
-                  feeds={feeds} activeFeedFilter={activeFeedFilter} setActiveFeedFilter={setActiveFeedFilter}
-                  onWriteClickWithCategory={() => setShowWriteModal(true)} currentUser={currentUser} 
-                  handleDeletePost={handleDeletePost} handleLikePost={handleLikePost} handleAddComment={handleAddComment}
-                  handleDeleteComment={handleDeleteComment} selectedPostId={selectedPostId} onClearSelection={() => setSelectedPostId(null)}
-                  handleLikeComment={handleLikeComment}
-                />
-            )}
-          </main>
+    <div className="min-h-screen w-full bg-slate-50 font-sans">
+      <div className="w-full h-screen min-h-screen shadow-2xl relative overflow-hidden bg-slate-50">
+        <div className="relative z-10 h-full flex flex-col">
+          {!session ? (
+            <AuthForm isSignupMode={isSignupMode} setIsSignupMode={setIsSignupMode} handleLogin={handleLogin} handleSignup={handleSignup} loading={loading} />
+          ) : (
+            <>
+              <Header 
+                currentUser={currentUser} 
+                onOpenUserInfo={() => setShowUserInfoModal(true)} 
+                handleLogout={handleLogout} 
+                onOpenChangeDept={() => setShowChangeDeptModal(true)} 
+                onOpenChangePwd={() => setShowChangePwdModal(true)} 
+                onOpenAdminGrant={() => setShowAdminGrantModal(true)} 
+                onOpenRedemptionList={() => { fetchRedemptionList(); setShowRedemptionListModal(true); }} 
+                onOpenGift={() => setShowGiftModal(true)} 
+                onOpenAdminManage={() => setShowAdminManageModal(true)} 
+                onOpenAdminClawback={() => setShowAdminClawbackModal(true)}
+                boosterActive={boosterActive} 
+              />
+              <main className="flex-1 overflow-hidden">
+  <div className="relative h-full overflow-hidden">
+    <div
+      className={`absolute inset-0 h-full w-full transition-transform duration-300 ease-out ${
+        isSliding ? (slideDir === 1 ? '-translate-x-full' : 'translate-x-full') : 'translate-x-0'
+      }`}
+    >
+      <div className="h-full overflow-y-auto custom-scrollbar">
+        {displayTab === 'home' && (
+          <HomeTab
+            mood={mood}
+            handleMoodCheck={handleMoodCheck}
+            handleCheckOut={handleCheckOut}
+            hasCheckedOut={hasCheckedOut}
+            feeds={feeds}
+            weeklyBirthdays={weeklyBirthdays}
+            onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
+            onNavigateToNews={() => { handleTabChange('news'); }}
+            onNavigateToFeed={(type, id) => {
+              handleTabChange('feed');
+              setActiveFeedFilter(type);
+              setSelectedPostId(id);
+            }}
+            boosterActive={boosterActive}
+            currentUser={currentUser}
+            attendanceEnabled={attendanceEnabled}
+            attendanceOpenCount={attendanceOpenCount}
+          />
+        )}
 
-          <BottomNav activeTab={activeTab} onTabChange={setActiveTab} onFabClick={() => setShowWriteModal(true)} />
-          
-          {showWriteModal && <WriteModal setShowWriteModal={setShowWriteModal} handlePostSubmit={handlePostSubmit} currentUser={currentUser} profiles={profiles} />}
-          {activityModal.show && <ActivityDetailModal title={activityModal.title} list={activityModal.list} type={activityModal.type} onClose={() => setActivityModal({ ...activityModal, show: false })} />}
-          <MoodToast visible={toast.visible} message={toast.message} emoji={toast.emoji} />
+        {(displayTab === 'feed' || displayTab === 'news') && (
+          <FeedTab
+            feeds={feeds}
+            activeFeedFilter={displayTab === 'news' ? 'news' : activeFeedFilter}
+            setActiveFeedFilter={setActiveFeedFilter}
+            onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
+            currentUser={currentUser}
+            handleDeletePost={handleDeletePost}
+            handleLikePost={handleLikePost}
+            handleAddComment={handleAddComment}
+            handleDeleteComment={handleDeleteComment}
+            boosterActive={boosterActive}
+            selectedPostId={selectedPostId}
+            onClearSelection={() => setSelectedPostId(null)}
+          />
+        )}
+
+        {displayTab === 'ranking' && (
+          <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} currentUser={currentUser} />
+        )}
+      </div>
+    </div>
+
+    {nextTab && (
+      <div
+        className={`absolute inset-0 h-full w-full transition-transform duration-300 ease-out ${
+          isSliding ? 'translate-x-0' : (slideDir === 1 ? 'translate-x-full' : '-translate-x-full')
+        }`}
+        style={{ transform: isSliding ? 'translateX(0)' : `translateX(${slideDir === 1 ? 100 : -100}%)` }}
+      >
+        <div className="h-full overflow-y-auto custom-scrollbar">
+          {nextTab === 'home' && (
+            <HomeTab
+              mood={mood}
+              handleMoodCheck={handleMoodCheck}
+              handleCheckOut={handleCheckOut}
+              hasCheckedOut={hasCheckedOut}
+              feeds={feeds}
+              weeklyBirthdays={weeklyBirthdays}
+              onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
+              onNavigateToNews={() => { handleTabChange('news'); }}
+              onNavigateToFeed={(type, id) => {
+                handleTabChange('feed');
+                setActiveFeedFilter(type);
+                setSelectedPostId(id);
+              }}
+              boosterActive={boosterActive}
+              currentUser={currentUser}
+              attendanceEnabled={attendanceEnabled}
+              attendanceOpenCount={attendanceOpenCount}
+            />
+          )}
+
+          {(nextTab === 'feed' || nextTab === 'news') && (
+            <FeedTab
+              feeds={feeds}
+              activeFeedFilter={nextTab === 'news' ? 'news' : activeFeedFilter}
+              setActiveFeedFilter={setActiveFeedFilter}
+              onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
+              currentUser={currentUser}
+              handleDeletePost={handleDeletePost}
+              handleLikePost={handleLikePost}
+              handleAddComment={handleAddComment}
+              handleDeleteComment={handleDeleteComment}
+              boosterActive={boosterActive}
+              selectedPostId={selectedPostId}
+              onClearSelection={() => setSelectedPostId(null)}
+            />
+          )}
+
+          {nextTab === 'ranking' && (
+            <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} currentUser={currentUser} />
+          )}
         </div>
-      )}
+      </div>
+    )}
+  </div>
+</main>
+              <BottomNav activeTab={activeTab} onTabChange={handleTabChange}  onFabClick={() => { setWriteCategory(null); setShowWriteModal(true); }} />
+              
+              {showWriteModal && <WriteModal setShowWriteModal={setShowWriteModal} handlePostSubmit={handlePostSubmit} currentUser={currentUser} activeTab={activeTab} boosterActive={boosterActive} initialCategory={writeCategory} profiles={profiles} />}
+              {showUserInfoModal && currentUser && <UserInfoModal currentUser={currentUser} pointHistory={pointHistory} setShowUserInfoModal={setShowUserInfoModal} handleRedeemPoints={handleRedeemPoints} />}
+              {showBirthdayPopup && currentUser && <BirthdayPopup currentUser={currentUser} handleBirthdayGrant={handleBirthdayGrant} setShowBirthdayPopup={setShowBirthdayPopup} />}
+              {showGiftModal && <GiftModal onClose={() => setShowGiftModal(false)} onGift={handleGiftPoints} profiles={profiles} currentUser={currentUser} pointHistory={pointHistory} />}
+              {showGiftNotificationModal && <GiftNotificationModal onClose={() => setShowGiftNotificationModal(false)} gifts={newGifts} />}
+              {showAdminGrantPopup && newAdminGrants.length > 0 && <AdminGrantPopup grants={newAdminGrants} onClose={() => setShowAdminGrantPopup(false)} />}
+              
+              {showAdminManageModal && <AdminManageModal onClose={() => setShowAdminManageModal(false)} profiles={profiles} onUpdateUser={handleAdminUpdateUser} onDeleteUser={handleAdminDeleteUser} boosterActive={boosterActive} setBoosterActive={setBoosterActive} />}
+              {showChangeDeptModal && <ChangeDeptModal onClose={() => setShowChangeDeptModal(false)} onSave={handleChangeDept} />}
+              {showChangePwdModal && <ChangePasswordModal onClose={() => setShowChangePwdModal(false)} onSave={handleChangePassword} />}
+              
+              {showAdminGrantModal && (
+                  <AdminGrantModal 
+                      onClose={() => setShowAdminGrantModal(false)} 
+                      onGrant={handleAdminGrantPoints} 
+                      profiles={profiles} 
+                      feeds={feeds}
+                      allPointHistory={allPointHistory}
+                  />
+              )}
+              {showAdminClawbackModal && <AdminClawbackModal onClose={() => setShowAdminClawbackModal(false)} onClawback={handleAdminClawbackPoints} profiles={profiles} />}
+              {showRedemptionListModal && <RedemptionListModal onClose={() => setShowRedemptionListModal(false)} redemptionList={redemptionList} onComplete={handleCompleteRedemption} />}
+              {showAdminAlertModal && <AdminAlertModal onClose={handleCloseAdminAlert} />}
+              
+              <MoodToast visible={toast.visible} message={toast.message} emoji={toast.emoji} />
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
-
-// --- 하단 네비게이션 ---
-const BottomNav = ({ activeTab, onTabChange, onFabClick }) => (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-slate-100 p-0 z-30 shadow-2xl">
-      <div className="max-w-md mx-auto grid grid-cols-5 items-center h-20 relative">
-          <button onClick={() => onTabChange('home')} className={`flex flex-col items-center gap-1 ${activeTab === 'home' ? 'text-blue-600' : 'text-slate-400'}`}><Home/><span className="text-[10px] font-black">홈</span></button>
-          <button onClick={() => onTabChange('feed')} className={`flex flex-col items-center gap-1 ${activeTab === 'feed' ? 'text-blue-600' : 'text-slate-400'}`}><MessageCircle/><span className="text-[10px] font-black">게시판</span></button>
-          <div className="h-full flex items-center justify-center">
-              <button onClick={onFabClick} className="absolute -top-6 bg-blue-600 text-white w-16 h-16 rounded-full shadow-xl flex items-center justify-center border-4 border-white active:scale-95 transition-all"><Plus className="w-8 h-8"/></button>
-          </div>
-          <button onClick={() => onTabChange('ranking')} className={`flex flex-col items-center gap-1 ${activeTab === 'ranking' ? 'text-blue-600' : 'text-slate-400'}`}><Award/><span className="text-[10px] font-black">랭킹</span></button>
-          <button onClick={() => onTabChange('news')} className={`flex flex-col items-center gap-1 ${activeTab === 'news' ? 'text-blue-600' : 'text-slate-400'}`}><Bell/><span className="text-[10px] font-black">알림</span></button>
-      </div>
-    </div>
-);
-
-// --- 생일 알림 ---
-const BirthdayNotifier = ({ weeklyBirthdays }) => (
-    <div className="bg-white rounded-[2.5rem] p-5 shadow-sm border border-slate-100 h-full flex flex-col">
-        <h3 className="font-black text-[13px] mb-4 text-slate-800 flex items-center gap-2">🎂 생일자</h3>
-        <div className="flex-1 overflow-y-auto space-y-2 no-scrollbar">
-            {weeklyBirthdays.current.length > 0 ? weeklyBirthdays.current.map((b, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 bg-pink-50 rounded-2xl border border-pink-100"><div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-sm">🍰</div><div><p className="text-[12px] font-black text-slate-700">{b.name}님</p><p className="text-[10px] text-pink-500 font-bold">오늘 생일!</p></div></div>
-            )) : <div className="h-full flex items-center justify-center text-slate-300 text-[11px] font-bold">생일자 없음</div>}
-        </div>
-    </div>
-);
