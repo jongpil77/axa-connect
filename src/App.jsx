@@ -4,7 +4,8 @@ import {
   Settings, ChevronRight, LogOut, Image as ImageIcon, Coins, Pencil, Trash2, Loader2, Lock,
   Clock, Award, Wallet, Building2, CornerDownRight, Link as LinkIcon, MapPin, Search, Key,
   Edit3, ClipboardList, CheckSquare, ChevronLeft, Zap, Users, Briefcase, Utensils, ThumbsUp,
-  Coffee, Sun, Moon, PlusCircle, CheckCircle, Plug, MinusCircle, Medal, Plus, Home, ArrowRight
+  Coffee, Sun, Moon, PlusCircle, CheckCircle, Plug, MinusCircle, Medal, Plus, Home, ArrowRight,
+  Copy, Info
 } from 'lucide-react';
 
 // --- [필수] Supabase 설정 ---
@@ -46,8 +47,8 @@ const REGIONS = {
 };
 
 const INITIAL_POINTS = 1000;
-const AXA_LOGO_URL = "https://upload.wikimedia.org/wikipedia/commons/9/94/AXA_Logo.svg"; 
 const AXA_RED = '#C60C30';
+const AXA_BLUE = '#00008F';
 
 const MOTTO_365 = [
   '루틴을 선택한 너는 이미 반은 이겼다.', '노력은 기록해. 이 나를 단단하게 만든다.', '작은 습관은 개선해. 이 성공의 출발점이다.', '준비은 지켜. 이 결국 큰 변화를 만든다.',
@@ -58,6 +59,23 @@ const MOTTO_365 = [
   '성실함은 개선해. 이 성장의 증거다.', '태도을 바꾸면 인생이 바뀐다.', '용기은 도전해. 이 결국 큰 변화를 만든다.', '꾸준함은 시작해. 이 나만의 무기다.'
 ];
 
+// --- Custom Logo Component ---
+const ConnectHubLogo = ({ size = "md" }) => {
+    const sizeClasses = size === "lg" ? "w-24 h-24" : "w-10 h-10";
+    const iconSize = size === "lg" ? "w-24 h-24" : "w-10 h-10";
+    const subIconSize = size === "lg" ? "w-10 h-10" : "w-4 h-4";
+    
+    return (
+        <div className={`relative flex items-center justify-center ${sizeClasses}`}>
+            {/* 말풍선 (파랑) */}
+            <MessageCircle className={`${iconSize} text-blue-700 fill-blue-100 absolute`} strokeWidth={1.5} />
+            {/* 사람 얼굴 (중앙, 파랑) */}
+            <Smile className={`${size === "lg" ? "w-12 h-12" : "w-5 h-5"} text-blue-900 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`} strokeWidth={2} />
+            {/* 하트 (우측 상단, 빨강) */}
+            <Heart className={`${subIconSize} text-[#C60C30] fill-[#C60C30] absolute -top-1 -right-1 z-10 animate-pulse`} />
+        </div>
+    );
+};
 
 // --- Helper Functions ---
 const formatName = (name) => {
@@ -272,18 +290,19 @@ const MyActivityModal = ({ onClose, type, feeds, currentUser }) => {
 };
 
 const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, loading }) => {
-  const [birthdate, setBirthdate] = useState('1999-01-01'); 
+  const [birthdate, setBirthdate] = useState('1980-01-01'); // [수정] 기본값 1980년 세팅
   const [selectedDept, setSelectedDept] = useState('');
   const [email, setEmail] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(false); // [신규] 약관 동의 상태
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex justify-center items-center p-3">
       <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] p-8 border border-white/50 animate-fade-in relative overflow-hidden backdrop-blur-xl">
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
         <div className="text-center mb-10 mt-6 flex flex-col items-center">
-          <img src={AXA_LOGO_URL} alt="AXA Logo" className="w-24 h-auto mb-6 drop-shadow-sm" />
-          <h1 className="text-3xl font-black text-slate-800 tracking-tight mb-2">AXA Connect</h1>
-          <p className="text-slate-500 text-base font-medium">함께 만드는 스마트한 조직문화 🚀</p>
+          <ConnectHubLogo size="lg" />
+          <h1 className="text-3xl font-black text-slate-800 tracking-tight mb-2 mt-4">Connect HUB</h1>
+          <p className="text-slate-500 text-sm font-medium">자유롭게 함께하는 우리들의 커뮤니티 🚀</p>
         </div>
 
         {isSignupMode ? (
@@ -291,9 +310,9 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
             <div><label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">이름</label><input name="name" type="text" placeholder="홍길동" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" required /></div>
             <div>
                 <label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">이메일</label>
-                {/* [수정] 이메일 정책 안내 문구 추가 */}
-                <input name="email" type="email" placeholder="회사 이메일 (@axa.co.kr 등)" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                <p className="text-xs text-red-500 mt-1 ml-1 font-bold">* @axa.co.kr, @directasia.com 등 사내 메일은 가입이 제한됩니다 (관리자 제외)</p>
+                {/* [수정] 개인 메일 입력 가이드 */}
+                <input name="email" type="email" placeholder="개인 메일로 입력" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <p className="text-xs text-red-500 mt-1 ml-1 font-bold">* @axa.co.kr 등 사내 메일은 가입이 제한됩니다 (관리자 제외)</p>
             </div>
             <div>
                 <label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">생년월일 (양력)</label>
@@ -309,7 +328,23 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
                 <select name="team" className="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none text-sm text-slate-700 shadow-sm" disabled={!selectedDept} required><option value="">팀/센터</option>{selectedDept && ORGANIZATION[selectedDept].map(team => <option key={team} value={team}>{team}</option>)}</select>
               </div>
             </div>
-            <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white p-4 rounded-2xl text-base font-bold hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all mt-4 disabled:bg-slate-300 flex justify-center">{loading ? <Loader2 className="animate-spin w-5 h-5" /> : '가입 완료 (1,000P 지급)'}</button>
+
+            {/* [신규] 개인정보 동의 섹션 */}
+            <div className="bg-slate-100 p-4 rounded-2xl border border-slate-200">
+                <div className="flex items-start gap-2 mb-2">
+                    <Info className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                        본 커뮤니티는 자유로운 소통 공간입니다.<br/>
+                        <strong>개인정보(주민번호, 전화번호 등) 및 회사의 대외비 정보</strong>를 절대 등록하거나 공유하지 않도록 주의해 주세요.
+                    </p>
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer mt-2 bg-white p-2 rounded-xl border border-slate-200 hover:bg-blue-50 hover:border-blue-200 transition-colors">
+                    <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} />
+                    <span className="text-xs font-bold text-slate-700">위 내용을 확인하였으며 동의합니다.</span>
+                </label>
+            </div>
+
+            <button type="submit" disabled={loading || !agreedToTerms} className="w-full bg-blue-600 text-white p-4 rounded-2xl text-base font-bold hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all mt-4 disabled:bg-slate-300 disabled:shadow-none flex justify-center">{loading ? <Loader2 className="animate-spin w-5 h-5" /> : '가입 완료 (1,000P 지급)'}</button>
             <button type="button" onClick={() => setIsSignupMode(false)} className="w-full text-slate-400 text-sm py-3 hover:text-blue-600 transition-colors font-medium">로그인으로 돌아가기</button>
           </form>
         ) : (
@@ -319,7 +354,8 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
               <div><label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">비밀번호</label><input name="password" type="password" placeholder="비밀번호 (숫자 6자리 이상)" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none text-base focus:border-blue-500 focus:bg-white transition-all shadow-sm" required minLength="6" /></div>
               <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white p-4 rounded-2xl text-base font-bold hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all active:scale-[0.98] disabled:bg-blue-300 flex justify-center mt-2">{loading ? <Loader2 className="animate-spin w-6 h-6" /> : '🚀 로그인'}</button>
             </form>
-            <div className="text-center"><button onClick={() => setIsSignupMode(true)} className="text-slate-500 text-sm font-bold hover:text-blue-600 underline transition-colors">임직원 회원가입</button></div>
+            {/* [수정] 임직원 회원가입 -> 회원 가입 */}
+            <div className="text-center"><button onClick={() => setIsSignupMode(true)} className="text-slate-500 text-sm font-bold hover:text-blue-600 underline transition-colors">회원 가입</button></div>
           </div>
         )}
       </div>
@@ -327,14 +363,32 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
   );
 };
 
-const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, onOpenChangePwd, onOpenAdminGrant, onOpenRedemptionList, onOpenGift, onOpenAdminManage, onOpenAdminClawback, boosterActive }) => {
+const Header = ({ currentUser, memberCount, onOpenUserInfo, handleLogout, onOpenChangeDept, onOpenChangePwd, onOpenAdminGrant, onOpenRedemptionList, onOpenGift, onOpenAdminManage, onOpenAdminClawback, boosterActive }) => {
   const todayDate = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
   const [showSettings, setShowSettings] = useState(false);
   
+  const handleInvite = () => {
+      const url = "15661566.up.railway.app";
+      navigator.clipboard.writeText(url).then(() => {
+          alert("초대 주소가 복사되었습니다!\n동료들에게 공유해주세요 🚀\n" + url);
+      }).catch(err => {
+          console.error('복사 실패', err);
+      });
+  };
+
   return (
     <div className="bg-white/95 backdrop-blur-xl px-2 pt-6 pb-5 sticky top-0 z-40 border-b border-slate-100 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
       <div className="flex justify-between items-center mb-1">
-          <div className="text-[11px] text-blue-500 font-bold pl-1 tracking-tight">{todayDate}</div>
+          {/* [신규] 좌측 상단 멤버 수 및 초대하기 버튼 */}
+          <div className="flex items-center gap-2 pl-1">
+              <div className="text-[10px] font-bold text-slate-500 flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-lg">
+                  <Users className="w-3 h-3" /> 멤버 {memberCount}명
+              </div>
+              <button onClick={handleInvite} className="text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-100 px-2 py-1 rounded-lg flex items-center gap-1 hover:bg-blue-100 transition-colors">
+                  <Copy className="w-3 h-3" /> 초대하기
+              </button>
+          </div>
+          
           <div className="flex items-center gap-2">
             {boosterActive && (
                 <div className="bg-red-50 text-[#C60C30] px-2.5 py-1 rounded-full font-black whitespace-nowrap flex items-center gap-1 shadow-sm border border-red-200">
@@ -349,15 +403,16 @@ const Header = ({ currentUser, onOpenUserInfo, handleLogout, onOpenChangeDept, o
       </div>
       
       <div className="flex justify-between items-end">
-        <div className="flex items-center gap-1.5 relative mt-1">
-            <img src={AXA_LOGO_URL} alt="AXA Logo" className="w-9 h-auto mr-0.5" />
+        <div className="flex items-center gap-2 relative mt-1">
+            {/* [수정] 새로운 로고 적용 */}
+            <ConnectHubLogo size="md" />
             <div className="flex flex-col relative leading-none">
                 <div className="flex justify-between items-center w-full">
-                    <span className="text-xl font-black text-slate-800 tracking-tighter">AXA</span>
+                    {/* [수정] 앱 이름 변경 */}
+                    <span className="text-xl font-black text-slate-800 tracking-tighter">Connect</span>
                 </div>
-                <span className="text-xl font-black text-slate-800 tracking-tighter -mt-2">Connect</span>
+                <span className="text-xl font-black text-slate-800 tracking-tighter -mt-2">HUB</span>
             </div>
-            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mb-3 ml-0.5"></div>
         </div>
         
         <div className="flex items-center gap-2 relative">
@@ -574,7 +629,6 @@ const AdminManageModal = ({ onClose, profiles, onUpdateUser, onDeleteUser, boost
 const UserInfoModal = ({ currentUser, pointHistory, setShowUserInfoModal, handleRedeemPoints }) => (<div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-md p-4 animate-fade-in"><div className="bg-white w-full max-w-md rounded-[2.5rem] p-0 shadow-2xl max-h-[90vh] overflow-y-auto relative"><div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 rounded-t-[2.5rem] flex justify-between items-center sticky top-0 z-10"><div className="flex flex-col text-white"><h3 className="text-xl font-bold flex items-center gap-2"><User className="w-5 h-5"/> {currentUser.name}</h3><p className="text-sm opacity-90 ml-7 mt-1 flex items-center gap-1 font-medium"><Building2 className="w-3.5 h-3.5"/> {currentUser.dept} / {currentUser.team}{currentUser.is_ambassador && <span className="bg-white/20 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full ml-2 font-bold border border-white/30">앰버서더</span>}</p></div><button onClick={() => setShowUserInfoModal(false)} className="p-2 bg-white/20 hover:bg-white/30 rounded-full text-white transition-colors"><X className="w-6 h-6" /></button></div><div className="p-6 space-y-6">{currentUser.points >= 10000 ? (<div className="bg-blue-50 p-6 rounded-3xl border border-blue-100 text-center shadow-sm"><p className="text-base text-blue-800 font-bold mb-3">🎉 보유 포인트가 10,000P 이상입니다!</p><button onClick={handleRedeemPoints} className="w-full bg-blue-600 text-white py-4 rounded-2xl text-base font-bold hover:bg-blue-700 flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg"><Wallet className="w-5 h-5" /> 10,000P 상품권 교환 신청</button></div>) : (<div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 text-center shadow-inner"><p className="text-sm text-slate-500 font-bold mb-3">10,000P 부터 상품권 교환 신청이 가능해요 🎁</p><div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden shadow-inner"><div className="bg-gradient-to-r from-blue-400 to-blue-500 h-full transition-all duration-1000 ease-out" style={{ width: `${Math.min((currentUser.points / 10000) * 100, 100)}%` }}></div></div><p className="text-xs text-slate-400 mt-2 text-right font-bold">{Math.floor((currentUser.points / 10000) * 100)}% 달성</p></div>)}<div><h4 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2 ml-1"><Clock className="w-5 h-5 text-slate-400"/> 포인트 히스토리</h4><div className="space-y-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">{pointHistory.length > 0 ? pointHistory.map((history) => (<div key={history.id} className="flex justify-between items-center p-4 bg-white border border-slate-50 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.03)] hover:shadow-md transition-shadow"><div className="flex-1 min-w-0"><p className="text-sm font-bold text-slate-700 line-clamp-1">{history.reason}</p><span className="text-xs text-slate-400 mt-0.5 block">{new Date(history.created_at).toLocaleDateString()}</span></div><div className="text-base font-black ml-4 flex items-center gap-1" style={{ color: history.type.includes('use') || history.type === 'gift_sent' ? '#ef4444' : '#10b981' }}>{history.type.includes('use') || history.type === 'gift_sent' ? '-' : '+'}{history.amount.toLocaleString()}</div></div>)) : (<div className="text-center text-sm text-slate-400 py-12 bg-slate-50 rounded-3xl border border-dashed border-slate-200">아직 활동 내역이 없습니다.</div>)}</div></div></div></div></div>);
 const BirthdayPopup = ({ currentUser, handleBirthdayGrant, setShowBirthdayPopup }) => { const [doNotShow, setDoNotShow] = useState(false); const handleClose = () => { if (doNotShow) { localStorage.setItem('birthday_popup_closed_' + new Date().getFullYear(), 'true'); } setShowBirthdayPopup(false); }; return (<div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"><div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative text-center"><button onClick={handleClose} className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 rounded-full bg-slate-50"><X className="w-5 h-5" /></button><div className="text-6xl mb-6"><span className="animate-bounce inline-block">🎂</span></div><h3 className="text-2xl font-black text-slate-800 mb-3">생일 축하 드립니다!</h3><p className="text-base text-slate-500 mb-8 leading-relaxed">소중한 {currentUser.name} 님의 생일을 맞아<br/>특별한 선물을 준비했어요.</p><div className="bg-yellow-50 p-6 rounded-3xl border border-yellow-200 mb-8 shadow-sm"><span className="text-3xl font-black text-yellow-600 flex items-center justify-center gap-2"><Coins className="w-8 h-8 fill-yellow-500 text-yellow-600"/> +1,000 P</span></div><button onClick={handleBirthdayGrant} className="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all flex justify-center items-center gap-2 mb-4 text-base"><Gift className="w-5 h-5"/> 포인트 받기</button><div className="flex items-center justify-center gap-2 cursor-pointer p-2 hover:bg-slate-50 rounded-xl" onClick={() => setDoNotShow(!doNotShow)}><div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${doNotShow ? 'bg-blue-500 border-blue-500' : 'bg-white border-slate-300'}`}>{doNotShow && <CheckSquare className="w-3.5 h-3.5 text-white" />}</div><span className="text-sm text-slate-400 select-none font-medium">더 이상 열지 않기</span></div></div></div>); };
 
-// [수정] 생일자 선물 기능 추가 (BirthdayNotifier)
 const BirthdayNotifier = ({ weeklyBirthdays, onOpenGiftForUser }) => { 
     const [view, setView] = useState('current'); 
     const list = view === 'current' ? weeklyBirthdays.current : weeklyBirthdays.next; 
@@ -598,7 +652,6 @@ const BirthdayNotifier = ({ weeklyBirthdays, onOpenGiftForUser }) => {
                                         <p className="text-[9px] text-slate-400 font-medium">{b.date} <span className="text-blue-500 font-bold">{b.typeLabel}</span></p>
                                     </div>
                                 </div>
-                                {/* [신규] 선물 버튼 추가 */}
                                 <button onClick={() => onOpenGiftForUser(b.id)} className="text-[10px] bg-white text-pink-500 border border-pink-100 px-2 py-1 rounded-lg font-bold shadow-sm hover:bg-pink-50">선물</button>
                             </div>
                         ))}
@@ -619,10 +672,9 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory, preSe
     const [amount, setAmount] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     
-    // preSelectedUserId가 있으면 자동으로 해당 탭과 유저 선택
     useEffect(() => {
         if (preSelectedUserId) {
-            setTab('name'); // 검색 탭이나 전체 목록에서 찾기 쉽게
+            setTab('name'); 
         }
     }, [preSelectedUserId]);
 
@@ -682,7 +734,6 @@ const GiftModal = ({ onClose, onGift, profiles, currentUser, pointHistory, preSe
     );
 };
 
-// [수정] 모던한 테마 적용, 상단 공지 삭제, 하단 공지 추가, 폰트 사이즈 조정
 const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, onWriteClickWithCategory, onNavigateToNews, onNavigateToFeed, weeklyBirthdays, boosterActive, currentUser, attendanceEnabled, onOpenActivityModal, onOpenGiftForUser }) => {
     const averageLikes = useMemo(() => {
         if (feeds.length === 0) return 0;
@@ -699,7 +750,6 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
     }, []);
     const ledMessage = useMemo(() => `💡 오늘의 한마디: ${MOTTO_365[ledIndex]}`, [ledIndex]);
 
-// [수정] 나의 활동 계산 및 클릭 핸들러 연결
 const myActivity = useMemo(() => {
   const myId = currentUser?.id;
   if (!myId) return { posts: 0, comments: 0, praises: 0, likesGiven: 0 };
@@ -710,7 +760,6 @@ const myActivity = useMemo(() => {
     const cs = f.comments || [];
     return sum + cs.filter(c => c.author_id === myId).length;
   }, 0);
-  // likesGiven: 내가 누른 좋아요 (내가 받은 좋아요는 MyActivityModal에서 계산)
   const likesGiven = feeds.reduce((sum, f) => sum + (Array.isArray(f.likes) && f.likes.includes(myId) ? 1 : 0), 0);
   return { posts, comments, praises, likesGiven };
 }, [feeds, currentUser]);
@@ -770,10 +819,7 @@ const myActivity = useMemo(() => {
     return (
       <div className="px-2 py-4 space-y-5 pb-40 animate-fade-in relative bg-[#F8F9FA] min-h-full">
         
-        {/* 상단 공지 섹션 제거됨 */}
-
         <div className="flex gap-4 h-44">
-             {/* [수정] 출퇴근 섹션 가로 넓히고(flex-[1.2]), 생일자 섹션(flex-1) */}
              <div className="flex-[1.2] bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col relative overflow-hidden">
                   <div className="flex justify-between items-start mb-2 relative z-10">
                     <div>
@@ -787,7 +833,6 @@ const myActivity = useMemo(() => {
                      <div className="flex-1 flex flex-col gap-2 justify-center bg-blue-50/30 rounded-2xl p-2 border border-blue-50">
                          {!mood ? (
                              <div className="flex flex-col gap-1.5 h-full justify-center">
-                                 {/* [수정] attendanceEnabled는 로그인 세션 여부에 따름 (즉시 활성화) */}
                                  <button onClick={() => handleMoodCheck('good')} disabled={!attendanceEnabled} className="bg-white hover:bg-blue-100 rounded-xl w-full flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-blue-100 gap-1.5"><Smile className="w-4 h-4 text-blue-500"/><span className="text-[9px] font-bold text-slate-600">좋음</span></button>
                                  <button onClick={() => handleMoodCheck('normal')} disabled={!attendanceEnabled} className="bg-white hover:bg-green-100 rounded-xl w-full flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-green-100 gap-1.5"><Meh className="w-4 h-4 text-green-500"/><span className="text-[9px] font-bold text-slate-600">보통</span></button>
                                  <button onClick={() => handleMoodCheck('tired')} disabled={!attendanceEnabled} className="bg-white hover:bg-orange-100 rounded-xl w-full flex items-center justify-start px-2 py-1.5 transition-all active:scale-95 shadow-sm border border-orange-100 gap-1.5"><Frown className="w-4 h-4 text-orange-500"/><span className="text-[9px] font-bold text-slate-600">피곤</span></button>
@@ -806,11 +851,9 @@ const myActivity = useMemo(() => {
                      </div>
                   </div>
             </div>
-            {/* [수정] 생일자 섹션 flex 비중 조정 */}
             <div className="flex-1 h-full"><BirthdayNotifier weeklyBirthdays={weeklyBirthdays} onOpenGiftForUser={onOpenGiftForUser} /></div>
         </div>
 
-        {/* [추가] LED 스타일 명언(좌측으로 흘러가기) */}
         <div className="bg-slate-900 rounded-2xl px-4 py-3 shadow-sm border border-slate-800 overflow-hidden">
           <style>{`
             @keyframes ledMarquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
@@ -824,7 +867,6 @@ const myActivity = useMemo(() => {
           </div>
         </div>
 
-        {/* [수정] 나의 활동 섹션 - 클릭 시 모달 오픈 기능 추가 */}
         <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-black text-slate-800 flex items-center gap-2 whitespace-nowrap">
@@ -833,7 +875,6 @@ const myActivity = useMemo(() => {
             <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap">최근 기준</span>
           </div>
 
-          {/* 4개 항목을 각각 독립 카드로 구성 (2열 x 2행) */}
           <div className="grid grid-cols-2 gap-3">
             <div onClick={() => onOpenActivityModal('posts')} className="bg-slate-50 rounded-2xl p-3 border border-slate-100 shadow-inner flex items-center justify-between cursor-pointer hover:bg-slate-100 transition-colors">
               <div className="flex items-center gap-2">
@@ -864,7 +905,7 @@ const myActivity = useMemo(() => {
                 <Heart className="w-5 h-5 text-red-500 fill-red-500" />
                 <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">받은 좋아요</span>
               </div>
-              <span className="text-lg font-black text-slate-800 whitespace-nowrap">{/* 여기는 내가 받은 좋아요 수 */ myActivity.likesGiven}</span>
+              <span className="text-lg font-black text-slate-800 whitespace-nowrap">{myActivity.likesGiven}</span>
             </div>
           </div>
         </div>
@@ -878,10 +919,8 @@ const myActivity = useMemo(() => {
              </div>
 </div>
 
-        {/* [수정] 홈화면 섹션 바깥 색상 구분 (파스텔톤) */}
         <div className="bg-purple-50/60 p-5 rounded-[2rem] shadow-sm border border-purple-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
-               {/* 진한 보라색 배경에 흰색 텍스트 */}
                <h3 className="text-sm font-bold text-white bg-purple-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Building2 className="w-4 h-4 text-white"/> 우리팀 톡톡🏢</h3>
                <button onClick={() => onNavigateToFeed('dept_news')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-purple-600 bg-white px-2 py-1 rounded-lg shadow-sm">더보기 <ChevronRight className="w-3 h-3"/></button>
            </div>
@@ -890,7 +929,6 @@ const myActivity = useMemo(() => {
 
         <div className="bg-green-50/60 p-5 rounded-[2rem] shadow-sm border border-green-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
-               {/* 진한 초록색 배경에 흰색 텍스트 */}
                <h3 className="text-sm font-bold text-white bg-green-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Heart className="w-4 h-4 fill-white text-white"/> 칭찬뿜뿜💚</h3>
                <button onClick={() => onNavigateToFeed('praise')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-green-600 bg-white px-2 py-1 rounded-lg shadow-sm">더보기 <ChevronRight className="w-3 h-3"/></button>
            </div>
@@ -899,7 +937,6 @@ const myActivity = useMemo(() => {
         
         <div className="bg-blue-50/60 p-5 rounded-[2rem] shadow-sm border border-blue-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
-               {/* 진한 파란색 배경에 흰색 텍스트 */}
                <h3 className="text-sm font-bold text-white bg-blue-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Sparkles className="w-4 h-4 fill-white text-white"/> 꿀팁.zip🧠</h3>
                <button onClick={() => onNavigateToFeed('knowhow')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-blue-600 bg-white px-2 py-1 rounded-lg shadow-sm"><ChevronRight className="w-3 h-3"/></button>
            </div>
@@ -908,14 +945,12 @@ const myActivity = useMemo(() => {
 
         <div className="bg-orange-50/60 p-5 rounded-[2rem] shadow-sm border border-orange-100 transition-colors relative">
            <div className="flex justify-between items-center mb-3">
-               {/* 진한 오렌지색 배경에 흰색 텍스트 */}
                <h3 className="text-sm font-bold text-white bg-orange-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Utensils className="w-4 h-4 fill-white text-white"/> 맛집레이더🍜</h3>
                <button onClick={() => onNavigateToFeed('matjib')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-orange-600 bg-white px-2 py-1 rounded-lg shadow-sm"><ChevronRight className="w-3 h-3"/></button>
            </div>
            {renderFeedList('matjib', matjibFeeds)}
         </div>
 
-        {/* 하단 공지사항 추가 */}
         <div className="mt-6 mb-2">
             <div onClick={onNavigateToNews} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition-colors">
                 <div className="bg-red-50 p-2 rounded-full"><Megaphone className="w-4 h-4 text-red-500"/></div>
@@ -1064,7 +1099,6 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
                         {feed.title}
                     </h3>
                 )}
-                {/* [수정] 피드 본문 폰트 크기 축소 (text-base -> text-sm) 하여 전체적인 폰트 밸런스 조정 */}
                 <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{feed.content}</p>
             </div>
             
@@ -1080,7 +1114,6 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
               </div>
               <div className="text-xs text-slate-300 font-medium">{feed.formattedTime}</div>
             </div>
-            {/* [수정] 댓글 좋아요 핸들러 전달 */}
             {comments.length > 0 && (<div className="mt-4 pt-4 border-t border-slate-50 space-y-3">{comments.map(comment => (<Comment key={comment.id} comment={comment} currentUser={currentUser} handleDeleteComment={handleDeleteComment} handleLikeComment={handleLikeComment} />))}</div>)}
             <form onSubmit={(e) => handleAddComment(e, feed.id, null)} className="flex gap-2 mt-4">
                 <input name="commentContent" type="text" placeholder="댓글을 남겨주세요..." className="flex-1 px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:border-blue-400 focus:bg-white transition-colors" required />
@@ -1100,7 +1133,6 @@ const WriteModal = ({ setShowWriteModal, handlePostSubmit, currentUser, activeTa
   const [regionSub, setRegionSub] = useState('');
   const [deptNewsOrg, setDeptNewsOrg] = useState('');
   
-  // 칭찬하기 대상 검색 상태
   const [praiseDept, setPraiseDept] = useState('');
   const [praiseTargetId, setPraiseTargetId] = useState('');
 
@@ -1278,7 +1310,6 @@ const RankingTab = ({ feeds, profiles, allPointHistory, currentUser }) => {
 
       <div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Coins className="w-5 h-5 text-yellow-500"/> 월간 획득 포인트 랭킹 TOP 10</h3><div className="space-y-3">{pointRankingTop10.length > 0 ? pointRankingTop10.map((p, i) => <RankItem key={i} rank={i+1} name={p.name} team={p.team} value={p.value.toLocaleString()} unit="P" color="text-yellow-500" showReward={false}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div><div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Pencil className="w-5 h-5 text-green-500"/> 소통왕 (게시글)</h3><div className="space-y-3">{postRanking.length > 0 ? postRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-green-500" showReward={true}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div><div className="space-y-4"><h3 className="text-base font-bold text-slate-600 flex items-center gap-2 mb-3 ml-2"><Heart className="w-5 h-5 text-red-500"/> 인기왕 (좋아요)</h3><div className="space-y-3">{likeRanking.length > 0 ? likeRanking.map((p, i) => <RankItem key={i} rank={i+1} {...p} color="text-red-500" showReward={true}/>) : <div className="text-center text-sm text-slate-400 py-6 bg-white rounded-3xl border border-dashed border-slate-200">데이터가 없습니다.</div>}</div></div></div>); };
 
-// [수정] 네비게이션 바 + 중앙 플로팅 버튼(+)
 const BottomNav = ({ activeTab, onTabChange, onFabClick }) => {
   const getTabColor = (id, isActive) => {
     if (!isActive) return 'text-slate-400 hover:text-slate-600';
@@ -1325,7 +1356,6 @@ const BottomNav = ({ activeTab, onTabChange, onFabClick }) => {
           <NavBtn item={rankingItem} />
         </div>
 
-        {/* 중앙 플로팅 버튼 */}
         <button
           type="button"
           onClick={onFabClick}
@@ -1339,9 +1369,7 @@ const BottomNav = ({ activeTab, onTabChange, onFabClick }) => {
   );
 };
 
-// [수정] 댓글 좋아요/삭제 기능
 const Comment = ({ comment, currentUser, handleDeleteComment, handleLikeComment }) => {
-    // comment.likes 배열이 없는 경우 대비
     const likes = comment.likes || [];
     const isLiked = likes.includes(currentUser?.id);
 
@@ -1358,7 +1386,6 @@ const Comment = ({ comment, currentUser, handleDeleteComment, handleLikeComment 
                 </div>
                 <p className="text-sm text-slate-600 leading-relaxed break-words">{comment.content}</p>
                 <div className="flex gap-4 mt-2 justify-end items-center">
-                    {/* [신규] 댓글 좋아요 버튼 */}
                     <button onClick={() => handleLikeComment(comment.id, comment.post_id, likes, isLiked, comment.author_id)} className={`flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded transition-colors ${isLiked ? 'text-pink-500 bg-pink-50' : 'text-slate-400 hover:bg-slate-200'}`}>
                         <Heart className={`w-3 h-3 ${isLiked ? 'fill-pink-500' : ''}`}/> {likes.length > 0 ? likes.length : '좋아요'}
                     </button>
@@ -1406,7 +1433,6 @@ export default function App() {
   const [toast, setToast] = useState({ visible: false, message: '', emoji: '' });
 
   const [activeTab, setActiveTab] = useState('home');
-  // [추가] 하단 네비 탭 전환 시 좌우 슬라이드 애니메이션
   const TAB_ORDER = ['home', 'feed', 'news', 'ranking'];
   const [displayTab, setDisplayTab] = useState('home');
   const [nextTab, setNextTab] = useState(null);
@@ -1449,7 +1475,6 @@ export default function App() {
   
   useEffect(() => { localStorage.setItem('axa_booster_active', boosterActive); }, [boosterActive]);
 
-// [수정] 출근 체크 조건 수정: 세션(로그인)이 확인되면 즉시 attendanceEnabled 활성화
 useEffect(() => {
   if (session) {
       setAttendanceEnabled(true);
@@ -1458,7 +1483,6 @@ useEffect(() => {
   }
 }, [session]);
 
-// [추가] 전체화면 시도 + 앱 종료(닫기/뒤로가기) 전 확인
 useEffect(() => {
   if (!session) return;
 
@@ -1490,8 +1514,6 @@ useEffect(() => {
     window.removeEventListener('popstate', onPopState);
   };
 }, [session]);
-
-
 
   const checkBirthday = useCallback((user) => {
     if (!user.birthdate || user.birthday_granted) return; 
@@ -1675,7 +1697,6 @@ useEffect(() => {
       } catch (err) { console.error(err); fetchFeeds(); }
   };
 
-  // [신규] 댓글 좋아요 기능 (+2P)
   const handleLikeComment = async (commentId, postId, currentLikes, isLiked, authorId) => {
       if (!currentUser || !checkSupabaseConfig()) return;
       const userId = currentUser.id;
@@ -1683,10 +1704,8 @@ useEffect(() => {
 
       try {
           if (isLiked) {
-              // 좋아요 취소
               newLikes = newLikes.filter(id => id !== userId);
               await supabase.from('comments').update({ likes: newLikes }).eq('id', commentId);
-              // 포인트 회수 (-2P)
               if (authorId && authorId !== userId) {
                   const { data: author } = await supabase.from('profiles').select('points').eq('id', authorId).single();
                   if (author) {
@@ -1696,10 +1715,8 @@ useEffect(() => {
                   }
               }
           } else {
-              // 좋아요 추가
               newLikes.push(userId);
               await supabase.from('comments').update({ likes: newLikes }).eq('id', commentId);
-              // 포인트 지급 (+2P)
               if (authorId && authorId !== userId) {
                   const { data: author } = await supabase.from('profiles').select('points').eq('id', authorId).single();
                   if (author) {
@@ -1709,7 +1726,6 @@ useEffect(() => {
                   }
               }
           }
-          // 로컬 상태 업데이트
           setFeeds(prevFeeds => prevFeeds.map(feed => {
               if (feed.id === postId) {
                   const updatedComments = feed.comments.map(c => c.id === commentId ? { ...c, likes: newLikes } : c);
@@ -1720,15 +1736,26 @@ useEffect(() => {
       } catch (err) { console.error(err); fetchFeeds(); }
   };
 
+  // [수정] 댓글 작성 로직 수정 (입력 필드 참조 방식 변경)
   const handleAddComment = async (e, postId, parentId = null) => {
-      e.preventDefault(); const content = e.target.commentContent.value; if (!content || !currentUser) return;
+      e.preventDefault(); 
+      // e.target.elements로 안전하게 접근
+      const content = e.target.elements.commentContent?.value; 
+      if (!content || !currentUser) return;
       
       const post = feeds.find(f => f.id === postId);
       const authorId = post?.author_id;
       
-      // likes 배열 초기화 포함
       const tempComment = { id: `temp-${Date.now()}`, post_id: postId, author_id: currentUser.id, content: content, parent_id: parentId, created_at: new Date().toISOString(), profiles: { name: currentUser.name, role: currentUser.role }, likes: [] };
-      setFeeds(prevFeeds => prevFeeds.map(feed => { if (feed.id === postId) { return { ...feed, comments: [...feed.comments, tempComment], totalComments: feed.totalComments + 1 }; } return feed; }));
+      
+      // [수정] feed.comments가 null일 경우 빈 배열로 처리
+      setFeeds(prevFeeds => prevFeeds.map(feed => { 
+          if (feed.id === postId) { 
+              const currentComments = feed.comments || [];
+              return { ...feed, comments: [...currentComments, tempComment], totalComments: (feed.totalComments || 0) + 1 }; 
+          } 
+          return feed; 
+      }));
       e.target.reset(); 
       
       try { 
@@ -2041,6 +2068,7 @@ useEffect(() => {
             <>
               <Header 
                 currentUser={currentUser} 
+                memberCount={profiles.length} 
                 onOpenUserInfo={() => setShowUserInfoModal(true)} 
                 handleLogout={handleLogout} 
                 onOpenChangeDept={() => setShowChangeDeptModal(true)} 
@@ -2054,7 +2082,6 @@ useEffect(() => {
               />
               <main className="flex-1 overflow-hidden">
   <div className="relative h-full overflow-hidden">
-    {/* 현재 화면 */}
     <div
       className={`absolute inset-0 h-full w-full transition-transform duration-300 ease-out ${
         isSliding ? (slideDir === 1 ? '-translate-x-full' : 'translate-x-full') : 'translate-x-0'
@@ -2108,7 +2135,6 @@ useEffect(() => {
       </div>
     </div>
 
-    {/* 다음 화면 */}
     {nextTab && (
       <div
         className={`absolute inset-0 h-full w-full transition-transform duration-300 ease-out ${
@@ -2178,7 +2204,6 @@ useEffect(() => {
               {showAdminManageModal && <AdminManageModal onClose={() => setShowAdminManageModal(false)} profiles={profiles} onUpdateUser={handleAdminUpdateUser} onDeleteUser={handleAdminDeleteUser} boosterActive={boosterActive} setBoosterActive={setBoosterActive} />}
               {showChangeDeptModal && <ChangeDeptModal onClose={() => setShowChangeDeptModal(false)} onSave={handleChangeDept} />}
               {showChangePwdModal && <ChangePasswordModal onClose={() => setShowChangePwdModal(false)} onSave={handleChangePassword} />}
-              {/* [신규] 나의 활동 모달 */}
               {showMyActivityModal && <MyActivityModal onClose={() => setShowMyActivityModal(false)} type={activityModalType} feeds={feeds} currentUser={currentUser} />}
 
               {showAdminGrantModal && (
