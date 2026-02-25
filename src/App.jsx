@@ -1337,7 +1337,14 @@ const BottomNav = ({ activeTab, onTabChange, onFabClick }) => {
 
   const NavBtn = ({ item }) => (
     <button
-      onClick={() => onTabChange(item.id)}
+      onClick={() => {
+          // [수정] 피드 탭을 직접 누르면 '전체' 보기로 리셋, 나머지는 일반 이동
+          if (item.id === 'feed') {
+              onTabChange(item.id, 'all');
+          } else {
+              onTabChange(item.id);
+          }
+      }}
       className={`flex flex-col items-center justify-center gap-1 h-full rounded-[2rem] transition-all duration-300 ease-out ${getTabColor(
         item.id,
         activeTab === item.id
@@ -1741,6 +1748,7 @@ useEffect(() => {
 
   const handleAddComment = async (e, postId, parentId = null) => {
       e.preventDefault(); 
+      // [수정] 모바일 호환성: e.target.elements 및 옵셔널 체이닝으로 안전하게 접근
       const content = e.target.elements.commentContent?.value; 
       if (!content || !currentUser) return;
       
@@ -2026,6 +2034,7 @@ useEffect(() => {
   const handleChangeDept = async (newDept, newTeam) => { if (!currentUser || !supabase) return; try { await supabase.from('profiles').update({ dept: newDept, team: newTeam }).eq('id', currentUser.id); fetchUserData(currentUser.id); setShowChangeDeptModal(false); alert('소속이 변경되었습니다.'); } catch(err) { console.error(err); } };
   const handleChangePassword = async (newPassword) => { if (!currentUser || !supabase) return; try { const { error } = await supabase.auth.updateUser({ password: newPassword }); if (error) throw error; setShowChangePwdModal(false); alert('비밀번호가 변경되었습니다. 다시 로그인해주세요.'); handleLogout(); } catch(err) { console.error(err); } };
   
+  // [수정] 탭 전환 함수: 필터 초기화 로직 제거 (onNavigateToFeed와 충돌 방지)
   const handleTabChange = (tabId) => {
   if (tabId === activeTab) return;
 
@@ -2044,9 +2053,6 @@ useEffect(() => {
     setNextTab(null);
     setIsSliding(false);
 
-    if (tabId === 'feed') {
-      setActiveFeedFilter('all');
-    }
     if (tabId !== 'feed') {
       setSelectedPostId(null);
     }
