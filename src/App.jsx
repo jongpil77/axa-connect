@@ -742,12 +742,17 @@ const HomeTab = ({ mood, handleMoodCheck, handleCheckOut, hasCheckedOut, feeds, 
     }, [feeds]);
 
     const latestNotice = feeds.find(f => f.type === 'news');
+    
+    // [수정] 오늘의 한마디 로직 수정 (Math.floor 사용 및 배열 길이 모듈러 연산)
     const ledIndex = useMemo(() => {
         const now = new Date();
-        const start = new Date(now.getFullYear(), 0, 1);
-        const diff = Math.floor((now - start) / 86400000);
-        return diff % 365;
+        const start = new Date(now.getFullYear(), 0, 0);
+        const diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+        const oneDay = 1000 * 60 * 60 * 24;
+        const day = Math.floor(diff / oneDay);
+        return day % MOTTO_365.length; // 배열 길이로 나누어 인덱스 초과 방지
     }, []);
+    
     const ledMessage = useMemo(() => `💡 오늘의 한마디: ${MOTTO_365[ledIndex]}`, [ledIndex]);
 
 const myActivity = useMemo(() => {
@@ -815,6 +820,16 @@ const myActivity = useMemo(() => {
     const praiseFeeds = feeds.filter(f => f.type === 'praise').slice(0, 5); 
     const knowhowFeeds = feeds.filter(f => f.type === 'knowhow').slice(0, 5);
     const matjibFeeds = feeds.filter(f => f.type === 'matjib').slice(0, 5);
+
+    // [수정] 섹션 헤더 클릭 핸들러 (타이틀 클릭 시 이동)
+    const SectionHeader = ({ title, icon: Icon, colorClass, type }) => (
+        <div className="flex justify-between items-center mb-3">
+             <div onClick={() => onNavigateToFeed(type)} className={`text-sm font-bold text-white px-4 py-2 rounded-xl flex items-center gap-2 shadow-md cursor-pointer active:scale-95 transition-transform ${colorClass}`}>
+                 <Icon className="w-4 h-4 text-white fill-white"/> {title}
+             </div>
+             <button onClick={() => onNavigateToFeed(type)} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-blue-600 bg-white px-2 py-1 rounded-lg shadow-sm">더보기 <ChevronRight className="w-3 h-3"/></button>
+        </div>
+    );
 
     return (
       <div className="px-2 py-4 space-y-5 pb-40 animate-fade-in relative bg-[#F8F9FA] min-h-full">
@@ -920,34 +935,22 @@ const myActivity = useMemo(() => {
 </div>
 
         <div className="bg-purple-50/60 p-5 rounded-[2rem] shadow-sm border border-purple-100 transition-colors relative">
-           <div className="flex justify-between items-center mb-3">
-               <h3 className="text-sm font-bold text-white bg-purple-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Building2 className="w-4 h-4 text-white"/> 우리팀 톡톡🏢</h3>
-               <button onClick={() => onNavigateToFeed('dept_news')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-purple-600 bg-white px-2 py-1 rounded-lg shadow-sm">더보기 <ChevronRight className="w-3 h-3"/></button>
-           </div>
+           <SectionHeader title="우리팀 톡톡🏢" icon={Building2} colorClass="bg-purple-600" type="dept_news"/>
            {renderFeedList('dept_news', deptFeeds)}
         </div>
 
         <div className="bg-green-50/60 p-5 rounded-[2rem] shadow-sm border border-green-100 transition-colors relative">
-           <div className="flex justify-between items-center mb-3">
-               <h3 className="text-sm font-bold text-white bg-green-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Heart className="w-4 h-4 fill-white text-white"/> 칭찬뿜뿜💚</h3>
-               <button onClick={() => onNavigateToFeed('praise')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-green-600 bg-white px-2 py-1 rounded-lg shadow-sm">더보기 <ChevronRight className="w-3 h-3"/></button>
-           </div>
+           <SectionHeader title="칭찬뿜뿜💚" icon={Heart} colorClass="bg-green-600" type="praise"/>
            {renderFeedList('praise', praiseFeeds)}
         </div>
         
         <div className="bg-blue-50/60 p-5 rounded-[2rem] shadow-sm border border-blue-100 transition-colors relative">
-           <div className="flex justify-between items-center mb-3">
-               <h3 className="text-sm font-bold text-white bg-blue-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Sparkles className="w-4 h-4 fill-white text-white"/> 꿀팁.zip🧠</h3>
-               <button onClick={() => onNavigateToFeed('knowhow')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-blue-600 bg-white px-2 py-1 rounded-lg shadow-sm"><ChevronRight className="w-3 h-3"/></button>
-           </div>
+           <SectionHeader title="꿀팁.zip🧠" icon={Sparkles} colorClass="bg-blue-600" type="knowhow"/>
            {renderFeedList('knowhow', knowhowFeeds)}
         </div>
 
         <div className="bg-orange-50/60 p-5 rounded-[2rem] shadow-sm border border-orange-100 transition-colors relative">
-           <div className="flex justify-between items-center mb-3">
-               <h3 className="text-sm font-bold text-white bg-orange-600 px-4 py-2 rounded-xl flex items-center gap-2 pointer-events-none shadow-md"><Utensils className="w-4 h-4 fill-white text-white"/> 맛집레이더🍜</h3>
-               <button onClick={() => onNavigateToFeed('matjib')} className="text-[10px] text-slate-400 font-bold flex items-center hover:text-orange-600 bg-white px-2 py-1 rounded-lg shadow-sm"><ChevronRight className="w-3 h-3"/></button>
-           </div>
+           <SectionHeader title="맛집레이더🍜" icon={Utensils} colorClass="bg-orange-600" type="matjib"/>
            {renderFeedList('matjib', matjibFeeds)}
         </div>
 
@@ -1736,10 +1739,8 @@ useEffect(() => {
       } catch (err) { console.error(err); fetchFeeds(); }
   };
 
-  // [수정] 댓글 작성 로직 수정 (입력 필드 참조 방식 변경)
   const handleAddComment = async (e, postId, parentId = null) => {
       e.preventDefault(); 
-      // e.target.elements로 안전하게 접근
       const content = e.target.elements.commentContent?.value; 
       if (!content || !currentUser) return;
       
@@ -1748,7 +1749,6 @@ useEffect(() => {
       
       const tempComment = { id: `temp-${Date.now()}`, post_id: postId, author_id: currentUser.id, content: content, parent_id: parentId, created_at: new Date().toISOString(), profiles: { name: currentUser.name, role: currentUser.role }, likes: [] };
       
-      // [수정] feed.comments가 null일 경우 빈 배열로 처리
       setFeeds(prevFeeds => prevFeeds.map(feed => { 
           if (feed.id === postId) { 
               const currentComments = feed.comments || [];
@@ -1891,16 +1891,20 @@ useEffect(() => {
     } catch (err) { console.error('가입 실패: ', err.message); alert('가입 실패: ' + err.message); } finally { setLoading(false); }
   };
 
+  // [수정] 모바일 게시글 등록 에러 해결을 위한 e.target.elements 및 옵셔널 체이닝 적용
   const handlePostSubmit = async (e) => {
     e.preventDefault(); 
     if (!currentUser || !checkSupabaseConfig()) return;
 
-    const category = e.target.category.value;
+    // 모바일 등에서 폼 요소 접근 안전성 확보
+    const formElements = e.target.elements;
+    const category = formElements.category?.value;
+
     if (category === 'news' && currentUser.role !== 'admin' && !currentUser.is_ambassador) {
         alert('⛔ 권한이 없습니다.\n공지사항은 관리자와 앰버서더만 작성할 수 있습니다.'); return; 
     }
 
-    const regionMain = e.target.regionMain ? e.target.regionMain.value : null; 
+    const regionMain = formElements.regionMain?.value || null; 
     const isRewardCategory = ['praise', 'knowhow', 'matjib', 'dept_news'].includes(category);
     const today = new Date().toISOString().split('T')[0];
     const todayPosts = feeds.filter(f => f.author_id === currentUser.id && f.created_at.startsWith(today)).length;
@@ -1912,18 +1916,18 @@ useEffect(() => {
     const rewardAmountBase = 50; 
     const rewardPoints = (isRewardCategory && todayPosts < 2) ? (boosterActive ? rewardAmountBase * 2 : rewardAmountBase) : 0; 
     
-    const content = e.target.content.value;
-    const title = e.target.title ? e.target.title.value : null;
-    let targetName = e.target.targetName ? e.target.targetName.value : null;
-    const regionSub = e.target.regionSub ? e.target.regionSub.value : null;
+    const content = formElements.content?.value;
+    const title = formElements.title?.value || null;
+    let targetName = formElements.targetName?.value || null;
+    const regionSub = formElements.regionSub?.value || null;
     
-    const praiseTargetId = e.target.targetUserId ? e.target.targetUserId.value : null;
+    const praiseTargetId = formElements.targetUserId?.value || null;
     if (category === 'praise' && praiseTargetId) {
         const targetUser = profiles.find(p => p.id === praiseTargetId);
         targetName = targetUser ? targetUser.name : null;
     }
 
-    const file = e.target.file?.files[0];
+    const file = formElements.file?.files[0];
     let publicImageUrl = null;
 
     try {
@@ -2097,6 +2101,7 @@ useEffect(() => {
             feeds={feeds}
             weeklyBirthdays={weeklyBirthdays}
             onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
+            // [수정] 네비게이션 함수를 수정하여 타입과 필터가 함께 동작하도록 처리
             onNavigateToNews={() => { handleTabChange('news'); }}
             onNavigateToFeed={(type, id) => {
               handleTabChange('feed');
