@@ -311,7 +311,7 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex justify-center items-center p-4">
-      <div className="w-full max-w-md bg-white rounded-[2rem] shadow-2xl p-6 border border-white/50 animate-fade-in relative backdrop-blur-xl max-h-[95vh] overflow-y-auto custom-scrollbar">
+      <div className="w-full max-w-md bg-white rounded-[2rem] shadow-2xl p-6 border border-white/50 animate-fade-in relative backdrop-blur-xl max-h-[90vh] overflow-y-auto custom-scrollbar">
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
         
         <div className="text-center mb-4 mt-2 flex flex-col items-center">
@@ -1086,7 +1086,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
-        {[{ id: 'all', label: '전체' }, { id: 'praise', label: '칭찬뿜뿜💚' }, { id: 'dept_news', label: '우리팀 톡톡🏢' }, { id: 'knowhow', label: '꿀팁.zip🧠' }, { id: 'matjib', label: '맛집레이더🍜' }].map(tab => (
+        {[{ id: 'all', label: '전체' }, { id: 'praise', label: '칭찬하기' }, { id: 'dept_news', label: '우리팀 톡톡🏢' }, { id: 'knowhow', label: '꿀팁.zip🧠' }, { id: 'matjib', label: '맛집레이더🍜' }].map(tab => (
           <button key={tab.id} onClick={() => setActiveFeedFilter(tab.id)} className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all border ${activeFeedFilter === tab.id ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}>{tab.label}</button>
         ))}
       </div>
