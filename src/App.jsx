@@ -321,7 +321,7 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
         </div>
 
         {isSignupMode ? (
-          <form onSubmit={handleSignup} className="space-y-3">
+          <form onSubmit={handleSignup} className="space-y-3 pb-8"> {/* pb-8 추가하여 하단 여백 확보 */}
             <div>
                 <label className="block text-xs font-bold text-slate-600 mb-1 ml-1">이름</label>
                 <input name="name" type="text" placeholder="홍길동" className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm focus:border-blue-500 focus:bg-white transition-all shadow-sm" required />
@@ -359,11 +359,25 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
                 </label>
             </div>
 
-            <button type="submit" disabled={loading || !agreedToTerms} className="w-full bg-blue-600 text-white p-3 rounded-xl text-sm font-bold hover:bg-blue-700 shadow-md transition-all mt-2 disabled:bg-slate-300 flex justify-center">{loading ? <Loader2 className="animate-spin w-4 h-4" /> : '가입 완료 (1,000P 지급)'}</button>
-            <button type="button" onClick={() => setIsSignupMode(false)} className="w-full text-slate-400 text-xs py-2 hover:text-blue-600 transition-colors font-medium">로그인으로 돌아가기</button>
+            <div className="pt-2">
+              <button 
+                  type="submit" 
+                  disabled={loading || !agreedToTerms} 
+                  className="w-full bg-blue-600 text-white p-3.5 rounded-xl text-sm font-black hover:bg-blue-700 shadow-lg transition-all disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none flex justify-center items-center gap-2"
+              >
+                  {loading ? <Loader2 className="animate-spin w-5 h-5" /> : '가입 완료 (1,000P 지급)'}
+              </button>
+              <button 
+                  type="button" 
+                  onClick={() => setIsSignupMode(false)} 
+                  className="w-full text-slate-400 text-xs py-3 mt-1 hover:text-blue-600 transition-colors font-medium"
+              >
+                  로그인으로 돌아가기
+              </button>
+            </div>
           </form>
         ) : (
-          <div className="space-y-5">
+          <div className="space-y-5 pb-4">
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                   <label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">이메일</label>
