@@ -83,14 +83,14 @@ const MOTTO_365 = [
 
 // --- Custom Logo Component ---
 const ConnectHubLogo = ({ size = "md" }) => {
-    const sizeClasses = size === "lg" ? "w-16 h-16" : size === "md" ? "w-10 h-10" : "w-7 h-7";
-    const iconSize = size === "lg" ? "w-16 h-16" : size === "md" ? "w-10 h-10" : "w-7 h-7";
-    const subIconSize = size === "lg" ? "w-6 h-6" : size === "md" ? "w-4 h-4" : "w-3 h-3";
+    const sizeClasses = size === "lg" ? "w-16 h-16" : "w-10 h-10";
+    const iconSize = size === "lg" ? "w-16 h-16" : "w-10 h-10";
+    const subIconSize = size === "lg" ? "w-6 h-6" : "w-4 h-4";
     
     return (
         <div className={`relative flex items-center justify-center ${sizeClasses}`}>
             <MessageCircle className={`${iconSize} text-blue-700 fill-blue-100 absolute`} strokeWidth={1.5} />
-            <Smile className={`${size === "lg" ? "w-8 h-8" : size === "md" ? "w-5 h-5" : "w-3.5 h-3.5"} text-blue-900 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`} strokeWidth={2} />
+            <Smile className={`${size === "lg" ? "w-8 h-8" : "w-5 h-5"} text-blue-900 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`} strokeWidth={2} />
             <Heart className={`${subIconSize} text-[#C60C30] fill-[#C60C30] absolute -top-1 -right-1 z-10 animate-pulse`} />
         </div>
     );
@@ -178,101 +178,6 @@ const MoodToast = ({ message, emoji, visible }) => {
 };
 
 const NewBadge = () => (<div className="w-5 h-5 bg-red-600 rounded-full flex items-center justify-center text-white text-[10px] font-black shadow-sm ring-2 ring-white">N</div>);
-
-// =========================================================================================
-// 🚀 [수정 완료] AuthForm (스크롤 자유 보장 & 하단 회색 박스 완전 제거)
-// =========================================================================================
-const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, loading }) => {
-  const [birthdate, setBirthdate] = useState('1980-01-01');
-  const [selectedDept, setSelectedDept] = useState('');
-  const [email, setEmail] = useState('');
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
-
-  return (
-    // 💡 화면 밖으로 잘리지 않도록 min-h-screen과 py-10(위아래 여백) 적용
-    <div className="min-h-screen w-full bg-white px-6 py-10 flex flex-col justify-center items-center">
-      <div className="w-full max-w-sm flex flex-col gap-6">
-        
-        <div className="text-center flex flex-col items-center">
-          <ConnectHubLogo size="lg" />
-          <h1 className="text-2xl font-black text-slate-800 mt-4">Connect HUB</h1>
-          <p className="text-slate-500 text-sm mt-1">자유롭게 함께하는 커뮤니티 🚀</p>
-        </div>
-
-        {isSignupMode ? (
-          <form onSubmit={handleSignup} className="flex flex-col gap-4 w-full mt-4">
-            <h2 className="text-lg font-black text-blue-600 mb-2 border-b-2 border-blue-600 pb-2 inline-block self-start">회원가입</h2>
-
-            <div className="flex flex-col gap-1">
-                <label className="text-xs font-bold text-slate-600">이름</label>
-                <input name="name" type="text" placeholder="홍길동" className="w-full h-12 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 focus:bg-white transition-colors" required />
-            </div>
-
-            <div className="flex flex-col gap-1">
-                <label className="text-xs font-bold text-slate-600">이메일 <span className="text-red-500 font-normal">(@axa.co.kr 불가)</span></label>
-                <input name="email" type="email" placeholder="개인 메일 입력" className="w-full h-12 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 focus:bg-white transition-colors" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
-
-            <div className="flex flex-col gap-1">
-                <label className="text-xs font-bold text-slate-600">생년월일 (양력)</label>
-                <input name="birthdate" type="date" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className="w-full h-12 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-600 outline-none focus:border-blue-500 focus:bg-white transition-colors" required />
-            </div>
-
-            <div className="flex flex-col gap-1">
-                <label className="text-xs font-bold text-slate-600">비밀번호</label>
-                <input name="password" type="password" placeholder="숫자 6자리 이상" className="w-full h-12 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 focus:bg-white transition-colors" required minLength="6" />
-            </div>
-
-            <div className="flex gap-2 mt-2">
-                <select name="dept" className="flex-1 h-12 px-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 outline-none focus:border-blue-500" onChange={(e) => setSelectedDept(e.target.value)} required>
-                  <option value="">본부/부문 선택</option>{Object.keys(ORGANIZATION).map(dept => <option key={dept} value={dept}>{dept}</option>)}
-                </select>
-                <select name="team" className="flex-1 h-12 px-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 outline-none focus:border-blue-500" disabled={!selectedDept} required>
-                  <option value="">팀/센터 선택</option>{selectedDept && ORGANIZATION[selectedDept].map(team => <option key={team} value={team}>{team}</option>)}
-                </select>
-            </div>
-
-            {/* 💡 문제의 "하단 회색 부분" 완벽하게 제거됨. 하얀색 바탕에 텍스트만 깔끔하게 배치 */}
-            <div className="mt-4 mb-2 pl-1">
-                <label className="flex items-start gap-3 cursor-pointer group">
-                    <input type="checkbox" className="w-5 h-5 mt-0.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 shrink-0" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} />
-                    <div className="text-[13px] text-slate-600 leading-relaxed">
-                        본 커뮤니티는 자유로운 소통 공간입니다.<br/>
-                        <strong className="text-red-500">개인정보 및 대외비 정보</strong>를 절대 공유하지 않도록 주의해 주세요.<br/>
-                        <span className="font-bold text-slate-800 underline mt-1 inline-block">위 내용을 확인하였으며 동의합니다.</span>
-                    </div>
-                </label>
-            </div>
-
-            <div className="flex flex-col gap-3 mt-2">
-              <button type="submit" disabled={loading || !agreedToTerms} className="w-full h-14 bg-blue-600 text-white rounded-xl text-sm font-black hover:bg-blue-700 disabled:bg-slate-300 transition-all shadow-md active:scale-[0.98] flex justify-center items-center">
-                  {loading ? <Loader2 className="animate-spin w-5 h-5" /> : '🚀 가입 완료 (1,000P 지급)'}
-              </button>
-              <button type="button" onClick={() => setIsSignupMode(false)} className="w-full text-slate-500 text-sm py-3 font-bold hover:text-blue-600 transition-colors">
-                  로그인 화면으로 돌아가기
-              </button>
-            </div>
-          </form>
-        ) : (
-          <form onSubmit={handleLogin} className="flex flex-col gap-4 mt-8">
-            <input name="email" type="text" placeholder="이메일 입력" className="w-full h-14 px-4 bg-slate-50 border border-slate-200 rounded-xl outline-none text-base focus:border-blue-500 focus:bg-white transition-colors" />
-            <input name="password" type="password" placeholder="비밀번호" className="w-full h-14 px-4 bg-slate-50 border border-slate-200 rounded-xl outline-none text-base focus:border-blue-500 focus:bg-white transition-colors" required minLength="6" />
-            <button type="submit" disabled={loading} className="w-full h-14 mt-2 bg-slate-800 text-white rounded-xl text-base font-bold hover:bg-slate-900 shadow-md active:scale-[0.98] transition-all flex justify-center items-center">
-                {loading ? <Loader2 className="animate-spin w-6 h-6" /> : '로그인'}
-            </button>
-            
-            <div className="text-center mt-6">
-                <button type="button" onClick={() => setIsSignupMode(true)} className="text-blue-600 text-sm font-bold underline underline-offset-4 hover:text-blue-800">
-                    처음이신가요? 1분 만에 회원가입
-                </button>
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
-  );
-};
-// =========================================================================================
 
 const AdminGrantPopup = ({ grants, onClose }) => {
     const total = grants.reduce((acc, curr) => acc + curr.amount, 0);
@@ -396,6 +301,86 @@ const MyActivityModal = ({ onClose, type, feeds, currentUser }) => {
             </div>
         </div>
     );
+};
+
+const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, loading }) => {
+  const [birthdate, setBirthdate] = useState('1980-01-01');
+  const [selectedDept, setSelectedDept] = useState('');
+  const [email, setEmail] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  return (
+    <div className="min-h-[100dvh] bg-gradient-to-br from-blue-50 to-indigo-50 flex justify-center items-center p-4">
+      <div className="w-full max-w-md bg-white rounded-[2rem] shadow-2xl p-6 border border-white/50 animate-fade-in relative backdrop-blur-xl overflow-y-auto custom-scrollbar" style={{ maxHeight: "min(calc(100dvh - 4rem), calc(100svh - 4rem))" }}>
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+        
+        <div className="text-center mb-4 mt-2 flex flex-col items-center">
+          <ConnectHubLogo size="lg" />
+          <h1 className="text-2xl font-black text-slate-800 tracking-tight mb-1 mt-2">Connect HUB</h1>
+          <p className="text-slate-500 text-xs font-medium">자유롭게 함께하는 우리들의 커뮤니티 🚀</p>
+        </div>
+
+        {isSignupMode ? (
+          <form onSubmit={handleSignup} className="space-y-3">
+            <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1 ml-1">이름</label>
+                <input name="name" type="text" placeholder="홍길동" className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm focus:border-blue-500 focus:bg-white transition-all shadow-sm" required />
+            </div>
+            <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1 ml-1">이메일</label>
+                <input name="email" type="email" placeholder="개인 메일로 입력" className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm focus:border-blue-500 focus:bg-white transition-all shadow-sm" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <p className="text-[10px] text-red-500 mt-1 ml-1 font-bold">* @axa.co.kr 등 사내 메일은 가입 불가</p>
+            </div>
+            <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1 ml-1">생년월일 (양력)</label>
+                <input name="birthdate" type="date" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm text-slate-600 focus:border-blue-500 focus:bg-white transition-all shadow-sm" required />
+            </div>
+            <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1 ml-1">비밀번호</label>
+                <input name="password" type="password" placeholder="비밀번호 (숫자 6자리 이상)" className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm focus:border-blue-500 focus:bg-white transition-all shadow-sm" required minLength="6" />
+            </div>
+            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 shadow-inner">
+              <div className="grid grid-cols-2 gap-2">
+                <select name="dept" className="w-full p-2 bg-white border border-slate-200 rounded-lg outline-none text-xs text-slate-700 shadow-sm" onChange={(e) => setSelectedDept(e.target.value)} required><option value="">본부/부문</option>{Object.keys(ORGANIZATION).map(dept => <option key={dept} value={dept}>{dept}</option>)}</select>
+                <select name="team" className="w-full p-2 bg-white border border-slate-200 rounded-lg outline-none text-xs text-slate-700 shadow-sm" disabled={!selectedDept} required><option value="">팀/센터</option>{selectedDept && ORGANIZATION[selectedDept].map(team => <option key={team} value={team}>{team}</option>)}</select>
+              </div>
+            </div>
+
+            <div className="bg-slate-100 p-2.5 rounded-xl border border-slate-200 mt-2">
+                <div className="flex items-start gap-1.5 mb-1">
+                    <Info className="w-3.5 h-3.5 text-slate-500 mt-0.5 flex-shrink-0" />
+                    <p className="text-[10px] text-slate-600 leading-tight">
+                        <strong>개인정보(주민번호, 번호 등) 및 대외비</strong>를 절대 공유하지 않도록 주의해주세요.
+                    </p>
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer mt-1.5 bg-white p-2 rounded-lg border border-slate-200 hover:bg-blue-50 transition-colors">
+                    <input type="checkbox" className="w-3.5 h-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} />
+                    <span className="text-[11px] font-bold text-slate-700">위 내용을 확인하였으며 동의합니다.</span>
+                </label>
+            </div>
+
+            <button type="submit" disabled={loading || !agreedToTerms} className="w-full bg-blue-600 text-white p-3 rounded-xl text-sm font-bold hover:bg-blue-700 shadow-md transition-all mt-2 disabled:bg-slate-300 flex justify-center">{loading ? <Loader2 className="animate-spin w-4 h-4" /> : '가입 완료 (1,000P 지급)'}</button>
+            <button type="button" onClick={() => setIsSignupMode(false)} className="w-full text-slate-400 text-xs py-2 hover:text-blue-600 transition-colors font-medium">로그인으로 돌아가기</button>
+          </form>
+        ) : (
+          <div className="space-y-5">
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                  <label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">이메일</label>
+                  <input name="email" type="text" placeholder="이메일 입력" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
+              </div>
+              <div>
+                  <label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">비밀번호</label>
+                  <input name="password" type="password" placeholder="비밀번호 (숫자 6자리 이상)" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm focus:border-blue-500 focus:bg-white transition-all shadow-sm" required minLength="6" />
+              </div>
+              <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white p-3.5 rounded-xl text-sm font-bold hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all active:scale-[0.98] disabled:bg-blue-300 flex justify-center mt-2">{loading ? <Loader2 className="animate-spin w-5 h-5" /> : '🚀 로그인'}</button>
+            </form>
+            <div className="text-center"><button onClick={() => setIsSignupMode(true)} className="text-slate-500 text-sm font-bold hover:text-blue-600 underline transition-colors">회원 가입</button></div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 const Header = ({ currentUser, memberCount, onOpenUserInfo, handleLogout, onOpenChangeDept, onOpenChangePwd, onOpenAdminGrant, onOpenRedemptionList, onOpenGift, onOpenAdminManage, onOpenAdminClawback, boosterActive }) => {
@@ -1101,7 +1086,7 @@ const FeedTab = ({ feeds, activeFeedFilter, setActiveFeedFilter, onWriteClickWit
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
-        {[{ id: 'all', label: '전체' }, { id: 'praise', label: '칭찬하기' }, { id: 'dept_news', label: '우리팀 톡톡🏢' }, { id: 'knowhow', label: '꿀팁.zip🧠' }, { id: 'matjib', label: '맛집레이더🍜' }].map(tab => (
+        {[{ id: 'all', label: '전체' }, { id: 'praise', label: '칭찬뿜뿜💚' }, { id: 'dept_news', label: '우리팀 톡톡🏢' }, { id: 'knowhow', label: '꿀팁.zip🧠' }, { id: 'matjib', label: '맛집레이더🍜' }].map(tab => (
           <button key={tab.id} onClick={() => setActiveFeedFilter(tab.id)} className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all border ${activeFeedFilter === tab.id ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}>{tab.label}</button>
         ))}
       </div>
@@ -1391,6 +1376,7 @@ const BottomNav = ({ activeTab, onTabChange, onFabClick }) => {
   const NavBtn = ({ item }) => (
     <button
       onClick={() => {
+          // 피드 탭을 "하단 네비게이션"에서 직접 누를 때만 'all'로 리셋합니다.
           if (item.id === 'feed') {
               onTabChange(item.id, 'all');
           } else {
@@ -1457,9 +1443,6 @@ const Comment = ({ comment, currentUser, handleDeleteComment, handleLikeComment 
     );
 };
 
-// =========================================================================================
-// 🚀 [수정 완료] 메인 App 컴포넌트 구조 변경 (잘림 방지)
-// =========================================================================================
 export default function App() {
   const [supabase, setSupabase] = useState(null);
   const [isSupabaseReady, setIsSupabaseReady] = useState(false);
@@ -2087,6 +2070,7 @@ export default function App() {
   const handleChangeDept = async (newDept, newTeam) => { if (!currentUser || !supabase) return; try { await supabase.from('profiles').update({ dept: newDept, team: newTeam }).eq('id', currentUser.id); fetchUserData(currentUser.id); setShowChangeDeptModal(false); alert('소속이 변경되었습니다.'); } catch(err) { console.error(err); } };
   const handleChangePassword = async (newPassword) => { if (!currentUser || !supabase) return; try { const { error } = await supabase.auth.updateUser({ password: newPassword }); if (error) throw error; setShowChangePwdModal(false); alert('비밀번호가 변경되었습니다. 다시 로그인해주세요.'); handleLogout(); } catch(err) { console.error(err); } };
   
+  // [수정] 탭 전환 시 필터 초기화 로직 분리 (HomeTab에서 넘어올 때는 필터 유지)
   const handleTabChange = (tabId, resetFilter = null) => {
       if (tabId === activeTab && !resetFilter) return;
 
@@ -2116,101 +2100,44 @@ export default function App() {
 
   if (!isSupabaseReady) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white flex-col gap-4">
+      <div className="min-min-h-[100dvh] flex items-center justify-center bg-blue-50 flex-col gap-4">
         <Loader2 className="w-12 h-12 animate-spin text-blue-500" />
         <p className="text-sm font-bold text-slate-500">앱을 불러오는 중입니다...</p>
       </div>
     );
   }
 
-  // 💡 메인 렌더링 구조: 로그인 전/후를 완벽히 분리하여 `overflow-hidden` 제약 탈출
-  if (!session) {
-      return <AuthForm isSignupMode={isSignupMode} setIsSignupMode={setIsSignupMode} handleLogin={handleLogin} handleSignup={handleSignup} loading={loading} />
-  }
-
   return (
     <div className="min-h-[100dvh] w-full bg-slate-50 font-sans">
-      <div className="w-full h-[100dvh] shadow-2xl relative overflow-hidden bg-slate-50">
+      <div className="w-full min-h-[100dvh] shadow-2xl relative bg-slate-50 overflow-auto">
         <div className="relative z-10 h-full flex flex-col">
-          <>
-            <Header 
-              currentUser={currentUser} 
-              memberCount={profiles.length} 
-              onOpenUserInfo={() => setShowUserInfoModal(true)} 
-              handleLogout={handleLogout} 
-              onOpenChangeDept={() => setShowChangeDeptModal(true)} 
-              onOpenChangePwd={() => setShowChangePwdModal(true)} 
-              onOpenAdminGrant={() => setShowAdminGrantModal(true)} 
-              onOpenRedemptionList={() => { fetchRedemptionList(); setShowRedemptionListModal(true); }} 
-              onOpenGift={() => setShowGiftModal(true)} 
-              onOpenAdminManage={() => setShowAdminManageModal(true)} 
-              onOpenAdminClawback={() => setShowAdminClawbackModal(true)}
-              boosterActive={boosterActive} 
-            />
-            <main className="flex-1 overflow-hidden">
-              <div className="relative h-full overflow-hidden">
-                <div
-                  className={`absolute inset-0 h-full w-full transition-transform duration-300 ease-out ${
-                    isSliding ? (slideDir === 1 ? '-translate-x-full' : 'translate-x-full') : 'translate-x-0'
-                  }`}
-                >
-                  <div className="h-full overflow-y-auto custom-scrollbar">
-                    {displayTab === 'home' && (
-                      <HomeTab
-                        mood={mood}
-                        handleMoodCheck={handleMoodCheck}
-                        handleCheckOut={handleCheckOut}
-                        hasCheckedOut={hasCheckedOut}
-                        feeds={feeds}
-                        weeklyBirthdays={weeklyBirthdays}
-                        onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
-                        onNavigateToNews={() => { handleTabChange('news'); }}
-                        onNavigateToFeed={(type, id) => {
-                          if(type) setActiveFeedFilter(type);
-                          if(id) setSelectedPostId(id);
-                          handleTabChange('feed');
-                        }}
-                        boosterActive={boosterActive}
-                        currentUser={currentUser}
-                        attendanceEnabled={attendanceEnabled}
-                        onOpenActivityModal={(type) => { setActivityModalType(type); setShowMyActivityModal(true); }}
-                        onOpenGiftForUser={(userId) => { setPreSelectedGiftUser(userId); setShowGiftModal(true); }}
-                      />
-                    )}
-
-                    {(displayTab === 'feed' || displayTab === 'news') && (
-                      <FeedTab
-                        feeds={feeds}
-                        activeFeedFilter={displayTab === 'news' ? 'news' : activeFeedFilter}
-                        setActiveFeedFilter={setActiveFeedFilter}
-                        onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
-                        currentUser={currentUser}
-                        handleDeletePost={handleDeletePost}
-                        handleLikePost={handleLikePost}
-                        handleAddComment={handleAddComment}
-                        handleDeleteComment={handleDeleteComment}
-                        boosterActive={boosterActive}
-                        selectedPostId={selectedPostId}
-                        onClearSelection={() => setSelectedPostId(null)}
-                        handleLikeComment={handleLikeComment}
-                      />
-                    )}
-
-                    {displayTab === 'ranking' && (
-                      <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} currentUser={currentUser} />
-                    )}
-                  </div>
-                </div>
-
-                {nextTab && (
+          {!session ? (
+            <AuthForm isSignupMode={isSignupMode} setIsSignupMode={setIsSignupMode} handleLogin={handleLogin} handleSignup={handleSignup} loading={loading} />
+          ) : (
+            <>
+              <Header 
+                currentUser={currentUser} 
+                memberCount={profiles.length} 
+                onOpenUserInfo={() => setShowUserInfoModal(true)} 
+                handleLogout={handleLogout} 
+                onOpenChangeDept={() => setShowChangeDeptModal(true)} 
+                onOpenChangePwd={() => setShowChangePwdModal(true)} 
+                onOpenAdminGrant={() => setShowAdminGrantModal(true)} 
+                onOpenRedemptionList={() => { fetchRedemptionList(); setShowRedemptionListModal(true); }} 
+                onOpenGift={() => setShowGiftModal(true)} 
+                onOpenAdminManage={() => setShowAdminManageModal(true)} 
+                onOpenAdminClawback={() => setShowAdminClawbackModal(true)}
+                boosterActive={boosterActive} 
+              />
+              <main className="flex-1 overflow-hidden">
+                <div className="relative h-full overflow-hidden">
                   <div
                     className={`absolute inset-0 h-full w-full transition-transform duration-300 ease-out ${
-                      isSliding ? 'translate-x-0' : (slideDir === 1 ? 'translate-x-full' : '-translate-x-full')
+                      isSliding ? (slideDir === 1 ? '-translate-x-full' : 'translate-x-full') : 'translate-x-0'
                     }`}
-                    style={{ transform: isSliding ? 'translateX(0)' : `translateX(${slideDir === 1 ? 100 : -100}%)` }}
                   >
                     <div className="h-full overflow-y-auto custom-scrollbar">
-                      {nextTab === 'home' && (
+                      {displayTab === 'home' && (
                         <HomeTab
                           mood={mood}
                           handleMoodCheck={handleMoodCheck}
@@ -2220,6 +2147,7 @@ export default function App() {
                           weeklyBirthdays={weeklyBirthdays}
                           onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
                           onNavigateToNews={() => { handleTabChange('news'); }}
+                          // [수정] 타입 파라미터 전달 시 해당 필터를 그대로 유지하면서 이동
                           onNavigateToFeed={(type, id) => {
                             if(type) setActiveFeedFilter(type);
                             if(id) setSelectedPostId(id);
@@ -2233,10 +2161,10 @@ export default function App() {
                         />
                       )}
 
-                      {(nextTab === 'feed' || nextTab === 'news') && (
+                      {(displayTab === 'feed' || displayTab === 'news') && (
                         <FeedTab
                           feeds={feeds}
-                          activeFeedFilter={nextTab === 'news' ? 'news' : activeFeedFilter}
+                          activeFeedFilter={displayTab === 'news' ? 'news' : activeFeedFilter}
                           setActiveFeedFilter={setActiveFeedFilter}
                           onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
                           currentUser={currentUser}
@@ -2251,43 +2179,99 @@ export default function App() {
                         />
                       )}
 
-                      {nextTab === 'ranking' && (
+                      {displayTab === 'ranking' && (
                         <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} currentUser={currentUser} />
                       )}
                     </div>
                   </div>
-                )}
-              </div>
-            </main>
-            <BottomNav activeTab={activeTab} onTabChange={handleTabChange}  onFabClick={() => { setWriteCategory(null); setShowWriteModal(true); }} />
-            
-            {showWriteModal && <WriteModal setShowWriteModal={setShowWriteModal} handlePostSubmit={handlePostSubmit} currentUser={currentUser} activeTab={activeTab} boosterActive={boosterActive} initialCategory={writeCategory} profiles={profiles} />}
-            {showUserInfoModal && currentUser && <UserInfoModal currentUser={currentUser} pointHistory={pointHistory} setShowUserInfoModal={setShowUserInfoModal} handleRedeemPoints={handleRedeemPoints} />}
-            {showBirthdayPopup && currentUser && <BirthdayPopup currentUser={currentUser} handleBirthdayGrant={handleBirthdayGrant} setShowBirthdayPopup={setShowBirthdayPopup} />}
-            {showGiftModal && <GiftModal onClose={() => setShowGiftModal(false)} onGift={handleGiftPoints} profiles={profiles} currentUser={currentUser} pointHistory={pointHistory} preSelectedUserId={preSelectedGiftUser} />}
-            {showGiftNotificationModal && <GiftNotificationModal onClose={() => setShowGiftNotificationModal(false)} gifts={newGifts} />}
-            {showAdminGrantPopup && newAdminGrants.length > 0 && <AdminGrantPopup grants={newAdminGrants} onClose={() => setShowAdminGrantPopup(false)} />}
-            
-            {showAdminManageModal && <AdminManageModal onClose={() => setShowAdminManageModal(false)} profiles={profiles} onUpdateUser={handleAdminUpdateUser} onDeleteUser={handleAdminDeleteUser} boosterActive={boosterActive} setBoosterActive={setBoosterActive} />}
-            {showChangeDeptModal && <ChangeDeptModal onClose={() => setShowChangeDeptModal(false)} onSave={handleChangeDept} />}
-            {showChangePwdModal && <ChangePasswordModal onClose={() => setShowChangePwdModal(false)} onSave={handleChangePassword} />}
-            {showMyActivityModal && <MyActivityModal onClose={() => setShowMyActivityModal(false)} type={activityModalType} feeds={feeds} currentUser={currentUser} />}
 
-            {showAdminGrantModal && (
-                <AdminGrantModal 
-                    onClose={() => setShowAdminGrantModal(false)} 
-                    onGrant={handleAdminGrantPoints} 
-                    profiles={profiles} 
-                    feeds={feeds}
-                    allPointHistory={allPointHistory}
-                />
-            )}
-            {showAdminClawbackModal && <AdminClawbackModal onClose={() => setShowAdminClawbackModal(false)} onClawback={handleAdminClawbackPoints} profiles={profiles} />}
-            {showRedemptionListModal && <RedemptionListModal onClose={() => setShowRedemptionListModal(false)} redemptionList={redemptionList} onComplete={handleCompleteRedemption} />}
-            {showAdminAlertModal && <AdminAlertModal onClose={handleCloseAdminAlert} />}
-            
-            <MoodToast visible={toast.visible} message={toast.message} emoji={toast.emoji} />
-          </>
+                  {nextTab && (
+                    <div
+                      className={`absolute inset-0 h-full w-full transition-transform duration-300 ease-out ${
+                        isSliding ? 'translate-x-0' : (slideDir === 1 ? 'translate-x-full' : '-translate-x-full')
+                      }`}
+                      style={{ transform: isSliding ? 'translateX(0)' : `translateX(${slideDir === 1 ? 100 : -100}%)` }}
+                    >
+                      <div className="h-full overflow-y-auto custom-scrollbar">
+                        {nextTab === 'home' && (
+                          <HomeTab
+                            mood={mood}
+                            handleMoodCheck={handleMoodCheck}
+                            handleCheckOut={handleCheckOut}
+                            hasCheckedOut={hasCheckedOut}
+                            feeds={feeds}
+                            weeklyBirthdays={weeklyBirthdays}
+                            onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
+                            onNavigateToNews={() => { handleTabChange('news'); }}
+                            onNavigateToFeed={(type, id) => {
+                              if(type) setActiveFeedFilter(type);
+                              if(id) setSelectedPostId(id);
+                              handleTabChange('feed');
+                            }}
+                            boosterActive={boosterActive}
+                            currentUser={currentUser}
+                            attendanceEnabled={attendanceEnabled}
+                            onOpenActivityModal={(type) => { setActivityModalType(type); setShowMyActivityModal(true); }}
+                            onOpenGiftForUser={(userId) => { setPreSelectedGiftUser(userId); setShowGiftModal(true); }}
+                          />
+                        )}
+
+                        {(nextTab === 'feed' || nextTab === 'news') && (
+                          <FeedTab
+                            feeds={feeds}
+                            activeFeedFilter={nextTab === 'news' ? 'news' : activeFeedFilter}
+                            setActiveFeedFilter={setActiveFeedFilter}
+                            onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
+                            currentUser={currentUser}
+                            handleDeletePost={handleDeletePost}
+                            handleLikePost={handleLikePost}
+                            handleAddComment={handleAddComment}
+                            handleDeleteComment={handleDeleteComment}
+                            boosterActive={boosterActive}
+                            selectedPostId={selectedPostId}
+                            onClearSelection={() => setSelectedPostId(null)}
+                            handleLikeComment={handleLikeComment}
+                          />
+                        )}
+
+                        {nextTab === 'ranking' && (
+                          <RankingTab feeds={feeds} profiles={profiles} allPointHistory={allPointHistory} currentUser={currentUser} />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </main>
+              <BottomNav activeTab={activeTab} onTabChange={handleTabChange}  onFabClick={() => { setWriteCategory(null); setShowWriteModal(true); }} />
+              
+              {showWriteModal && <WriteModal setShowWriteModal={setShowWriteModal} handlePostSubmit={handlePostSubmit} currentUser={currentUser} activeTab={activeTab} boosterActive={boosterActive} initialCategory={writeCategory} profiles={profiles} />}
+              {showUserInfoModal && currentUser && <UserInfoModal currentUser={currentUser} pointHistory={pointHistory} setShowUserInfoModal={setShowUserInfoModal} handleRedeemPoints={handleRedeemPoints} />}
+              {showBirthdayPopup && currentUser && <BirthdayPopup currentUser={currentUser} handleBirthdayGrant={handleBirthdayGrant} setShowBirthdayPopup={setShowBirthdayPopup} />}
+              {showGiftModal && <GiftModal onClose={() => setShowGiftModal(false)} onGift={handleGiftPoints} profiles={profiles} currentUser={currentUser} pointHistory={pointHistory} preSelectedUserId={preSelectedGiftUser} />}
+              {showGiftNotificationModal && <GiftNotificationModal onClose={() => setShowGiftNotificationModal(false)} gifts={newGifts} />}
+              {showAdminGrantPopup && newAdminGrants.length > 0 && <AdminGrantPopup grants={newAdminGrants} onClose={() => setShowAdminGrantPopup(false)} />}
+              
+              {showAdminManageModal && <AdminManageModal onClose={() => setShowAdminManageModal(false)} profiles={profiles} onUpdateUser={handleAdminUpdateUser} onDeleteUser={handleAdminDeleteUser} boosterActive={boosterActive} setBoosterActive={setBoosterActive} />}
+              {showChangeDeptModal && <ChangeDeptModal onClose={() => setShowChangeDeptModal(false)} onSave={handleChangeDept} />}
+              {showChangePwdModal && <ChangePasswordModal onClose={() => setShowChangePwdModal(false)} onSave={handleChangePassword} />}
+              {showMyActivityModal && <MyActivityModal onClose={() => setShowMyActivityModal(false)} type={activityModalType} feeds={feeds} currentUser={currentUser} />}
+
+              {showAdminGrantModal && (
+                  <AdminGrantModal 
+                      onClose={() => setShowAdminGrantModal(false)} 
+                      onGrant={handleAdminGrantPoints} 
+                      profiles={profiles} 
+                      feeds={feeds}
+                      allPointHistory={allPointHistory}
+                  />
+              )}
+              {showAdminClawbackModal && <AdminClawbackModal onClose={() => setShowAdminClawbackModal(false)} onClawback={handleAdminClawbackPoints} profiles={profiles} />}
+              {showRedemptionListModal && <RedemptionListModal onClose={() => setShowRedemptionListModal(false)} redemptionList={redemptionList} onComplete={handleCompleteRedemption} />}
+              {showAdminAlertModal && <AdminAlertModal onClose={handleCloseAdminAlert} />}
+              
+              <MoodToast visible={toast.visible} message={toast.message} emoji={toast.emoji} />
+            </>
+          )}
         </div>
       </div>
     </div>
