@@ -83,7 +83,6 @@ const MOTTO_365 = [
 
 // --- Custom Logo Component ---
 const ConnectHubLogo = ({ size = "md" }) => {
-    // 사이즈 분기 세분화 (sm 추가)
     const sizeClasses = size === "lg" ? "w-16 h-16" : size === "md" ? "w-10 h-10" : "w-7 h-7";
     const iconSize = size === "lg" ? "w-16 h-16" : size === "md" ? "w-10 h-10" : "w-7 h-7";
     const subIconSize = size === "lg" ? "w-6 h-6" : size === "md" ? "w-4 h-4" : "w-3 h-3";
@@ -179,6 +178,85 @@ const MoodToast = ({ message, emoji, visible }) => {
 };
 
 const NewBadge = () => (<div className="w-5 h-5 bg-red-600 rounded-full flex items-center justify-center text-white text-[10px] font-black shadow-sm ring-2 ring-white">N</div>);
+
+// =========================================================================
+// 🚀 [수정 완료] 초압축(Ultra-Compact) 인증 폼 컴포넌트
+// =========================================================================
+const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, loading }) => {
+  const [birthdate, setBirthdate] = useState('1980-01-01');
+  const [selectedDept, setSelectedDept] = useState('');
+  const [email, setEmail] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  return (
+    <div className="min-h-[100dvh] w-full bg-slate-50 flex justify-center items-center p-4">
+      
+      {/* 폼 최대 너비를 280px로 강제 고정하여 극단적 컴팩트화 적용 */}
+      <div className="w-full max-w-[280px] bg-white rounded-2xl shadow-xl p-4 border border-slate-100 flex flex-col gap-3 relative">
+        
+        {/* 상단 로고 및 텍스트 초소형화 */}
+        <div className="text-center flex flex-col items-center mb-1">
+          <ConnectHubLogo size="sm" />
+          <h1 className="text-[13px] font-black text-slate-800 tracking-tight mt-1">Connect HUB</h1>
+        </div>
+
+        {isSignupMode ? (
+          <form onSubmit={handleSignup} className="flex flex-col gap-2 w-full">
+            
+            {/* 이름 / 생년월일 (2단 배치, 높이 및 글자크기 최소화) */}
+            <div className="grid grid-cols-2 gap-2">
+              <input name="name" type="text" placeholder="이름(홍길동)" className="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] outline-none focus:border-blue-500" required />
+              <input name="birthdate" type="date" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] text-slate-600 outline-none focus:border-blue-500" required />
+            </div>
+            
+            <input name="email" type="email" placeholder="이메일 (@axa.co.kr 불가)" className="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] outline-none focus:border-blue-500" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <input name="password" type="password" placeholder="비밀번호 (숫자 6자리~)" className="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] outline-none focus:border-blue-500" required minLength="6" />
+            
+            {/* 소속 / 팀 (2단 배치, 패딩 최소화) */}
+            <div className="grid grid-cols-2 gap-2 bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+              <select name="dept" className="w-full h-7 px-1 bg-white border border-slate-200 rounded-md text-[9px] outline-none" onChange={(e) => setSelectedDept(e.target.value)} required>
+                <option value="">본부/부문</option>{Object.keys(ORGANIZATION).map(dept => <option key={dept} value={dept}>{dept}</option>)}
+              </select>
+              <select name="team" className="w-full h-7 px-1 bg-white border border-slate-200 rounded-md text-[9px] outline-none" disabled={!selectedDept} required>
+                <option value="">팀/센터</option>{selectedDept && ORGANIZATION[selectedDept].map(team => <option key={team} value={team}>{team}</option>)}
+              </select>
+            </div>
+
+            {/* 약관 동의 체크박스 */}
+            <label className="flex items-center justify-center gap-1.5 bg-blue-50/50 p-2 rounded-lg border border-blue-100 cursor-pointer">
+                <input type="checkbox" className="w-3 h-3 rounded border-gray-300 text-blue-600" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} />
+                <span className="text-[9px] font-bold text-slate-700 tracking-tight">개인정보/대외비 공유 금지 동의</span>
+            </label>
+
+            {/* 버튼 영역 */}
+            <div className="flex flex-col gap-1.5 mt-1">
+              <button type="submit" disabled={loading || !agreedToTerms} className="w-full h-9 bg-blue-600 text-white rounded-xl text-[11px] font-black hover:bg-blue-700 shadow-sm flex justify-center items-center">
+                  {loading ? <Loader2 className="animate-spin w-3 h-3" /> : '가입 완료 (1,000P)'}
+              </button>
+              <button type="button" onClick={() => setIsSignupMode(false)} className="w-full text-slate-400 text-[10px] py-1 hover:text-blue-600 font-bold">
+                  로그인으로 돌아가기
+              </button>
+            </div>
+          </form>
+        ) : (
+          <form onSubmit={handleLogin} className="flex flex-col gap-2 mt-1">
+            <input name="email" type="text" placeholder="이메일 입력" className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] outline-none focus:border-blue-500" />
+            <input name="password" type="password" placeholder="비밀번호" className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] outline-none focus:border-blue-500" required minLength="6" />
+            <button type="submit" disabled={loading} className="w-full h-9 mt-1 bg-slate-800 text-white rounded-xl text-[11px] font-bold hover:bg-slate-900 shadow-sm flex justify-center items-center">
+                {loading ? <Loader2 className="animate-spin w-4 h-4" /> : '로그인'}
+            </button>
+            <div className="text-center mt-3">
+                <button type="button" onClick={() => setIsSignupMode(true)} className="text-blue-600 text-[10px] font-bold underline underline-offset-2">
+                    회원 가입하기
+                </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+};
+// =========================================================================
 
 const AdminGrantPopup = ({ grants, onClose }) => {
     const total = grants.reduce((acc, curr) => acc + curr.amount, 0);
@@ -302,86 +380,6 @@ const MyActivityModal = ({ onClose, type, feeds, currentUser }) => {
             </div>
         </div>
     );
-};
-
-const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, loading }) => {
-  const [birthdate, setBirthdate] = useState('1980-01-01');
-  const [selectedDept, setSelectedDept] = useState('');
-  const [email, setEmail] = useState('');
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
-
-  return (
-    <div className="min-h-[100dvh] bg-slate-100 flex justify-center items-center p-2">
-      
-      {/* 💡 핵심 변경: 폼의 최대 가로폭을 260px로 강제 고정하여 극단적으로 압축 */}
-      <div className="w-full max-w-[260px] bg-white rounded-xl shadow-lg p-4 border border-slate-200 flex flex-col gap-2">
-        
-        {/* 상단 로고 및 타이틀 크기 최소화 */}
-        <div className="text-center flex flex-col items-center mb-1">
-          <ConnectHubLogo size="sm" />
-          <h1 className="text-[12px] font-black text-slate-800 tracking-tighter mt-1">Connect HUB</h1>
-        </div>
-
-        {isSignupMode ? (
-          <form onSubmit={handleSignup} className="flex flex-col gap-1.5 w-full">
-            
-            {/* 이름 / 생년월일 (높이 h-7, 텍스트 9~10px 고정) */}
-            <div className="grid grid-cols-2 gap-1.5">
-              <input name="name" type="text" placeholder="이름(홍길동)" className="w-full h-7 px-2 bg-slate-50 border border-slate-200 rounded text-[10px] outline-none focus:border-blue-500" required />
-              <input name="birthdate" type="date" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className="w-full h-7 px-2 bg-slate-50 border border-slate-200 rounded text-[9px] text-slate-600 outline-none focus:border-blue-500" required />
-            </div>
-
-            {/* 이메일 / 비밀번호 */}
-            <input name="email" type="email" placeholder="이메일 (@axa.co.kr 불가)" className="w-full h-7 px-2 bg-slate-50 border border-slate-200 rounded text-[10px] outline-none focus:border-blue-500" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <input name="password" type="password" placeholder="비밀번호 (숫자 6자리~)" className="w-full h-7 px-2 bg-slate-50 border border-slate-200 rounded text-[10px] outline-none focus:border-blue-500" required minLength="6" />
-
-            {/* 소속 / 팀 */}
-            <div className="grid grid-cols-2 gap-1.5">
-              <select name="dept" className="w-full h-7 px-1 bg-slate-50 border border-slate-200 rounded text-[9px] outline-none" onChange={(e) => setSelectedDept(e.target.value)} required>
-                <option value="">본부/부문</option>{Object.keys(ORGANIZATION).map(dept => <option key={dept} value={dept}>{dept}</option>)}
-              </select>
-              <select name="team" className="w-full h-7 px-1 bg-slate-50 border border-slate-200 rounded text-[9px] outline-none" disabled={!selectedDept} required>
-                <option value="">팀/센터</option>{selectedDept && ORGANIZATION[selectedDept].map(team => <option key={team} value={team}>{team}</option>)}
-              </select>
-            </div>
-
-            {/* 약관 동의 */}
-            <label className="flex items-center gap-1 mt-0.5 cursor-pointer">
-                <input type="checkbox" className="w-2.5 h-2.5 rounded border-gray-300" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} />
-                <span className="text-[8px] font-bold text-slate-600 tracking-tighter">개인정보/대외비 공유 금지 동의</span>
-            </label>
-
-            {/* 버튼 영역 */}
-            <div className="flex flex-col gap-1.5 mt-1">
-              <button type="submit" disabled={loading || !agreedToTerms} className="w-full h-7 bg-blue-600 text-white rounded text-[10px] font-bold flex justify-center items-center">
-                  {loading ? <Loader2 className="animate-spin w-3 h-3" /> : '가입완료 (1,000P)'}
-              </button>
-              <button type="button" onClick={() => setIsSignupMode(false)} className="w-full text-slate-500 text-[9px] mt-1 underline underline-offset-2">
-                  로그인으로 돌아가기
-              </button>
-            </div>
-          </form>
-
-        ) : (
-          /* 초압축 로그인 폼 */
-          <form onSubmit={handleLogin} className="flex flex-col gap-2">
-            <input name="email" type="text" placeholder="이메일" className="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-[10px] outline-none focus:border-blue-500" />
-            <input name="password" type="password" placeholder="비밀번호" className="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-[10px] outline-none focus:border-blue-500" required minLength="6" />
-            
-            <button type="submit" disabled={loading} className="w-full h-8 mt-1 bg-slate-800 text-white rounded text-[10px] font-bold flex justify-center items-center">
-                {loading ? <Loader2 className="animate-spin w-3 h-3" /> : '로그인'}
-            </button>
-            
-            <div className="text-center mt-2">
-              <button type="button" onClick={() => setIsSignupMode(true)} className="text-blue-600 text-[10px] font-bold underline underline-offset-2">
-                  회원가입
-              </button>
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
-  );
 };
 
 const Header = ({ currentUser, memberCount, onOpenUserInfo, handleLogout, onOpenChangeDept, onOpenChangePwd, onOpenAdminGrant, onOpenRedemptionList, onOpenGift, onOpenAdminManage, onOpenAdminClawback, boosterActive }) => {
@@ -2070,7 +2068,6 @@ export default function App() {
   const handleChangeDept = async (newDept, newTeam) => { if (!currentUser || !supabase) return; try { await supabase.from('profiles').update({ dept: newDept, team: newTeam }).eq('id', currentUser.id); fetchUserData(currentUser.id); setShowChangeDeptModal(false); alert('소속이 변경되었습니다.'); } catch(err) { console.error(err); } };
   const handleChangePassword = async (newPassword) => { if (!currentUser || !supabase) return; try { const { error } = await supabase.auth.updateUser({ password: newPassword }); if (error) throw error; setShowChangePwdModal(false); alert('비밀번호가 변경되었습니다. 다시 로그인해주세요.'); handleLogout(); } catch(err) { console.error(err); } };
   
-  // [수정] 탭 전환 시 필터 초기화 로직 분리 (HomeTab에서 넘어올 때는 필터 유지)
   const handleTabChange = (tabId, resetFilter = null) => {
       if (tabId === activeTab && !resetFilter) return;
 
@@ -2147,7 +2144,6 @@ export default function App() {
                           weeklyBirthdays={weeklyBirthdays}
                           onWriteClickWithCategory={(category) => { setWriteCategory(category); setShowWriteModal(true); }}
                           onNavigateToNews={() => { handleTabChange('news'); }}
-                          // [수정] 타입 파라미터 전달 시 해당 필터를 그대로 유지하면서 이동
                           onNavigateToFeed={(type, id) => {
                             if(type) setActiveFeedFilter(type);
                             if(id) setSelectedPostId(id);
