@@ -310,8 +310,8 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex justify-center items-center p-4">
-      <div className="w-full max-w-md bg-white rounded-[2rem] shadow-2xl p-6 border border-white/50 animate-fade-in relative backdrop-blur-xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+    <div className="min-h-[100dvh] bg-gradient-to-br from-blue-50 to-indigo-50 flex justify-center items-center p-4">
+      <div className="w-full max-w-md bg-white rounded-[2rem] shadow-2xl p-6 border border-white/50 animate-fade-in relative backdrop-blur-xl max-h-[85dvh] sm:max-h-[90dvh] overflow-y-auto custom-scrollbar">
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
         
         <div className="text-center mb-4 mt-2 flex flex-col items-center">
@@ -1376,7 +1376,6 @@ const BottomNav = ({ activeTab, onTabChange, onFabClick }) => {
   const NavBtn = ({ item }) => (
     <button
       onClick={() => {
-          // 피드 탭을 "하단 네비게이션"에서 직접 누를 때만 'all'로 리셋합니다.
           if (item.id === 'feed') {
               onTabChange(item.id, 'all');
           } else {
@@ -2100,7 +2099,7 @@ export default function App() {
 
   if (!isSupabaseReady) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-blue-50 flex-col gap-4">
+      <div className="min-h-[100dvh] flex items-center justify-center bg-blue-50 flex-col gap-4">
         <Loader2 className="w-12 h-12 animate-spin text-blue-500" />
         <p className="text-sm font-bold text-slate-500">앱을 불러오는 중입니다...</p>
       </div>
@@ -2108,8 +2107,8 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 font-sans">
-      <div className="w-full h-screen min-h-screen shadow-2xl relative overflow-hidden bg-slate-50">
+    <div className="min-h-[100dvh] w-full bg-slate-50 font-sans">
+      <div className="w-full h-[100dvh] shadow-2xl relative overflow-hidden bg-slate-50">
         <div className="relative z-10 h-full flex flex-col">
           {!session ? (
             <AuthForm isSignupMode={isSignupMode} setIsSignupMode={setIsSignupMode} handleLogin={handleLogin} handleSignup={handleSignup} loading={loading} />
