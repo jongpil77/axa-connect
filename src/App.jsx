@@ -179,9 +179,6 @@ const MoodToast = ({ message, emoji, visible }) => {
 
 const NewBadge = () => (<div className="w-5 h-5 bg-red-600 rounded-full flex items-center justify-center text-white text-[10px] font-black shadow-sm ring-2 ring-white">N</div>);
 
-// =========================================================================
-// 🚀 [수정 완료] 초압축(Ultra-Compact) 인증 폼 컴포넌트
-// =========================================================================
 const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, loading }) => {
   const [birthdate, setBirthdate] = useState('1980-01-01');
   const [selectedDept, setSelectedDept] = useState('');
@@ -189,74 +186,81 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   return (
-    <div className="min-h-[100dvh] w-full bg-slate-50 flex justify-center items-center p-4">
+    // 💡 핵심 해결 1: h-full과 overflow-y-auto를 추가하여 화면이 작아도 무조건 스크롤되도록 보장
+    <div className="h-full w-full bg-slate-50 overflow-y-auto custom-scrollbar">
       
-      {/* 폼 최대 너비를 280px로 강제 고정하여 극단적 컴팩트화 적용 */}
-      <div className="w-full max-w-[280px] bg-white rounded-2xl shadow-xl p-4 border border-slate-100 flex flex-col gap-3 relative">
+      {/* 💡 핵심 해결 2: min-h-full과 py-6으로 상하단 여백 확보하여 잘림 원천 차단 */}
+      <div className="min-h-full w-full flex justify-center items-center p-4 py-6">
         
-        {/* 상단 로고 및 텍스트 초소형화 */}
-        <div className="text-center flex flex-col items-center mb-1">
-          <ConnectHubLogo size="sm" />
-          <h1 className="text-[13px] font-black text-slate-800 tracking-tight mt-1">Connect HUB</h1>
-        </div>
+        {/* 가로폭 극단적 축소 (max-w-[320px]) 및 폼 병합 */}
+        <div className="w-full max-w-[320px] bg-white rounded-2xl shadow-xl p-5 border border-slate-200 flex flex-col gap-3 relative shrink-0 my-auto">
+          
+          <div className="text-center flex flex-col items-center mb-1">
+            <ConnectHubLogo size="sm" />
+            <h1 className="text-sm font-black text-slate-800 tracking-tight mt-1">Connect HUB</h1>
+          </div>
 
-        {isSignupMode ? (
-          <form onSubmit={handleSignup} className="flex flex-col gap-2 w-full">
-            
-            {/* 이름 / 생년월일 (2단 배치, 높이 및 글자크기 최소화) */}
-            <div className="grid grid-cols-2 gap-2">
-              <input name="name" type="text" placeholder="이름(홍길동)" className="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] outline-none focus:border-blue-500" required />
-              <input name="birthdate" type="date" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] text-slate-600 outline-none focus:border-blue-500" required />
-            </div>
-            
-            <input name="email" type="email" placeholder="이메일 (@axa.co.kr 불가)" className="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] outline-none focus:border-blue-500" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <input name="password" type="password" placeholder="비밀번호 (숫자 6자리~)" className="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] outline-none focus:border-blue-500" required minLength="6" />
-            
-            {/* 소속 / 팀 (2단 배치, 패딩 최소화) */}
-            <div className="grid grid-cols-2 gap-2 bg-slate-50 p-1.5 rounded-lg border border-slate-100">
-              <select name="dept" className="w-full h-7 px-1 bg-white border border-slate-200 rounded-md text-[9px] outline-none" onChange={(e) => setSelectedDept(e.target.value)} required>
-                <option value="">본부/부문</option>{Object.keys(ORGANIZATION).map(dept => <option key={dept} value={dept}>{dept}</option>)}
-              </select>
-              <select name="team" className="w-full h-7 px-1 bg-white border border-slate-200 rounded-md text-[9px] outline-none" disabled={!selectedDept} required>
-                <option value="">팀/센터</option>{selectedDept && ORGANIZATION[selectedDept].map(team => <option key={team} value={team}>{team}</option>)}
-              </select>
-            </div>
+          {isSignupMode ? (
+            <form onSubmit={handleSignup} className="flex flex-col gap-2 w-full">
+              <h2 className="text-center text-[13px] font-black text-blue-600 mb-1">회원가입</h2>
 
-            {/* 약관 동의 체크박스 */}
-            <label className="flex items-center justify-center gap-1.5 bg-blue-50/50 p-2 rounded-lg border border-blue-100 cursor-pointer">
-                <input type="checkbox" className="w-3 h-3 rounded border-gray-300 text-blue-600" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} />
-                <span className="text-[9px] font-bold text-slate-700 tracking-tight">개인정보/대외비 공유 금지 동의</span>
-            </label>
+              {/* 이름 / 생년월일 (2단 가로 배치로 세로 공간 대폭 절약) */}
+              <div className="grid grid-cols-2 gap-2">
+                <input name="name" type="text" placeholder="이름 (홍길동)" className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-blue-500" required />
+                <input name="birthdate" type="date" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600 outline-none focus:border-blue-500" required />
+              </div>
+              
+              <input name="email" type="email" placeholder="이메일 (@axa.co.kr 불가)" className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-blue-500" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <input name="password" type="password" placeholder="비밀번호 (숫자 6자리 이상)" className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-blue-500" required minLength="6" />
 
-            {/* 버튼 영역 */}
-            <div className="flex flex-col gap-1.5 mt-1">
-              <button type="submit" disabled={loading || !agreedToTerms} className="w-full h-9 bg-blue-600 text-white rounded-xl text-[11px] font-black hover:bg-blue-700 shadow-sm flex justify-center items-center">
-                  {loading ? <Loader2 className="animate-spin w-3 h-3" /> : '가입 완료 (1,000P)'}
-              </button>
-              <button type="button" onClick={() => setIsSignupMode(false)} className="w-full text-slate-400 text-[10px] py-1 hover:text-blue-600 font-bold">
-                  로그인으로 돌아가기
-              </button>
-            </div>
-          </form>
-        ) : (
-          <form onSubmit={handleLogin} className="flex flex-col gap-2 mt-1">
-            <input name="email" type="text" placeholder="이메일 입력" className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] outline-none focus:border-blue-500" />
-            <input name="password" type="password" placeholder="비밀번호" className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] outline-none focus:border-blue-500" required minLength="6" />
-            <button type="submit" disabled={loading} className="w-full h-9 mt-1 bg-slate-800 text-white rounded-xl text-[11px] font-bold hover:bg-slate-900 shadow-sm flex justify-center items-center">
-                {loading ? <Loader2 className="animate-spin w-4 h-4" /> : '로그인'}
-            </button>
-            <div className="text-center mt-3">
-                <button type="button" onClick={() => setIsSignupMode(true)} className="text-blue-600 text-[10px] font-bold underline underline-offset-2">
-                    회원 가입하기
+              {/* 소속 / 팀 (2단 가로 배치) */}
+              <div className="grid grid-cols-2 gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                <select name="dept" className="w-full h-8 px-1 bg-white border border-slate-200 rounded-md text-[11px] text-slate-700 outline-none" onChange={(e) => setSelectedDept(e.target.value)} required>
+                  <option value="">본부/부문</option>{Object.keys(ORGANIZATION).map(dept => <option key={dept} value={dept}>{dept}</option>)}
+                </select>
+                <select name="team" className="w-full h-8 px-1 bg-white border border-slate-200 rounded-md text-[11px] text-slate-700 outline-none" disabled={!selectedDept} required>
+                  <option value="">팀/센터</option>{selectedDept && ORGANIZATION[selectedDept].map(team => <option key={team} value={team}>{team}</option>)}
+                </select>
+              </div>
+
+              {/* 약관 안내 문구 최소화 및 1줄 통합 */}
+              <label className="flex items-center justify-center gap-1.5 bg-blue-50/50 p-2.5 rounded-lg border border-blue-100 cursor-pointer mt-1">
+                  <input type="checkbox" className="w-3.5 h-3.5 rounded border-gray-300 text-blue-600" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} />
+                  <span className="text-[10px] font-bold text-slate-700 leading-none">개인정보 및 대외비 공유 금지 동의</span>
+              </label>
+
+              {/* 하단 버튼 */}
+              <div className="flex flex-col gap-1.5 mt-2">
+                <button type="submit" disabled={loading || !agreedToTerms} className="w-full h-11 bg-blue-600 text-white rounded-xl text-[12px] font-black hover:bg-blue-700 disabled:bg-slate-300 flex justify-center items-center shadow-md">
+                    {loading ? <Loader2 className="animate-spin w-4 h-4" /> : '🚀 가입 완료 (1,000P 지급)'}
                 </button>
+                <button type="button" onClick={() => setIsSignupMode(false)} className="w-full text-slate-400 text-[11px] py-1.5 hover:text-blue-600 font-bold">
+                    로그인으로 돌아가기
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="w-full flex flex-col gap-3 mt-2">
+              <form onSubmit={handleLogin} className="flex flex-col gap-2.5">
+                <input name="email" type="text" placeholder="이메일 입력" className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm focus:border-blue-500" />
+                <input name="password" type="password" placeholder="비밀번호" className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm focus:border-blue-500" required minLength="6" />
+                <button type="submit" disabled={loading} className="w-full h-11 mt-1 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-900 flex justify-center items-center shadow-md">
+                    {loading ? <Loader2 className="animate-spin w-4 h-4" /> : '로그인'}
+                </button>
+              </form>
+              <div className="text-center mt-2">
+                  <button onClick={() => setIsSignupMode(true)} className="text-blue-600 text-xs font-bold underline underline-offset-2 hover:text-blue-700">
+                      회원 가입하기
+                  </button>
+              </div>
             </div>
-          </form>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
 };
-// =========================================================================
+
 
 const AdminGrantPopup = ({ grants, onClose }) => {
     const total = grants.reduce((acc, curr) => acc + curr.amount, 0);
