@@ -315,18 +315,7 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
       <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-3 border border-white/50 animate-fade-in relative backdrop-blur-xl flex flex-col">
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-t-2xl"></div>
         
-        {/* 헤더 및 로고 영역 높이/여백 최소화 */}
-        <div className="text-center mb-1 mt-0 flex flex-col items-center">
-          <ConnectHubLogo size="sm" />
-          {!isSignupMode && (
-            <>
-              <h1 className="text-base font-black text-slate-800 tracking-tight mt-0.5">Connect HUB</h1>
-              <p className="text-slate-500 text-[9px] font-medium mt-0">자유롭게 함께하는 커뮤니티 🚀</p>
-            </>
-          )}
-        </div>
-
-        {isSignupMode ? (
+               {isSignupMode ? (
           <form onSubmit={handleSignup} className="space-y-0.5 flex flex-col">
             <div>
                 <label className="block text-[9px] font-bold text-slate-600 mb-0 ml-1">이름</label>
