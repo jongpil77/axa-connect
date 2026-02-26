@@ -311,7 +311,7 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
 
   return (
     <div className="min-h-[100dvh] bg-gradient-to-br from-blue-50 to-indigo-50 flex justify-center items-center p-4">
-      <div className="w-full max-w-md bg-white rounded-[2rem] shadow-2xl p-6 border border-white/50 animate-fade-in relative backdrop-blur-xl overflow-y-auto custom-scrollbar" style={{ maxHeight: "min(calc(100dvh - 4rem), calc(100svh - 4rem))" }}>
+      <div className="w-full max-w-4xl bg-white rounded-[2rem] shadow-2xl p-6 border border-white/50 animate-fade-in relative backdrop-blur-xl custom-scrollbar">
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
         
         <div className="text-center mb-4 mt-2 flex flex-col items-center">
