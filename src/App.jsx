@@ -83,14 +83,14 @@ const MOTTO_365 = [
 
 // --- Custom Logo Component ---
 const ConnectHubLogo = ({ size = "md" }) => {
-    const sizeClasses = size === "lg" ? "w-16 h-16" : "w-10 h-10";
-    const iconSize = size === "lg" ? "w-16 h-16" : "w-10 h-10";
-    const subIconSize = size === "lg" ? "w-6 h-6" : "w-4 h-4";
+    const sizeClasses = size === "lg" ? "w-16 h-16" : size === "md" ? "w-10 h-10" : "w-8 h-8";
+    const iconSize = size === "lg" ? "w-16 h-16" : size === "md" ? "w-10 h-10" : "w-8 h-8";
+    const subIconSize = size === "lg" ? "w-6 h-6" : size === "md" ? "w-4 h-4" : "w-3 h-3";
     
     return (
         <div className={`relative flex items-center justify-center ${sizeClasses}`}>
             <MessageCircle className={`${iconSize} text-blue-700 fill-blue-100 absolute`} strokeWidth={1.5} />
-            <Smile className={`${size === "lg" ? "w-8 h-8" : "w-5 h-5"} text-blue-900 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`} strokeWidth={2} />
+            <Smile className={`${size === "lg" ? "w-8 h-8" : size === "md" ? "w-5 h-5" : "w-4 h-4"} text-blue-900 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2`} strokeWidth={2} />
             <Heart className={`${subIconSize} text-[#C60C30] fill-[#C60C30] absolute -top-1 -right-1 z-10 animate-pulse`} />
         </div>
     );
@@ -310,52 +310,56 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   return (
-    <div className="min-h-[100dvh] bg-gradient-to-br from-blue-50 to-indigo-50 flex justify-center items-center p-4">
-      <div className="w-full max-w-md bg-white rounded-[2rem] shadow-2xl p-6 border border-white/50 animate-fade-in relative backdrop-blur-xl max-h-[85dvh] sm:max-h-[90dvh] overflow-y-auto custom-scrollbar">
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+    <div className="min-h-[100dvh] bg-gradient-to-br from-blue-50 to-indigo-50 flex justify-center items-center p-3 sm:p-4">
+      <div className="w-full max-w-md bg-white rounded-[1.5rem] shadow-2xl p-5 sm:p-6 border border-white/50 animate-fade-in relative backdrop-blur-xl max-h-[95dvh] overflow-y-auto custom-scrollbar">
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
         
-        <div className="text-center mb-4 mt-2 flex flex-col items-center">
-          <ConnectHubLogo size="lg" />
-          <h1 className="text-2xl font-black text-slate-800 tracking-tight mb-1 mt-2">Connect HUB</h1>
-          <p className="text-slate-500 text-xs font-medium">자유롭게 함께하는 우리들의 커뮤니티 🚀</p>
+        {/* 헤더 및 로고 영역 압축 */}
+        <div className="text-center mb-3 mt-1 flex flex-col items-center">
+          <ConnectHubLogo size="md" />
+          <h1 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight mt-1">Connect HUB</h1>
+          <p className="text-slate-500 text-[10px] sm:text-xs font-medium mt-0.5">자유롭게 함께하는 커뮤니티 🚀</p>
         </div>
 
         {isSignupMode ? (
-          <form onSubmit={handleSignup} className="space-y-3 pb-8"> {/* pb-8 추가하여 하단 여백 확보 */}
+          <form onSubmit={handleSignup} className="space-y-2.5 pb-2">
             <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1 ml-1">이름</label>
-                <input name="name" type="text" placeholder="홍길동" className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm focus:border-blue-500 focus:bg-white transition-all shadow-sm" required />
+                <label className="block text-[11px] font-bold text-slate-600 mb-0.5 ml-1">이름</label>
+                <input name="name" type="text" placeholder="홍길동" className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm focus:border-blue-500 focus:bg-white transition-all shadow-sm" required />
             </div>
             <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1 ml-1">이메일</label>
-                <input name="email" type="email" placeholder="개인 메일로 입력" className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm focus:border-blue-500 focus:bg-white transition-all shadow-sm" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                <p className="text-[10px] text-red-500 mt-1 ml-1 font-bold">* @axa.co.kr 등 사내 메일은 가입 불가</p>
+                <label className="block text-[11px] font-bold text-slate-600 mb-0.5 ml-1">이메일</label>
+                <input name="email" type="email" placeholder="개인 메일로 입력" className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm focus:border-blue-500 focus:bg-white transition-all shadow-sm" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <p className="text-[9px] text-red-500 mt-0.5 ml-1 font-bold">* @axa.co.kr 등 사내 메일은 가입 불가</p>
             </div>
             <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1 ml-1">생년월일 (양력)</label>
-                <input name="birthdate" type="date" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm text-slate-600 focus:border-blue-500 focus:bg-white transition-all shadow-sm" required />
+                <label className="block text-[11px] font-bold text-slate-600 mb-0.5 ml-1">생년월일 (양력)</label>
+                <input name="birthdate" type="date" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm text-slate-600 focus:border-blue-500 focus:bg-white transition-all shadow-sm" required />
             </div>
             <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1 ml-1">비밀번호</label>
-                <input name="password" type="password" placeholder="비밀번호 (숫자 6자리 이상)" className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm focus:border-blue-500 focus:bg-white transition-all shadow-sm" required minLength="6" />
+                <label className="block text-[11px] font-bold text-slate-600 mb-0.5 ml-1">비밀번호</label>
+                <input name="password" type="password" placeholder="비밀번호 (숫자 6자리 이상)" className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm focus:border-blue-500 focus:bg-white transition-all shadow-sm" required minLength="6" />
             </div>
-            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 shadow-inner">
+            
+            {/* 소속 선택 영역 압축 */}
+            <div className="bg-slate-50 p-2 rounded-lg border border-slate-100 shadow-inner">
               <div className="grid grid-cols-2 gap-2">
-                <select name="dept" className="w-full p-2 bg-white border border-slate-200 rounded-lg outline-none text-xs text-slate-700 shadow-sm" onChange={(e) => setSelectedDept(e.target.value)} required><option value="">본부/부문</option>{Object.keys(ORGANIZATION).map(dept => <option key={dept} value={dept}>{dept}</option>)}</select>
-                <select name="team" className="w-full p-2 bg-white border border-slate-200 rounded-lg outline-none text-xs text-slate-700 shadow-sm" disabled={!selectedDept} required><option value="">팀/센터</option>{selectedDept && ORGANIZATION[selectedDept].map(team => <option key={team} value={team}>{team}</option>)}</select>
+                <select name="dept" className="w-full p-1.5 bg-white border border-slate-200 rounded outline-none text-xs text-slate-700 shadow-sm" onChange={(e) => setSelectedDept(e.target.value)} required><option value="">본부/부문</option>{Object.keys(ORGANIZATION).map(dept => <option key={dept} value={dept}>{dept}</option>)}</select>
+                <select name="team" className="w-full p-1.5 bg-white border border-slate-200 rounded outline-none text-xs text-slate-700 shadow-sm" disabled={!selectedDept} required><option value="">팀/센터</option>{selectedDept && ORGANIZATION[selectedDept].map(team => <option key={team} value={team}>{team}</option>)}</select>
               </div>
             </div>
 
-            <div className="bg-slate-100 p-2.5 rounded-xl border border-slate-200 mt-2">
-                <div className="flex items-start gap-1.5 mb-1">
-                    <Info className="w-3.5 h-3.5 text-slate-500 mt-0.5 flex-shrink-0" />
-                    <p className="text-[10px] text-slate-600 leading-tight">
-                        <strong>개인정보(주민번호, 번호 등) 및 대외비</strong>를 절대 공유하지 않도록 주의해주세요.
+            {/* 안내 및 동의 영역 압축 */}
+            <div className="bg-slate-100 p-2 rounded-lg border border-slate-200 mt-1">
+                <div className="flex items-start gap-1 mb-1">
+                    <Info className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+                    <p className="text-[9px] text-slate-600 leading-tight">
+                        <strong>개인정보(주민번호, 번호 등) 및 대외비</strong> 절대 공유 금지
                     </p>
                 </div>
-                <label className="flex items-center gap-2 cursor-pointer mt-1.5 bg-white p-2 rounded-lg border border-slate-200 hover:bg-blue-50 transition-colors">
+                <label className="flex items-center gap-1.5 cursor-pointer mt-1 bg-white p-1.5 rounded border border-slate-200 hover:bg-blue-50 transition-colors">
                     <input type="checkbox" className="w-3.5 h-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} />
-                    <span className="text-[11px] font-bold text-slate-700">위 내용을 확인하였으며 동의합니다.</span>
+                    <span className="text-[10px] font-bold text-slate-700">위 내용을 확인하였으며 동의합니다.</span>
                 </label>
             </div>
 
@@ -363,33 +367,39 @@ const AuthForm = ({ isSignupMode, setIsSignupMode, handleLogin, handleSignup, lo
               <button 
                   type="submit" 
                   disabled={loading || !agreedToTerms} 
-                  className="w-full bg-blue-600 text-white p-3.5 rounded-xl text-sm font-black hover:bg-blue-700 shadow-lg transition-all disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none flex justify-center items-center gap-2"
+                  className="w-full bg-blue-600 text-white p-2.5 rounded-lg text-sm font-black hover:bg-blue-700 shadow-md transition-all disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none flex justify-center items-center gap-2"
               >
-                  {loading ? <Loader2 className="animate-spin w-5 h-5" /> : '가입 완료 (1,000P 지급)'}
+                  {loading ? <Loader2 className="animate-spin w-4 h-4" /> : '가입 완료 (1,000P 지급)'}
               </button>
               <button 
                   type="button" 
                   onClick={() => setIsSignupMode(false)} 
-                  className="w-full text-slate-400 text-xs py-3 mt-1 hover:text-blue-600 transition-colors font-medium"
+                  className="w-full text-slate-400 text-xs py-2 mt-1 hover:text-blue-600 transition-colors font-medium"
               >
                   로그인으로 돌아가기
               </button>
             </div>
           </form>
         ) : (
-          <div className="space-y-5 pb-4">
-            <form onSubmit={handleLogin} className="space-y-4">
+          <div className="space-y-4 pb-2">
+            <form onSubmit={handleLogin} className="space-y-3">
               <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">이메일</label>
-                  <input name="email" type="text" placeholder="이메일 입력" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1 ml-1">이메일</label>
+                  <input name="email" type="text" placeholder="이메일 입력" className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
               </div>
               <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-1.5 ml-1">비밀번호</label>
-                  <input name="password" type="password" placeholder="비밀번호 (숫자 6자리 이상)" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm focus:border-blue-500 focus:bg-white transition-all shadow-sm" required minLength="6" />
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1 ml-1">비밀번호</label>
+                  <input name="password" type="password" placeholder="비밀번호 (숫자 6자리 이상)" className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm focus:border-blue-500 focus:bg-white transition-all shadow-sm" required minLength="6" />
               </div>
-              <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white p-3.5 rounded-xl text-sm font-bold hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all active:scale-[0.98] disabled:bg-blue-300 flex justify-center mt-2">{loading ? <Loader2 className="animate-spin w-5 h-5" /> : '🚀 로그인'}</button>
+              <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white p-3 rounded-lg text-sm font-bold hover:bg-blue-700 shadow-md transition-all active:scale-[0.98] disabled:bg-blue-300 flex justify-center mt-2">
+                  {loading ? <Loader2 className="animate-spin w-5 h-5" /> : '🚀 로그인'}
+              </button>
             </form>
-            <div className="text-center"><button onClick={() => setIsSignupMode(true)} className="text-slate-500 text-sm font-bold hover:text-blue-600 underline transition-colors">회원 가입</button></div>
+            <div className="text-center pt-1">
+                <button onClick={() => setIsSignupMode(true)} className="text-slate-500 text-sm font-bold hover:text-blue-600 underline transition-colors">
+                    회원 가입
+                </button>
+            </div>
           </div>
         )}
       </div>
